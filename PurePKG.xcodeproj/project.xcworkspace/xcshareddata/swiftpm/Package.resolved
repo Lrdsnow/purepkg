@@ -1,0 +1,32 @@
+{
+  "pins" : [
+    {
+      "identity" : "fluidgradient",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Cindori/FluidGradient.git",
+      "state" : {
+        "revision" : "9ddda4cf23671ef0228e88681ec6210cb3e0d7f7",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "69e573c01d04f5f1af0d2373ebfe251cfa5aa313",
+        "version" : "5.18.9"
+      }
+    },
+    {
+      "identity" : "sdwebimageswiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
+      "state" : {
+        "revision" : "261b6cec35686d2dc192b809ab50742b4502a73b",
+        "version" : "2.2.6"
+      }
+    }
+  ],
+  "version" : 2
+}
