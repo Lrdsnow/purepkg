@@ -9,12 +9,13 @@ import Foundation
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var appData: AppData
     var body: some View {
             List {
                 Section {
                     VStack(alignment: .leading) {
                         HStack(alignment: .center) {
-                            Image("DisplayAppIcon").resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5)
+                            Image("DisplayAppIcon").resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                             Text("PurePKG").font(.system(size: 40, weight: .bold, design: .rounded))
                         }
                     }.padding(.leading, 5)
@@ -28,22 +29,22 @@ struct SettingsView: View {
                     HStack {
                         Text("Device")
                         Spacer()
-                        Text("iPhone 13 (iPhone14,5)")
+                        Text(appData.deviceInfo.modelIdentifier)
                     }.listRowBG()
                     HStack {
                         Text("iOS version")
                         Spacer()
-                        Text("16.6 (20G5026e)")
+                        Text("\(appData.deviceInfo.major).\(appData.deviceInfo.sub)\(appData.deviceInfo.minor == 0 ? "" : ".\(appData.deviceInfo.minor)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
                     }.listRowBG()
                     HStack {
                         Text("Jailbreak type")
                         Spacer()
-                        Text("RootHide")
+                        Text(appData.jbdata.jbtype == .rootful ? "Rootful" : appData.jbdata.jbtype == .rootless ? "Rootless" : appData.jbdata.jbtype == .roothide ? "Roothide" : "None")
                     }.listRowBG()
                     HStack {
                         Text("Installed tweak count")
                         Spacer()
-                        Text("156")
+                        Text("0")
                     }.listRowBG()
                     NavigationLink(destination: Text("Credits")) {
                         Text("Credits")

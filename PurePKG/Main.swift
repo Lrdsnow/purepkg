@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct purepkgApp: App {
+    @StateObject private var appData = AppData()
+    
     init() {
         if #unavailable(iOS 16) {
             UINavigationBar.appearance().prefersLargeTitles = true
@@ -23,11 +25,13 @@ struct purepkgApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
+                .environmentObject(appData)
         }
     }
 }
 
 struct MainView: View {
+    @EnvironmentObject var appData: AppData
     // i plan on allowing custom icons via files at some point but this will do for now
     @State private var featuredIcon = Image("home_icon")
     @State private var browseIcon = Image("browse_icon")
@@ -68,6 +72,13 @@ struct MainView: View {
                         .scaledToFit()
                     Text("Search")
                 }
+        }.task {
+            appData.jbdata.jbtype = Jailbreak.type()
+            appData.deviceInfo = getDeviceInfo()
+            RepoHandler.getRepos(appData.repo_urls) { Repo in
+                appData.repos.append(Repo)
+                appData.pkgs  = appData.repos.flatMap { $0.tweaks }
+            }
         }
     }
 }

@@ -19,4 +19,5 @@ struct Package {
     var depends: [String] = [] // Depends
     var depiction: URL? = nil
     var icon: URL? = nil
+    var repo: Repo = Repo()
 }

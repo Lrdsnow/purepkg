@@ -11,35 +11,24 @@ import SDWebImageSwiftUI
 import TextFieldAlert
 
 struct BrowseView: View {
+    @EnvironmentObject var appData: AppData
     @State private var isAddingRepoURLAlertPresented = false
     @State private var isAddingRepoURLAlert16Presented = false
-    @State private var RepoURLS: [URL?] = [URL(string: "https://apt.procurs.us/dists/iphoneos-arm64-rootless/1800/main/binary-iphoneos-arm64"), URL(string:"https://havoc.app"), URL(string:"https://repo.chariz.com")]
-    @State private var Repos: [Repo] = []
-    @State private var allTweaks: [Package] = []
     
     var body: some View {
         NavigationView {
             List {
-                NavigationLink(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: allTweaks)) {
-                    PlaceHolderRow(alltweaks: allTweaks.count, category: "", categoryTweaks: 0)
+                NavigationLink(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)) {
+                    PlaceHolderRow(alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0)
                 }.listRowBackground(Color.clear).padding(.vertical, 5).padding(.bottom, 10).listRowSeparator(.hidden)
                 Section("Repositories") {
-                    ForEach(Repos, id: \.name) { repo in
+                    ForEach(appData.repos, id: \.name) { repo in
                         NavigationLink(destination: RepoView(repo: repo)) {
                             RepoRow(repo: repo)
                         }.listRowSeparator(.hidden)
                     }
                 }.listRowBackground(Color.clear)
-            }.clearListBG().BGImage().task {
-                if Repos.isEmpty {
-                    RepoHandler.getRepos(RepoURLS) { Repo in
-                        if !Repos.contains(where: { $0.url == Repo.url }) {
-                            Repos.append(Repo)
-                            allTweaks = Repos.flatMap { $0.tweaks }
-                        }
-                    }
-                }
-            }.navigationTitle("Browse").navigationBarTitleDisplayMode(.large).listStyle(.plain)
+            }.clearListBG().BGImage().navigationTitle("Browse").navigationBarTitleDisplayMode(.large).listStyle(.plain)
                 .navigationBarItems(trailing:
                 Button(action: {
                     if #available(iOS 16, *) {
@@ -90,7 +79,7 @@ struct TweaksListView: View {
         List {
             Section(tweaksLabel) {
                 ForEach(tweaks, id: \.name) { tweak in
-                    NavigationLink(destination: Text("Hai")) {
+                    NavigationLink(destination: TweakView(pkg: tweak)) {
                         TweakRow(tweak: tweak)
                     }.listRowSeparator(.hidden)
                 }

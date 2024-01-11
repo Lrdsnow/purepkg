@@ -125,6 +125,7 @@ public class RepoHandler {
                                     if let icon = tweak["Icon"] {
                                         Tweak.icon = URL(string: icon)
                                     }
+                                    Tweak.repo = Repo
                                     if !tweaks.contains(where: { $0.id == Tweak.id }) {
                                         tweaks.append(Tweak)
                                     }
