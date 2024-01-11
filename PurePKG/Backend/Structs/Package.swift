@@ -17,4 +17,6 @@ struct Package {
     var section: String = "Tweaks" // Section
     var version: String = "" // Version
     var depends: [String] = [] // Depends
+    var depiction: URL? = nil
+    var icon: URL? = nil
 }

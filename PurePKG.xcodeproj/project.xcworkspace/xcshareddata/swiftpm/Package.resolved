@@ -26,6 +26,15 @@
         "revision" : "261b6cec35686d2dc192b809ab50742b4502a73b",
         "version" : "2.2.6"
       }
+    },
+    {
+      "identity" : "textfieldalert",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sochalewski/TextFieldAlert",
+      "state" : {
+        "revision" : "f10c8a27cde60e1714f85041501344b916bf557e",
+        "version" : "1.4.0"
+      }
     }
   ],
   "version" : 2

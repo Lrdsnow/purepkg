@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B469E2B4DD9EE00AFC1F6 /* Main.swift */; };
 		657B46A12B4DD9F000AFC1F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };
+		65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */ = {isa = PBXBuildFile; productRef = 65B6ED142B4FA61F003C7993 /* TextFieldAlert */; };
 		65B820382B4F29A30032D504 /* RepoHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820372B4F29A30032D504 /* RepoHandler.swift */; };
 		65B8203B2B4F29B20032D504 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203A2B4F29B20032D504 /* Repo.swift */; };
 		65B8203D2B4F29BB0032D504 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203C2B4F29BB0032D504 /* Package.swift */; };
@@ -48,6 +49,7 @@
 			files = (
 				65B820442B4F38D00032D504 /* SDWebImageSwiftUI in Frameworks */,
 				65EC935F2B4F0EB400540DB6 /* FluidGradient in Frameworks */,
+				65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,6 +143,7 @@
 			packageProductDependencies = (
 				65EC935E2B4F0EB400540DB6 /* FluidGradient */,
 				65B820432B4F38D00032D504 /* SDWebImageSwiftUI */,
+				65B6ED142B4FA61F003C7993 /* TextFieldAlert */,
 			);
 			productName = purepkg;
 			productReference = 657B46992B4DD9ED00AFC1F6 /* PurePKG.app */;
@@ -173,6 +176,7 @@
 			packageReferences = (
 				65EC935D2B4F0EB400540DB6 /* XCRemoteSwiftPackageReference "FluidGradient" */,
 				65B820422B4F38CF0032D504 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */,
 			);
 			productRefGroup = 657B469A2B4DD9ED00AFC1F6 /* Products */;
 			projectDirPath = "";
@@ -420,6 +424,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sochalewski/TextFieldAlert";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
 		65B820422B4F38CF0032D504 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
@@ -439,6 +451,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		65B6ED142B4FA61F003C7993 /* TextFieldAlert */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */;
+			productName = TextFieldAlert;
+		};
 		65B820432B4F38D00032D504 /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 65B820422B4F38CF0032D504 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;

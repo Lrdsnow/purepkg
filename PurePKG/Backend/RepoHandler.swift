@@ -67,9 +67,11 @@ public class RepoHandler {
                     
                     for line in lines {
                         let components = line.components(separatedBy: ":")
-                        if components.count == 2 {
+                        if components.count >= 2 {
                             let key = components[0].trimmingCharacters(in: .whitespaces)
-                            let value = components[1].trimmingCharacters(in: .whitespaces)
+                            var temp_components = components
+                            temp_components.removeFirst()
+                            let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
                             dictionary[key] = value
                         }
                     }
@@ -117,7 +119,15 @@ public class RepoHandler {
                                     Tweak.depends = (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) }
                                     Tweak.section = tweak["Section"] ?? "Tweaks"
                                     Tweak.version = tweak["Version"] ?? "0.0"
-                                    tweaks.append(Tweak)
+                                    if let depiction = tweak["Depiction"] {
+                                        Tweak.depiction = URL(string: depiction)
+                                    }
+                                    if let icon = tweak["Icon"] {
+                                        Tweak.icon = URL(string: icon)
+                                    }
+                                    if !tweaks.contains(where: { $0.id == Tweak.id }) {
+                                        tweaks.append(Tweak)
+                                    }
                                 }
                                 Repo.tweaks = tweaks
                                 completion(Repo)

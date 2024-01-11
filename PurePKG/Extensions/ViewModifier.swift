@@ -25,9 +25,10 @@ struct VisualEffectView: UIViewRepresentable {
 extension View {
     @ViewBuilder
     func listRowBG() -> some View {
-        self.listRowBackground(
-            VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterial)).opacity(0.6).ignoresSafeArea().tint(Color(uiColor: .systemFill))
-        )
+//        self.listRowBackground(
+//            VisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial)).opacity(0.6).ignoresSafeArea().tint(Color(uiColor: .systemFill))
+//        )
+        self.listRowBackground(Color.accentColor.opacity(0.05))
     }
     @ViewBuilder
     func clearListBG() -> some View {
@@ -60,9 +61,6 @@ extension View {
                         .scaledToFill()
                         .edgesIgnoringSafeArea(.top)
                         .edgesIgnoringSafeArea(.bottom)
-                        .overlay(
-                            VisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial)).ignoresSafeArea()
-                        )
                 }
             }.edgesIgnoringSafeArea(.top)
                 .edgesIgnoringSafeArea(.bottom)
