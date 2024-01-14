@@ -143,31 +143,38 @@ public class RepoHandler {
                             if let result = result {
                                 var tweaks: [Package] = []
                                 for tweak in result {
+                                    let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
+                                        let (key, value) = element
+                                        result[key.lowercased()] = value
+                                    }
+                                    print(lowercasedTweak)
                                     var Tweak = Package()
-                                    Tweak.id = tweak["Package"] ?? "uwu.lrdsnow.unknown"
-                                    Tweak.desc = tweak["Description"] ?? "Description"
-                                    Tweak.author = tweak["Author"] ?? tweak["Maintainer"] ?? "Unknown Author"
-                                    Tweak.arch = tweak["Architecture"] ?? ""
-                                    Tweak.name = tweak["Name"] ?? "Unknown Tweak"
-                                    Tweak.depends = (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) }
-                                    Tweak.section = tweak["Section"] ?? "Tweaks"
-                                    Tweak.version = tweak["Version"] ?? "0.0"
-                                    Tweak.installed_size = Int(tweak["Installed-Size"] ?? "0") ?? 0
-                                    if let depiction = tweak["Depiction"] {
+                                    Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
+                                    Tweak.desc = lowercasedTweak["description"] ?? "Description"
+                                    Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
+                                    Tweak.arch = lowercasedTweak["architecture"] ?? ""
+                                    Tweak.name = lowercasedTweak["name"] ?? "Unknown Tweak"
+                                    Tweak.depends = (lowercasedTweak["depends"] ?? "").components(separatedBy: ", ").map { String($0) }
+                                    Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
+                                    Tweak.version = lowercasedTweak["version"] ?? "0.0"
+                                    Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
+                                    if let depiction = lowercasedTweak["depiction"] {
                                         Tweak.depiction = URL(string: depiction)
                                     }
-                                    if let depiction = tweak["SileoDepiction"] {
+                                    if let depiction = lowercasedTweak["sileodepiction"] {
                                         Tweak.depiction = URL(string: depiction)
                                     }
-                                    if let depiction = tweak["Sileodepiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let icon = tweak["Icon"] {
+                                    if let icon = lowercasedTweak["icon"] {
                                         Tweak.icon = URL(string: icon)
                                     }
                                     Tweak.repo = Repo
                                     Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-                                    if !tweaks.contains(where: { $0.id == Tweak.id }) {
+                                    if let index = tweaks.firstIndex(where: { $0.id == Tweak.id }) {
+                                        let existingTweak = tweaks[index]
+                                        if Tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
+                                            tweaks[index] = Tweak
+                                        }
+                                    } else {
                                         tweaks.append(Tweak)
                                     }
                                 }

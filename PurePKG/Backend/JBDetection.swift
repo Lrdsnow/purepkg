@@ -70,21 +70,28 @@ func getDeviceInfo() -> DeviceInfo {
 
 public class Jailbreak {
     static func roothide_jbroot() -> URL? {
-        let directoryPath = "/private/var/containers/Bundle/Application/"
-
         let fileManager = FileManager.default
-        let directoryURL = URL(fileURLWithPath: directoryPath)
-
-        do {
-            let contents = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
-            for url in contents {
-                NSLog("\(url)")
-                if url.lastPathComponent.hasPrefix(".jbroot-") && url.hasDirectoryPath {
-                    return url
+        let symlink = URL.documents.appendingPathComponent("roothide_jbroot")
+        let symlinkURL = try? fileManager.destinationOfSymbolicLink(atPath: symlink.path)
+        if fileManager.fileExists(atPath: symlinkURL ?? "") {
+            return symlink
+        } else {
+            try? fileManager.removeItem(at: symlink)
+            let directoryPath = "/private/var/containers/Bundle/Application/"
+            let directoryURL = URL(fileURLWithPath: directoryPath)
+            
+            do {
+                let contents = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
+                for url in contents {
+                    NSLog("\(url)")
+                    if url.lastPathComponent.hasPrefix(".jbroot-") && url.hasDirectoryPath {
+                        try? fileManager.createSymbolicLink(at: symlink, withDestinationURL: url)
+                        return url
+                    }
                 }
-            }
-        } catch {}
-
+            } catch {}
+        }
+        
         return nil
     }
 

@@ -15,8 +15,8 @@ struct WebView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> WKWebView {
         let webView = WKWebView()
-        webView.backgroundColor = UIColor.clear
-        webView.scrollView.backgroundColor = UIColor.clear
+        webView.backgroundColor = UIColor.black
+        webView.scrollView.backgroundColor = UIColor.black
         return webView
     }
     
@@ -132,13 +132,15 @@ struct TweakDepictionView: View {
     let pkg: Package
     @Binding var banner: URL?
     @State private var json: String?
+    @State private var loaded: Bool = false
 
     var body: some View {
         Group {
-            if let json = json,
-               let data = json.data(using: .utf8),
-               let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-               let depictions = parseDepictionTabView(from: jsonObject) {
+            if loaded {
+                if let json = json,
+                   let data = json.data(using: .utf8),
+                   let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let depictions = parseDepictionTabView(from: jsonObject) {
                     ForEach(depictions.tabs) { tab in
                         Section(header: Text(tab.tabname.trimmingCharacters(in: .whitespaces))) {
                             VStack {
@@ -148,15 +150,22 @@ struct TweakDepictionView: View {
                             }.listRowSeparator(.hidden)
                         }.listRowSeparator(.hidden)
                     }
-            } else {
-                if let depiction = pkg.depiction, UIApplication.shared.canOpenURL(depiction) {
-                    WebView(url: depiction)
-                        .frame(width: UIScreen.main.bounds.width, height: 800).listRowInsets(EdgeInsets()).padding(.top)
                 } else {
-                   Text("")
-                       .onAppear() {
-                           print(json ?? "No JSON data")
-                       }
+                    if let depiction = pkg.depiction, UIApplication.shared.canOpenURL(depiction) {
+                        WebView(url: depiction)
+                            .frame(width: UIScreen.main.bounds.width, height: 800).listRowInsets(EdgeInsets()).padding(.top)
+                    } else {
+                        Text("")
+                            .onAppear() {
+                                print(json ?? "No JSON data")
+                            }
+                    }
+                }
+            } else {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
                 }
             }
         }
@@ -171,6 +180,7 @@ struct TweakDepictionView: View {
             URLSession.shared.dataTask(with: url) { data, response, error in
                 guard let data = data, error == nil else {
                     print("Error fetching JSON data: \(error?.localizedDescription ?? "Unknown error")")
+                    loaded = true
                     return
                 }
 
@@ -183,10 +193,15 @@ struct TweakDepictionView: View {
                                 self.banner = URL(string: bannerImage)!
                             }
                         }
+                        loaded = true
                     }
+                } else {
+                    loaded = true
                 }
             }
             .resume()
+        } else {
+            loaded = true
         }
     }
 

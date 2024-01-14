@@ -203,23 +203,33 @@ struct RepoRow: View {
 }
 
 struct TweakRow: View {
+    @EnvironmentObject var appData: AppData
     @State var tweak: Package
+    
     var body: some View {
         HStack {
-            KFImage(tweak.icon)
-               .resizable()
-               .onFailureImage(UIImage(named: "DisplayAppIcon"))
-               .scaledToFit()
-               .frame(width: 50, height: 50)
-               .cornerRadius(8)
-               .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+            ZStack(alignment: .bottomTrailing) {
+                KFImage(tweak.icon)
+                    .resizable()
+                    .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                    .scaledToFit()
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(8)
+                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(Color.accentColor)
+                        .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                        .offset(x: 5, y: 5)
+                }
+            }
             
             VStack(alignment: .leading) {
                 Text(tweak.name)
                     .font(.headline)
                     .foregroundColor(Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-                Text("\(tweak.author) - \(tweak.version)")
+                Text("\(tweak.author) · \(tweak.version) · \(tweak.id)")
                     .font(.subheadline)
                     .foregroundColor(Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
