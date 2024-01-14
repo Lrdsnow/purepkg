@@ -11,6 +11,7 @@
 		656FFF0A2B505E1700CEFF91 /* JBDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656FFF092B505E1700CEFF91 /* JBDetection.swift */; };
 		657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B469E2B4DD9EE00AFC1F6 /* Main.swift */; };
 		657B46A12B4DD9F000AFC1F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };
+		659BAE3F2B52739100922789 /* TweakDepictionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659BAE3E2B52739100922789 /* TweakDepictionView.swift */; };
 		65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */ = {isa = PBXBuildFile; productRef = 65B6ED142B4FA61F003C7993 /* TextFieldAlert */; };
 		65B820382B4F29A30032D504 /* RepoHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820372B4F29A30032D504 /* RepoHandler.swift */; };
 		65B8203B2B4F29B20032D504 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203A2B4F29B20032D504 /* Repo.swift */; };
@@ -33,6 +34,8 @@
 		657B46992B4DD9ED00AFC1F6 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		657B469E2B4DD9EE00AFC1F6 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		659BAE3C2B5244B700922789 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		659BAE3E2B52739100922789 /* TweakDepictionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakDepictionView.swift; sourceTree = "<group>"; };
 		65B820372B4F29A30032D504 /* RepoHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoHandler.swift; sourceTree = "<group>"; };
 		65B8203A2B4F29B20032D504 /* Repo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repo.swift; sourceTree = "<group>"; };
 		65B8203C2B4F29BB0032D504 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -79,6 +82,7 @@
 		657B469B2B4DD9EE00AFC1F6 /* PurePKG */ = {
 			isa = PBXGroup;
 			children = (
+				659BAE3C2B5244B700922789 /* Info.plist */,
 				65B820362B4F29700032D504 /* Backend */,
 				65EC935A2B4F09BB00540DB6 /* Extensions */,
 				65EC93592B4F09B400540DB6 /* Main */,
@@ -86,6 +90,14 @@
 				657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */,
 			);
 			path = PurePKG;
+			sourceTree = "<group>";
+		};
+		659BAE3D2B52737A00922789 /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				659BAE3E2B52739100922789 /* TweakDepictionView.swift */,
+			);
+			path = Others;
 			sourceTree = "<group>";
 		};
 		65B820362B4F29700032D504 /* Backend */ = {
@@ -111,6 +123,7 @@
 		65EC93592B4F09B400540DB6 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				659BAE3D2B52737A00922789 /* Others */,
 				65EC93602B4F114200540DB6 /* SettingsView.swift */,
 				65EC93622B4F114B00540DB6 /* BrowseView.swift */,
 				65EC93642B4F116A00540DB6 /* SearchView.swift */,
@@ -140,6 +153,7 @@
 				657B46952B4DD9ED00AFC1F6 /* Sources */,
 				657B46962B4DD9ED00AFC1F6 /* Frameworks */,
 				657B46972B4DD9ED00AFC1F6 /* Resources */,
+				658A9D042B5099A700BA97D1 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -204,6 +218,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		658A9D042B5099A700BA97D1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		657B46952B4DD9ED00AFC1F6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -223,6 +257,7 @@
 				65EC935C2B4F09CE00540DB6 /* ViewModifier.swift in Sources */,
 				65B820412B4F382A0032D504 /* AppData.swift in Sources */,
 				656EA54C2B507D8C002364DC /* TweakView.swift in Sources */,
+				659BAE3F2B52739100922789 /* TweakDepictionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,6 +394,7 @@
 				DEVELOPMENT_TEAM = 6Q625HQD73;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PurePKG/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -389,6 +425,7 @@
 				DEVELOPMENT_TEAM = 6Q625HQD73;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PurePKG/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

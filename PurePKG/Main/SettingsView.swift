@@ -22,7 +22,7 @@ struct SettingsView: View {
                 }.listRowBackground(Color.clear).listRowInsets(EdgeInsets())
                 Section() {
                     HStack {
-                        Text("App version")
+                        Text("App Version")
                         Spacer()
                         Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0")
                     }.listRowBG()
@@ -32,19 +32,19 @@ struct SettingsView: View {
                         Text(appData.deviceInfo.modelIdentifier)
                     }.listRowBG()
                     HStack {
-                        Text("iOS version")
+                        Text("iOS Version")
                         Spacer()
                         Text("\(appData.deviceInfo.major).\(appData.deviceInfo.sub)\(appData.deviceInfo.minor == 0 ? "" : ".\(appData.deviceInfo.minor)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
                     }.listRowBG()
                     HStack {
-                        Text("Jailbreak type")
+                        Text("Jailbreak Type")
                         Spacer()
                         Text(appData.jbdata.jbtype == .rootful ? "Rootful" : appData.jbdata.jbtype == .rootless ? "Rootless" : appData.jbdata.jbtype == .roothide ? "Roothide" : "None")
                     }.listRowBG()
                     HStack {
-                        Text("Installed tweak count")
+                        Text("Tweak Count")
                         Spacer()
-                        Text("0")
+                        Text("\(appData.installed_pkgs.count)")
                     }.listRowBG()
                     NavigationLink(destination: Text("Credits")) {
                         Text("Credits")
@@ -52,10 +52,10 @@ struct SettingsView: View {
                 }
                 Section() {
                     ColorPicker("Accent color", selection: .constant(.accent)).listRowBG()
-                    Toggle(isOn: .constant(false), label: {Text("Use fluid gradient background")}).listRowBG().tint(.accent)
                     NavigationLink(destination: Text("Icons")) {
                         Text("Change Icon")
                     }.listRowBG()
+                    Button(action: {}, label: {Text("Change Background")}).listRowBG()
                 }
             }.listStyle(.insetGrouped).clearListBG().BGImage()
     }

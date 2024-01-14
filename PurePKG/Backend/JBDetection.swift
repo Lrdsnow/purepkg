@@ -78,7 +78,7 @@ public class Jailbreak {
         do {
             let contents = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
             for url in contents {
-                if url.lastPathComponent.hasPrefix(".jbroot") && url.hasDirectoryPath {
+                if url.lastPathComponent.hasPrefix(".jbroot-") && url.hasDirectoryPath {
                     return url
                 }
             }
@@ -98,6 +98,19 @@ public class Jailbreak {
             return .roothide
         } else {
             return .jailed
+        }
+    }
+    
+    static func path() -> String {
+        let jbtype = self.type()
+        if jbtype == .rootful {
+            return ""
+        } else if jbtype == .rootless {
+            return "/var/jb"
+        } else if jbtype == .roothide {
+            return self.roothide_jbroot()!.path
+        } else {
+            return URL.documents.path
         }
     }
 }

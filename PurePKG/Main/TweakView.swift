@@ -10,10 +10,11 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct TweakView: View {
+    @EnvironmentObject var appData: AppData
     let pkg: Package
     
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
+        ZStack(alignment: .bottomLeading) {
             List {
                 Section {
                     VStack(alignment: .leading) {
@@ -32,30 +33,57 @@ struct TweakView: View {
                                 Text(pkg.name)
                                     .font(.system(size: 35, weight: .bold, design: .rounded))
                                 Text(pkg.desc)
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: 20, design: .rounded))
                                     .opacity(0.7)
                             }
                         }
                     }
                     .padding(.horizontal)
                 }
-                .listRowBackground(Color.clear)
-                Section("Description") {
-                    Text(pkg.desc)
-                }.listRowBackground(Color.clear)
+                .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                
+                TweakDepictionView(pkg: pkg).listRowBackground(Color.clear).listRowSeparator(.hidden)
             }
             .BGImage()
             .listStyle(.plain)
             
-            Button(action: {
-                print("hai")
-            }) {
-                RoundedRectangle(cornerRadius: 20)
-                    .frame(width: 75, height: 75)
-                    .foregroundColor(.accentColor.opacity(0.3))
-                    .padding(10)
-                    .padding(.bottom, 20)
-                    .padding(.trailing, 20)
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    withAnimation(.easeOut) {
+                        appData.queued = [Package()]
+                    }
+                    print("hai")
+                }) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20)
+                            .frame(width: appData.queued.isEmpty ? 350 : 275, height: 75)
+                            .foregroundColor(.accentColor.opacity(0.3))
+                            .padding([.top, .leading, .bottom], 10)
+                            .padding(.trailing, appData.queued.isEmpty ? 10 : 0)
+                            .padding(.bottom, 20)
+                    }
+                }
+                
+                if !appData.queued.isEmpty {
+                    Button(action: {
+                        withAnimation(.easeOut) {
+                            appData.queued = []
+                        }
+                        print("hai")
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .frame(width: 75, height: 75)
+                                .foregroundColor(.accentColor.opacity(0.3))
+                                .padding([.top, .trailing, .bottom], 10)
+                                .padding(.bottom, 20)
+                        }
+                    }
+                }
+                
+                Spacer()
             }
         }
     }

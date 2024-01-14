@@ -72,13 +72,10 @@ struct MainView: View {
                         .scaledToFit()
                     Text("Search")
                 }
-        }.task {
+        }.onAppear() {
             appData.jbdata.jbtype = Jailbreak.type()
             appData.deviceInfo = getDeviceInfo()
-            RepoHandler.getRepos(appData.repo_urls) { Repo in
-                appData.repos.append(Repo)
-                appData.pkgs  = appData.repos.flatMap { $0.tweaks }
-            }
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path()+"/Library/dpkg/status")
         }
     }
 }

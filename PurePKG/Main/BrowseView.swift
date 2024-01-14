@@ -17,30 +17,55 @@ struct BrowseView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                NavigationLink(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)) {
-                    PlaceHolderRow(alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0)
-                }.listRowBackground(Color.clear).padding(.vertical, 5).padding(.bottom, 10).listRowSeparator(.hidden)
-                Section("Repositories") {
-                    ForEach(appData.repos, id: \.name) { repo in
-                        NavigationLink(destination: RepoView(repo: repo)) {
-                            RepoRow(repo: repo)
-                        }.listRowSeparator(.hidden)
+            if !appData.repos.isEmpty {
+                List {
+                    NavigationLink(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)) {
+                        PlaceHolderRow(alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0)
+                    }.listRowBackground(Color.clear).padding(.vertical, 5).padding(.bottom, 10).listRowSeparator(.hidden)
+                    Section("Repositories") {
+                        ForEach(appData.repos, id: \.name) { repo in
+                            NavigationLink(destination: RepoView(repo: repo)) {
+                                RepoRow(repo: repo)
+                            }.listRowSeparator(.hidden)
+                        }
+                    }.listRowBackground(Color.clear)
+                }.clearListBG().BGImage().navigationTitle("Browse").navigationBarTitleDisplayMode(.large).listStyle(.plain)
+                    .navigationBarItems(trailing:
+                                            Button(action: {
+                        if #available(iOS 16, *) {
+                            isAddingRepoURLAlert16Presented = true
+                        } else {
+                            isAddingRepoURLAlertPresented = true
+                        }
+                    }) {
+                        Image("plus_icon")
+                            .renderingMode(.template)
                     }
-                }.listRowBackground(Color.clear)
-            }.clearListBG().BGImage().navigationTitle("Browse").navigationBarTitleDisplayMode(.large).listStyle(.plain)
-                .navigationBarItems(trailing:
-                Button(action: {
-                    if #available(iOS 16, *) {
-                        isAddingRepoURLAlert16Presented = true
-                    } else {
-                        isAddingRepoURLAlertPresented = true
+                    ).refreshable {
+                        appData.repos = []
                     }
-                }) {
-                    Image("plus_icon")
-                        .renderingMode(.template)
-                }
-                )
+            } else {
+                VStack {
+                    ZStack {
+                        ProgressView()
+                        Text("\n\n\nGetting Repos...").foregroundColor(Color.accentColor)
+                    }.task() {
+                        DispatchQueue.main.async {
+                            appData.repo_urls = RepoHandler.getAptSources(Jailbreak.path()+"/etc/apt/sources.list.d")
+                            DispatchQueue.global(qos: .background).async {
+                                RepoHandler.getRepos(appData.repo_urls) { Repo in
+                                    DispatchQueue.main.async {
+                                        if !appData.repos.contains(where: { $0.url == Repo.url }) {
+                                            appData.repos.append(Repo)
+                                            appData.pkgs  = appData.repos.flatMap { $0.tweaks }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }.BGImage().navigationTitle("Browse").navigationBarTitleDisplayMode(.large)
+            }
         }.navigationViewStyle(.stack)
     }
 }
@@ -174,19 +199,7 @@ struct RepoRow: View {
     }
     
     private func deleteRepo(repo: Repo?) {
-//        guard let repo = repo, let appData = appData else {
-//            return
-//        }
-//        if let urlIndex = appData.RepoData.urls.firstIndex(where: { $0.absoluteString.contains(repo.url?.absoluteString ?? "") }) {
-//            appData.RepoData.urls.remove(at: urlIndex)
-//        }
-//        if var existingRepos = appData.repoSections[repo.repotype] {
-//            if let existingRepoIndex = existingRepos.firstIndex(where: { $0.name == repo.name }) {
-//                existingRepos.remove(at: existingRepoIndex)
-//                appData.repoSections[repo.repotype] = existingRepos
-//            }
-//        }
-//        appData.save()
+        
     }
 }
 

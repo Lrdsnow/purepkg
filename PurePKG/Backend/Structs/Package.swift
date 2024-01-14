@@ -12,6 +12,7 @@ struct Package {
     var name: String = "Unknown Tweak" // Name
     var author: String = "Unknown Author" // Maintainer/Author
     var arch: String = "" // Architecture
+    var installed_size: Int = 0
     var path: String = "" // Filename
     var desc: String = "Unknown Desc" // Description
     var section: String = "Tweaks" // Section
