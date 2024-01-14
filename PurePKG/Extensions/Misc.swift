@@ -21,3 +21,10 @@ extension URL {
 extension String: LocalizedError {
     public var errorDescription: String? { return self }
 }
+
+extension String {
+    func removingBetweenAngleBrackets() -> String {
+        let regex = try! NSRegularExpression(pattern: "<.*?>", options: .caseInsensitive)
+        return regex.stringByReplacingMatches(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count), withTemplate: "").trimmingCharacters(in: .whitespaces)
+    }
+}

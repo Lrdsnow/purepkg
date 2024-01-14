@@ -7,84 +7,77 @@
 
 import Foundation
 import SwiftUI
-import SDWebImageSwiftUI
+import Kingfisher
 
 struct TweakView: View {
     @EnvironmentObject var appData: AppData
+    @State private var installed = false
+    @State private var banner: URL? = nil
     let pkg: Package
     
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            List {
+        GeometryReader { geometry in
+           List {
+               if let banner = banner {
+                   KFImage(banner)
+                       .resizable()
+                       .aspectRatio(contentMode: .fill)
+                       .frame(width: UIScreen.main.bounds.width, height: 200)
+                       .clipped()
+                       .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                       .listRowInsets(EdgeInsets())
+                       .padding(.bottom)
+               }
+                
                 Section {
                     VStack(alignment: .leading) {
                         HStack(alignment: .center) {
-                            WebImage(url: pkg.icon)
+                            KFImage(pkg.icon)
                                 .resizable()
-                                .placeholder(Image("DisplayAppIcon").resizable())
-                                .indicator(.progress)
+                                .onFailureImage(UIImage(named: "DisplayAppIcon"))
                                 .scaledToFit()
-                                .frame(width: 120, height: 120)
-                                .cornerRadius(20)
+                                .frame(width: 80, height: 80)
+                                .cornerRadius(15)
                                 .padding(.trailing, 5)
                                 .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                             
                             VStack(alignment: .leading) {
                                 Text(pkg.name)
-                                    .font(.system(size: 35, weight: .bold, design: .rounded))
-                                Text(pkg.desc)
-                                    .font(.system(size: 20, design: .rounded))
+                                    .font(.headline)
+                                    .lineLimit(1)
+                                Text(pkg.author)
+                                    .font(.subheadline)
                                     .opacity(0.7)
+                                    .lineLimit(1)
                             }
+                            Spacer()
+                            Button(action: {}, label: {
+                                Text("Install")
+                            }).buttonStyle(.borderedProminent).opacity(0.7)
                         }
                     }
-                    .padding(.horizontal)
                 }
                 .listRowBackground(Color.clear).listRowSeparator(.hidden)
                 
-                TweakDepictionView(pkg: pkg).listRowBackground(Color.clear).listRowSeparator(.hidden)
+                TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparator(.hidden)
+                
+                if !(pkg.repo.url.path == "/") {
+                    Section(header: Text("Repo")) {
+                        RepoRow(repo: pkg.repo)
+                    }.listRowBackground(Color.clear).listRowSeparator(.hidden)
+                }
+                
+                HStack {
+                    Spacer()
+                    Text("\(pkg.id) (\(pkg.version))").foregroundColor(Color(UIColor.secondaryLabel))
+                    Spacer()
+                }.listRowBackground(Color.clear).listRowSeparator(.hidden)
             }
             .BGImage()
             .listStyle(.plain)
-            
-            HStack {
-                Spacer()
-                
-                Button(action: {
-                    withAnimation(.easeOut) {
-                        appData.queued = [Package()]
-                    }
-                    print("hai")
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .frame(width: appData.queued.isEmpty ? 350 : 275, height: 75)
-                            .foregroundColor(.accentColor.opacity(0.3))
-                            .padding([.top, .leading, .bottom], 10)
-                            .padding(.trailing, appData.queued.isEmpty ? 10 : 0)
-                            .padding(.bottom, 20)
-                    }
-                }
-                
-                if !appData.queued.isEmpty {
-                    Button(action: {
-                        withAnimation(.easeOut) {
-                            appData.queued = []
-                        }
-                        print("hai")
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 20)
-                                .frame(width: 75, height: 75)
-                                .foregroundColor(.accentColor.opacity(0.3))
-                                .padding([.top, .trailing, .bottom], 10)
-                                .padding(.bottom, 20)
-                        }
-                    }
-                }
-                
-                Spacer()
-            }
+            .onAppear() {
+                installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
+            }.ignoresSafeArea(.all, edges: banner != nil ? .top : [])
         }
     }
 }

@@ -159,10 +159,14 @@ public class RepoHandler {
                                     if let depiction = tweak["SileoDepiction"] {
                                         Tweak.depiction = URL(string: depiction)
                                     }
+                                    if let depiction = tweak["Sileodepiction"] {
+                                        Tweak.depiction = URL(string: depiction)
+                                    }
                                     if let icon = tweak["Icon"] {
                                         Tweak.icon = URL(string: icon)
                                     }
                                     Tweak.repo = Repo
+                                    Tweak.author = Tweak.author.removingBetweenAngleBrackets()
                                     if !tweaks.contains(where: { $0.id == Tweak.id }) {
                                         tweaks.append(Tweak)
                                     }
@@ -229,9 +233,16 @@ public class RepoHandler {
             if let depiction = tweak["Depiction"] {
                 Tweak.depiction = URL(string: depiction)
             }
+            if let depiction = tweak["SileoDepiction"] {
+                Tweak.depiction = URL(string: depiction)
+            }
+            if let depiction = tweak["Sileodepiction"] {
+                Tweak.depiction = URL(string: depiction)
+            }
             if let icon = tweak["Icon"] {
                 Tweak.icon = URL(string: icon)
             }
+            Tweak.author = Tweak.author.removingBetweenAngleBrackets()
             if !tweaks.contains(where: { $0.id == Tweak.id }) {
                 tweaks.append(Tweak)
             }

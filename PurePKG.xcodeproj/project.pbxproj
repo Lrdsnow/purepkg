@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		653895442B53BF18004F7094 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 653895432B53BF18004F7094 /* Kingfisher */; };
+		6538954A2B53DA03004F7094 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 653895492B53DA03004F7094 /* MarkdownUI */; };
 		656EA54C2B507D8C002364DC /* TweakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656EA54B2B507D8C002364DC /* TweakView.swift */; };
 		656FFF0A2B505E1700CEFF91 /* JBDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656FFF092B505E1700CEFF91 /* JBDetection.swift */; };
 		657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B469E2B4DD9EE00AFC1F6 /* Main.swift */; };
@@ -18,7 +20,6 @@
 		65B8203D2B4F29BB0032D504 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203C2B4F29BB0032D504 /* Package.swift */; };
 		65B8203F2B4F2A3E0032D504 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203E2B4F2A3E0032D504 /* Misc.swift */; };
 		65B820412B4F382A0032D504 /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820402B4F382A0032D504 /* AppData.swift */; };
-		65B820442B4F38D00032D504 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 65B820432B4F38D00032D504 /* SDWebImageSwiftUI */; };
 		65EC935C2B4F09CE00540DB6 /* ViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC935B2B4F09CE00540DB6 /* ViewModifier.swift */; };
 		65EC935F2B4F0EB400540DB6 /* FluidGradient in Frameworks */ = {isa = PBXBuildFile; productRef = 65EC935E2B4F0EB400540DB6 /* FluidGradient */; };
 		65EC93612B4F114200540DB6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC93602B4F114200540DB6 /* SettingsView.swift */; };
@@ -54,9 +55,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65B820442B4F38D00032D504 /* SDWebImageSwiftUI in Frameworks */,
+				653895442B53BF18004F7094 /* Kingfisher in Frameworks */,
 				65EC935F2B4F0EB400540DB6 /* FluidGradient in Frameworks */,
 				65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */,
+				6538954A2B53DA03004F7094 /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,8 +164,9 @@
 			name = PurePKG;
 			packageProductDependencies = (
 				65EC935E2B4F0EB400540DB6 /* FluidGradient */,
-				65B820432B4F38D00032D504 /* SDWebImageSwiftUI */,
 				65B6ED142B4FA61F003C7993 /* TextFieldAlert */,
+				653895432B53BF18004F7094 /* Kingfisher */,
+				653895492B53DA03004F7094 /* MarkdownUI */,
 			);
 			productName = purepkg;
 			productReference = 657B46992B4DD9ED00AFC1F6 /* PurePKG.app */;
@@ -195,8 +198,9 @@
 			mainGroup = 657B46902B4DD9ED00AFC1F6;
 			packageReferences = (
 				65EC935D2B4F0EB400540DB6 /* XCRemoteSwiftPackageReference "FluidGradient" */,
-				65B820422B4F38CF0032D504 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */,
+				653895422B53BF18004F7094 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				653895482B53DA03004F7094 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 			);
 			productRefGroup = 657B469A2B4DD9ED00AFC1F6 /* Products */;
 			projectDirPath = "";
@@ -234,7 +238,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
+			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\nmkdir ${BUILT_PRODUCTS_DIR}/Build\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app/PurePKG\ncd ${BUILT_PRODUCTS_DIR}/Build\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" \"./PurePKG.app/Info.plist\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r purepkg.ipa Payload\nrm -r Payload\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -393,6 +397,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 6Q625HQD73;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PurePKG/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -424,6 +429,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 6Q625HQD73;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PurePKG/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -469,20 +475,28 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		653895422B53BF18004F7094 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.10.2;
+			};
+		};
+		653895482B53DA03004F7094 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
 		65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sochalewski/TextFieldAlert";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.4.0;
-			};
-		};
-		65B820422B4F38CF0032D504 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.2.6;
 			};
 		};
 		65EC935D2B4F0EB400540DB6 /* XCRemoteSwiftPackageReference "FluidGradient" */ = {
@@ -496,15 +510,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		653895432B53BF18004F7094 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 653895422B53BF18004F7094 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		653895492B53DA03004F7094 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 653895482B53DA03004F7094 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
 		65B6ED142B4FA61F003C7993 /* TextFieldAlert */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */;
 			productName = TextFieldAlert;
-		};
-		65B820432B4F38D00032D504 /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 65B820422B4F38CF0032D504 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
 		};
 		65EC935E2B4F0EB400540DB6 /* FluidGradient */ = {
 			isa = XCSwiftPackageProductDependency;

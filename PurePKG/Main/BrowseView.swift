@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import SDWebImageSwiftUI
+import Kingfisher
 import TextFieldAlert
 
 struct BrowseView: View {
@@ -161,14 +161,13 @@ struct RepoRow: View {
     
     var body: some View {
         HStack {
-            WebImage(url: repo.url.appendingPathComponent("CydiaIcon.png"))
+            KFImage(repo.url.appendingPathComponent("CydiaIcon.png"))
                 .resizable()
-                .placeholder(Image("DisplayAppIcon").resizable())
-                .indicator(.progress)
-                .scaledToFit()
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
-                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                .onFailureImage(UIImage(named: "DisplayAppIcon"))
+               .scaledToFit()
+               .frame(width: 50, height: 50)
+               .cornerRadius(8)
+               .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
             
             VStack(alignment: .leading) {
                 Text(repo.name)
@@ -207,24 +206,29 @@ struct TweakRow: View {
     @State var tweak: Package
     var body: some View {
         HStack {
-            WebImage(url: tweak.icon)
-                .resizable()
-                .placeholder(Image("DisplayAppIcon").resizable())
-                .indicator(.progress)
-                .scaledToFit()
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
-                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+            KFImage(tweak.icon)
+               .resizable()
+               .onFailureImage(UIImage(named: "DisplayAppIcon"))
+               .scaledToFit()
+               .frame(width: 50, height: 50)
+               .cornerRadius(8)
+               .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
             
             VStack(alignment: .leading) {
                 Text(tweak.name)
                     .font(.headline)
                     .foregroundColor(Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-                Text(tweak.desc)
+                Text("\(tweak.author) - \(tweak.version)")
                     .font(.subheadline)
                     .foregroundColor(Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                    .lineLimit(1)
+                Text(tweak.desc)
+                    .font(.footnote)
+                    .foregroundColor(Color.accentColor.opacity(0.5))
+                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                    .lineLimit(1)
             }
         }.padding(.vertical, 5)
     }

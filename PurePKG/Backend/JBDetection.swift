@@ -76,8 +76,9 @@ public class Jailbreak {
         let directoryURL = URL(fileURLWithPath: directoryPath)
 
         do {
-            let contents = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let contents = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
             for url in contents {
+                NSLog("\(url)")
                 if url.lastPathComponent.hasPrefix(".jbroot-") && url.hasDirectoryPath {
                     return url
                 }

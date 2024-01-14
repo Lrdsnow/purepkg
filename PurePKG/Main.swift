@@ -12,14 +12,14 @@ struct purepkgApp: App {
     @StateObject private var appData = AppData()
     
     init() {
-        if #unavailable(iOS 16) {
-            UINavigationBar.appearance().prefersLargeTitles = true
-            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
-            UITableView.appearance().backgroundColor = .clear
-            UITabBar.appearance().unselectedItemTintColor = UIColor(Color.accentColor.opacity(0.4))
-            UITabBar.appearance().tintColor = UIColor(Color.accentColor)
-        }
+        UINavigationBar.appearance().prefersLargeTitles = true
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
+        UITableView.appearance().backgroundColor = .clear
+        UITabBar.appearance().unselectedItemTintColor = UIColor(Color.accentColor.opacity(0.4))
+        UITabBar.appearance().tintColor = UIColor(Color.accentColor)
+        UITableView.appearance().separatorStyle = .none
+        UITableView.appearance().separatorColor = .clear
     }
     
     var body: some Scene {
@@ -28,6 +28,13 @@ struct purepkgApp: App {
                 .environmentObject(appData)
         }
     }
+}
+
+struct tabBarIcons {
+    var featuredIcon = Image("home_icon")
+    var browseIcon = Image("browse_icon")
+    var installedIcon = Image("installed_icon")
+    var searchIcon = Image("search_icon")
 }
 
 struct MainView: View {

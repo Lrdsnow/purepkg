@@ -7,12 +7,29 @@
 
 import Foundation
 import SwiftUI
+import MarkdownUI
+import WebKit
 
-// Models
+struct WebView: UIViewRepresentable {
+    let url: URL
+    
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.backgroundColor = UIColor.clear
+        webView.scrollView.backgroundColor = UIColor.clear
+        return webView
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+     let request = URLRequest(url: url)
+     uiView.load(request)
+    }
+
+}
+
 struct DepictionTabView {
     let classType: String
     let tintColor: String
-    let headerImage: String
     let tabs: [DepictionTab]
 }
 
@@ -84,6 +101,23 @@ struct Screenshot: Identifiable {
     let url: String
 }
 
+struct ScreenshotsView: Decodable {
+   let classType: String
+   let itemCornerRadius: Int
+   let itemSize: String
+   let screenshots: [Screenshot]
+   
+   struct Screenshot: Decodable {
+       let url: String
+       let accessibilityText: String
+       let video: Bool
+   }
+}
+
+struct SeparatorView: Decodable {
+   let classType: String
+}
+
 struct DepictionHeaderView: DepictionView {
     let title: String
     var id: String { title }
@@ -96,6 +130,7 @@ struct DepictionSpacerView: DepictionView {
 
 struct TweakDepictionView: View {
     let pkg: Package
+    @Binding var banner: URL?
     @State private var json: String?
 
     var body: some View {
@@ -105,23 +140,29 @@ struct TweakDepictionView: View {
                let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                let depictions = parseDepictionTabView(from: jsonObject) {
                     ForEach(depictions.tabs) { tab in
-                        Section(tab.tabname.trimmingCharacters(in: .whitespaces)) {
-                            ForEach(tab.views, id: \.id) { view in
-                                getView(for: view)
-                            }
+                        Section(header: Text(tab.tabname.trimmingCharacters(in: .whitespaces))) {
+                            VStack {
+                                ForEach(tab.views, id: \.id) { view in
+                                    getView(for: view).listRowSeparator(.hidden)
+                                }
+                            }.listRowSeparator(.hidden)
                         }.listRowSeparator(.hidden)
                     }
             } else {
-                Text("Error parsing depiction JSON")
-                    .onAppear() {
-                        print(json ?? "No JSON data")
-                    }
+                if let depiction = pkg.depiction, UIApplication.shared.canOpenURL(depiction) {
+                    WebView(url: depiction)
+                        .frame(width: UIScreen.main.bounds.width, height: 800).listRowInsets(EdgeInsets()).padding(.top)
+                } else {
+                   Text("")
+                       .onAppear() {
+                           print(json ?? "No JSON data")
+                       }
+                }
             }
         }
         .onAppear() {
             fetchJSONData(from: pkg.depiction?.absoluteString ?? "")
         }
-        .padding(.bottom, 100)
         .listRowSeparator(.hidden)
     }
 
@@ -136,6 +177,12 @@ struct TweakDepictionView: View {
                 if let jsonString = String(data: data, encoding: .utf8) {
                     DispatchQueue.main.async {
                         self.json = jsonString
+                        let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                        if let dict = dict {
+                            if let bannerImage = dict["headerImage"] as? String {
+                                self.banner = URL(string: bannerImage)!
+                            }
+                        }
                     }
                 }
             }
@@ -144,51 +191,58 @@ struct TweakDepictionView: View {
     }
 
     private func parseDepictionTabView(from dict: [String: Any]) -> DepictionTabView? {
-        guard
-            let classType = dict["class"] as? String,
-            let headerImage = dict["headerImage"] as? String,
-            let tabsData = dict["tabs"] as? [[String: Any]]
-        else {
-            return nil
-        }
+        let classType = dict["class"] as? String ?? ""
 
         var tabs: [DepictionTab] = []
-
-        for tabData in tabsData {
-            guard
-                let tabname = tabData["tabname"] as? String,
-                let tabClassType = tabData["class"] as? String,
-                let viewsData = tabData["views"] as? [[String: Any]]
-            else {
-                continue
-            }
-
-            var views: [DepictionView] = []
-
-            for viewData in viewsData {
-                if let subheader = parseSubheaderView(from: viewData) {
-                    views.append(subheader)
-                } else if let markdown = parseMarkdownView(from: viewData) {
-                    views.append(markdown)
-                } else if viewData["class"] as? String == "DepictionSeparatorView" {
-                    views.append(DepictionSeparatorView())
-                } else if let tableText = parseTableTextView(from: viewData) {
-                    views.append(tableText)
-                } else if let tableButton = parseTableButtonView(from: viewData) {
-                    views.append(tableButton)
-                } else if let button = parseButtonView(from: viewData) {
-                    views.append(button)
-                } else if let screenshots = parseScreenshotsView(from: viewData) {
-                    views.append(screenshots)
+        
+        if let tabsData = dict["tabs"] as? [[String: Any]] {
+            for tabData in tabsData {
+                guard
+                    let tabname = tabData["tabname"] as? String,
+                    let tabClassType = tabData["class"] as? String,
+                    let viewsData = tabData["views"] as? [[String: Any]]
+                else {
+                    continue
                 }
-                // Add more conditions for other view types as needed
+                
+                let views = parseViews(viewsData)
+                
+                let depictionTab = DepictionTab(tabname: tabname, classType: tabClassType, tintColor: nil, views: views)
+                tabs.append(depictionTab)
             }
-
-            let depictionTab = DepictionTab(tabname: tabname, classType: tabClassType, tintColor: nil, views: views)
+        }
+        
+        if let viewsData = dict["views"] as? [[String: Any]] {
+            let views = parseViews(viewsData)
+            let depictionTab = DepictionTab(tabname: "Depiction", classType: "", tintColor: nil, views: views)
             tabs.append(depictionTab)
         }
 
-        return DepictionTabView(classType: classType, tintColor: dict["tintColor"] as? String ?? "", headerImage: headerImage, tabs: tabs)
+        return DepictionTabView(classType: classType, tintColor: dict["tintColor"] as? String ?? "", tabs: tabs)
+    }
+    
+    private func parseViews(_ viewsData: [[String: Any]]) -> [DepictionView] {
+        var views: [DepictionView] = []
+        
+        for viewData in viewsData {
+            if let subheader = parseSubheaderView(from: viewData) {
+                views.append(subheader)
+            } else if let markdown = parseMarkdownView(from: viewData) {
+                views.append(markdown)
+            } else if viewData["class"] as? String == "DepictionSeparatorView" {
+                views.append(DepictionSeparatorView())
+            } else if let tableText = parseTableTextView(from: viewData) {
+                views.append(tableText)
+            } else if let tableButton = parseTableButtonView(from: viewData) {
+                views.append(tableButton)
+            } else if let button = parseButtonView(from: viewData) {
+                views.append(button)
+            } else if let screenshots = parseScreenshotsView(from: viewData) {
+                views.append(screenshots)
+            }
+        }
+        
+        return views
     }
     
     private func parseButtonView(from dict: [String: Any]) -> DepictionButtonView? {
@@ -286,25 +340,20 @@ struct TweakDepictionView: View {
                 .padding(.bottom, subheader.useBottomMargin ? 8 : 0))
 
         case let markdown as DepictionMarkdownView:
-            return AnyView(Text(markdown.markdown)
-                .padding(.horizontal))
-
-        case let separator as DepictionSeparatorView:
-            return AnyView(Divider())
+            return AnyView(Markdown(markdown.markdown))
 
         case let tableText as DepictionTableTextView:
             return AnyView(HStack {
                 Text(tableText.title)
                     .font(.headline)
                     .padding(.trailing)
-                Text(tableText.text)
                 Spacer()
-            }
-                .padding(.horizontal))
+                Text(tableText.text)
+            }.padding(.vertical, 3))
 
         case let tableButton as DepictionTableButtonView:
             return AnyView(Button(action: {
-                // Handle button action
+                // yeah stuff goes here
             }) {
                 Text(tableButton.title)
                     .foregroundColor(.blue)
