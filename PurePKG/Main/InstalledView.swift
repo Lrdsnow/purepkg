@@ -77,8 +77,7 @@ struct InstalledView: View {
                             .listRowBackground(Color.clear)
                         }
                     }
-
-                }
+                }.animation(.spring(), value: filteredPackages.count)
             }.navigationBarTitle("Installed").navigationBarTitleDisplayMode(.large).listStyle(.plain).BGImage()
         }.navigationViewStyle(.stack)
     }

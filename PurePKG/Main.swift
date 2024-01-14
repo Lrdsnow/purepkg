@@ -31,55 +31,53 @@ struct purepkgApp: App {
 }
 
 struct tabBarIcons {
-    var featuredIcon = Image("home_icon")
-    var browseIcon = Image("browse_icon")
-    var installedIcon = Image("installed_icon")
-    var searchIcon = Image("search_icon")
+    var FeaturedIcon = Image("home_icon")
+    var BrowseIcon = Image("browse_icon")
+    var InstalledIcon = Image("installed_icon")
+    var SearchIcon = Image("search_icon")
 }
 
 struct MainView: View {
     @EnvironmentObject var appData: AppData
     // i plan on allowing custom icons via files at some point but this will do for now
-    @State private var featuredIcon = Image("home_icon")
-    @State private var browseIcon = Image("browse_icon")
-    @State private var installedIcon = Image("installed_icon")
-    @State private var searchIcon = Image("search_icon")
+    @State private var icons = tabBarIcons()
+    @State private var selectedTab = 0
+    let tabItems = ["Featured", "Browse", "Installed", "Search"]
+    let tabItemImages = ["Featured":Image("home_icon"), "Browse":Image("browse_icon"), "Installed":Image("installed_icon"), "Search":Image("search_icon")]
     
     var body: some View {
-        TabView {
-            FeaturedView()
-                .tabItem {
-                    featuredIcon
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                    Text("Featured")
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selectedTab) {
+                FeaturedView().tag(0)
+                BrowseView().tag(1)
+                InstalledView().tag(2)
+                SearchView().tag(3)
+            }.frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height).ignoresSafeArea(.all, edges: .top)
+            HStack {
+                ForEach(0..<4) { index in
+                    Spacer()
+                    Button(action: { self.selectedTab = index }) {
+                        HStack {
+                            tabItemImages[tabItems[index]]?
+                                .renderingMode(.template)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 40, height: 40)
+                            if self.selectedTab == index {
+                                Text("\(tabItems[index])")
+                            }
+                        }
+                    }
+                    .foregroundColor(self.selectedTab == index ? .accentColor : .primary)
+                    .animation(.spring(), value: selectedTab)
+                    .padding(.bottom, 30)
+                    Spacer()
                 }
-            BrowseView()
-                .tabItem {
-                    browseIcon
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                    Text("Browse")
-                }
-            InstalledView()
-                .tabItem {
-                    installedIcon
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                    Text("Installed")
-                }
-            SearchView()
-                .tabItem {
-                    searchIcon
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                    Text("Search")
-                }
-        }.onAppear() {
+            }.frame(width: UIScreen.main.bounds.width).padding(.horizontal)
+        }.ignoresSafeArea(.all, edges: .top)
+        .padding()
+        .background(Color.white)
+        .onAppear() {
             appData.jbdata.jbtype = Jailbreak.type()
             appData.deviceInfo = getDeviceInfo()
             appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path()+"/Library/dpkg/status")

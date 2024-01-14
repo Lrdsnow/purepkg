@@ -29,7 +29,7 @@ struct BrowseView: View {
                             }.listRowSeparator(.hidden)
                         }
                     }.listRowBackground(Color.clear)
-                }.clearListBG().BGImage().navigationTitle("Browse").navigationBarTitleDisplayMode(.large).listStyle(.plain)
+                }.clearListBG().BGImage().navigationTitle("Browse").animation(.spring(), value: appData.repos.count).navigationBarTitleDisplayMode(.large).listStyle(.plain)
                     .navigationBarItems(trailing:
                                             Button(action: {
                         if #available(iOS 16, *) {

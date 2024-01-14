@@ -63,7 +63,7 @@ struct SearchView: View {
                             TweakRow(tweak: package)
                         }.listRowSeparator(.hidden).listRowBackground(Color.clear)
                     }
-                }
+                }.animation(.spring(), value: filteredPackages.count)
             }.navigationBarTitle("Search").navigationBarTitleDisplayMode(.large).listStyle(.plain).BGImage()
         }.navigationViewStyle(.stack)
     }
