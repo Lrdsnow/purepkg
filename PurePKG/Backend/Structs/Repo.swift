@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Repo {
+struct Repo: Encodable, Decodable {
     var name: String = "Unknown Repo"
     var label: String = ""
     var description: String = "Description"

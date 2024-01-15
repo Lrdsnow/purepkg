@@ -72,7 +72,7 @@ struct MainView: View {
                                     .frame(width: 36, height: 36)
                                 Text("\(appData.queued.count) Queued Tweak\(appData.queued.count >= 2 ? "s" : "")").padding(.horizontal, 5).animation(.spring(), value: appData.queued.count)
                                 Spacer()
-                            }.padding(.horizontal, 20).padding(.vertical, 10)
+                            }.padding(.horizontal, 20).padding(.vertical, 10).background(Color.black.opacity(0.001))
                         }.buttonStyle(.plain).padding(.top, queueOpen ? UIApplication.shared.windows[0].safeAreaInsets.bottom > 0  ? 50 : 25 : 0)
                         VStack(alignment: .leading) {
                             ForEach(appData.queued, id: \.id) { package in
@@ -80,7 +80,10 @@ struct MainView: View {
                                     TweakRow(tweak: package)
                                     Spacer()
                                     Button(action: {
-                                        
+                                        if appData.queued.count == 1 {
+                                            queueOpen = false
+                                        }
+                                        appData.queued.remove(at: appData.queued.firstIndex(where: { $0.id == package.id }) ?? -2)
                                     }, label: {
                                         ZStack(alignment: .center) {
                                             RoundedRectangle(cornerRadius: 8).frame(width: 50, height: 50).foregroundColor(.red).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
@@ -116,7 +119,7 @@ struct MainView: View {
                     }
                 }
                 
-                if queueOpen {
+                if queueOpen && !appData.queued.isEmpty {
                     Spacer()
                 }
                 
@@ -151,6 +154,8 @@ struct MainView: View {
                 appData.jbdata.jbtype = Jailbreak.type()
                 appData.deviceInfo = getDeviceInfo()
                 appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path()+"/Library/dpkg/status")
+                appData.repos = RepoHandler.getCachedRepos()
+                appData.pkgs  = appData.repos.flatMap { $0.tweaks }
             }
     }
 }

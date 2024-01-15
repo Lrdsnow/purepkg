@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Package {
+struct Package: Encodable, Decodable {
     var id: String = "uwu.lrdsnow.unknown" // Package
     var name: String = "Unknown Tweak" // Name
     var author: String = "Unknown Author" // Maintainer/Author

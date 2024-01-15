@@ -51,6 +51,11 @@ struct BrowseView: View {
                         ProgressView()
                         Text("\n\n\nGetting Repos...").foregroundColor(Color.accentColor)
                     }.task() {
+                        let repoCacheDir = URL.documents.appendingPathComponent("repoCache")
+                        if FileManager.default.fileExists(atPath: repoCacheDir.path) {
+                            try? FileManager.default.removeItem(at: repoCacheDir)
+                        }
+                        try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
                         DispatchQueue.main.async {
                             appData.repo_urls = RepoHandler.getAptSources(Jailbreak.path()+"/etc/apt/sources.list.d")
                             DispatchQueue.global(qos: .background).async {
@@ -59,6 +64,17 @@ struct BrowseView: View {
                                         if !appData.repos.contains(where: { $0.url == Repo.url }) {
                                             appData.repos.append(Repo)
                                             appData.pkgs  = appData.repos.flatMap { $0.tweaks }
+                                            let jsonEncoder = JSONEncoder()
+                                            do {
+                                                let jsonData = try jsonEncoder.encode(Repo)
+                                                do {
+                                                    try jsonData.write(to: repoCacheDir.appendingPathComponent("\(Repo.name).json"))
+                                                } catch {
+                                                    print("Error saving repo data: \(error)")
+                                                }
+                                            } catch {
+                                                print("Error encoding repo: \(error)")
+                                            }
                                         }
                                     }
                                 }

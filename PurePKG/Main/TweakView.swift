@@ -55,10 +55,8 @@ struct TweakView: View {
                         Button(action: {
                             if !queued && !installed {
                                 appData.queued.append(pkg)
-                                queued = true
                             } else if queued {
                                 appData.queued.remove(at: appData.queued.firstIndex(where: { $0.id == pkg.id }) ?? -2)
-                                queued = false
                             }
                         }, label: {
                             Text(installed ? "Manage" : queued ? "Queued" : "Install")
@@ -85,6 +83,7 @@ struct TweakView: View {
         }
         .BGImage()
         .listStyle(.plain)
+        .onChange(of: appData.queued.count, perform: { _ in queued = appData.queued.contains(where: { $0.id == pkg.id }) })
         .onAppear() {
             queued = appData.queued.contains(where: { $0.id == pkg.id })
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })

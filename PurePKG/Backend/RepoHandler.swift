@@ -256,4 +256,32 @@ public class RepoHandler {
         }
         return tweaks
     }
+    
+    static func getCachedRepos() -> [Repo] {
+        let fileManager = FileManager.default
+        let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let repoCacheDirectory = documentDirectory.appendingPathComponent("repoCache")
+
+        do {
+            let fileURLs = try fileManager.contentsOfDirectory(at: repoCacheDirectory, includingPropertiesForKeys: nil)
+
+            var repos: [Repo] = []
+
+            for fileURL in fileURLs {
+                do {
+                    let data = try Data(contentsOf: fileURL)
+                    let repo = try JSONDecoder().decode(Repo.self, from: data)
+                    repos.append(repo)
+                } catch {
+                    print("Error decoding JSON from \(fileURL.path): \(error.localizedDescription)")
+                }
+            }
+
+            return repos
+
+        } catch {
+            print("Error reading directory \(repoCacheDirectory.path): \(error.localizedDescription)")
+            return []
+        }
+    }
 }
