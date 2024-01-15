@@ -44,7 +44,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Tweak Count")
                         Spacer()
-                        Text("\(appData.installed_pkgs.count)")
+                        Text("\(appData.installed_pkgs.filter { (pkg: Package) -> Bool in return pkg.section == "Tweaks"}.count)")
                     }.listRowBG()
                     NavigationLink(destination: Text("Credits")) {
                         Text("Credits")
@@ -55,6 +55,7 @@ struct SettingsView: View {
                     NavigationLink(destination: Text("Icons")) {
                         Text("Change Icon")
                     }.listRowBG()
+                    Button(action: {}, label: {Text("Change App Icons")}).listRowBG()
                     Button(action: {}, label: {Text("Change Background")}).listRowBG()
                 }
             }.listStyle(.insetGrouped).clearListBG().BGImage()

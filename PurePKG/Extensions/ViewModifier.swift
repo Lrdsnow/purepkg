@@ -24,6 +24,22 @@ struct VisualEffectView: UIViewRepresentable {
 
 extension View {
     @ViewBuilder
+    func hide(_ bool: Bool) -> some View {
+        if bool {
+            self.frame(width: 0, height: 0)
+        } else {
+            self
+        }
+    }
+    @ViewBuilder
+    func noTabBarBG() -> some View {
+        if #available(iOS 16.0, *) {
+            self.toolbar(.hidden, for: .tabBar)
+        } else {
+            self
+        }
+    }
+    @ViewBuilder
     func listRowBG() -> some View {
         self.listRowBackground(Color.accentColor.opacity(0.05))
     }

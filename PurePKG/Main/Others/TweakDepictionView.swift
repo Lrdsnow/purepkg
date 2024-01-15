@@ -349,10 +349,10 @@ struct TweakDepictionView: View {
     private func getView(for view: DepictionView) -> some View {
         switch view {
         case let subheader as DepictionSubheaderView:
-            return AnyView(Text(subheader.title)
-                .font(.headline)
-                .padding(.top, subheader.useBottomMargin ? 0 : 8)
-                .padding(.bottom, subheader.useBottomMargin ? 8 : 0))
+            return AnyView(HStack{Text(subheader.title)
+                    .font(.headline)
+                    .padding(.top, subheader.useBottomMargin ? 0 : 8)
+                .padding(.bottom, subheader.useBottomMargin ? 8 : 0);Spacer()})
 
         case let markdown as DepictionMarkdownView:
             return AnyView(Markdown(markdown.markdown))

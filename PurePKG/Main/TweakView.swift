@@ -12,6 +12,7 @@ import Kingfisher
 struct TweakView: View {
     @EnvironmentObject var appData: AppData
     @State private var installed = false
+    @State private var queued = false
     @State private var banner: URL? = nil
     let pkg: Package
     
@@ -51,9 +52,18 @@ struct TweakView: View {
                                 .lineLimit(1)
                         }
                         Spacer()
-                        Button(action: {}, label: {
-                            Text(installed ? "Manage" : "Install")
-                        }).buttonStyle(.borderedProminent).opacity(0.7)
+                        Button(action: {
+                            if !queued && !installed {
+                                appData.queued.append(pkg)
+                                queued = true
+                            } else if queued {
+                                appData.queued.remove(at: appData.queued.firstIndex(where: { $0.id == pkg.id }) ?? -2)
+                                queued = false
+                            }
+                        }, label: {
+                            Text(installed ? "Manage" : queued ? "Queued" : "Install")
+                        }).buttonStyle(.borderedProminent).opacity(0.7).animation(.spring())
+                        Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
                     }
                 }
             }
@@ -76,6 +86,7 @@ struct TweakView: View {
         .BGImage()
         .listStyle(.plain)
         .onAppear() {
+            queued = appData.queued.contains(where: { $0.id == pkg.id })
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
         }
     }

@@ -29,6 +29,7 @@ struct BrowseView: View {
                             }.listRowSeparator(.hidden)
                         }
                     }.listRowBackground(Color.clear)
+                    Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
                 }.clearListBG().BGImage().navigationTitle("Browse").animation(.spring(), value: appData.repos.count).navigationBarTitleDisplayMode(.large).listStyle(.plain)
                     .navigationBarItems(trailing:
                                             Button(action: {
@@ -86,6 +87,7 @@ struct RepoView: View {
                     }.listRowSeparator(.hidden)
                 }
             }.listRowBackground(Color.clear)
+            Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
         }
         .clearListBG()
         .BGImage()
@@ -109,6 +111,7 @@ struct TweaksListView: View {
                     }.listRowSeparator(.hidden)
                 }
             }.listRowBackground(Color.clear)
+            Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
         }.clearListBG()
             .BGImage()
             .navigationTitle(pageLabel)
