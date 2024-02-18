@@ -61,11 +61,12 @@ struct SearchView: View {
                     ForEach(filteredPackages, id: \.id) { package in
                         NavigationLink(destination: TweakView(pkg: package)) {
                             TweakRow(tweak: package)
-                        }.listRowSeparator(.hidden).listRowBackground(Color.clear)
+                        }.noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()
                     }
-                    Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
-                }.animation(.spring(), value: filteredPackages.count)
-            }.navigationBarTitle("Search").navigationBarTitleDisplayMode(.large).listStyle(.plain).BGImage()
+                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                }.animation(.spring(), value: filteredPackages.count).animation(.spring())
+            }.navigationBarTitle("Search").listStyle(.plain).BGImage(appData)
+            .navigationBarTitleDisplayMode(.large)
         }.navigationViewStyle(.stack)
     }
 }

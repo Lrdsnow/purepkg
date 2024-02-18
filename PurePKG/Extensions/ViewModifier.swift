@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import FluidGradient
+import TextFieldAlert
 
 struct VisualEffectView: UIViewRepresentable {
     let effect: UIVisualEffect
@@ -22,7 +22,70 @@ struct VisualEffectView: UIViewRepresentable {
     }
 }
 
+struct CustomNavigationLink<D: View, L: View>: View {
+  @ViewBuilder var destination: () -> D
+  @ViewBuilder var label: () -> L
+  
+  @State private var isActive = false
+  
+  var body: some View {
+    Button {
+      withAnimation {
+        isActive = true
+      }
+    } label: {
+      label()
+    }
+    .buttonStyle(.plain)
+    .onAppear {
+      isActive = false
+    }
+    .overlay {
+      NavigationLink(isActive: $isActive) {
+        destination()
+      } label: {
+        EmptyView()
+      }
+      .opacity(0)
+    }
+  }
+}
+
 extension View {
+    @ViewBuilder
+    func blurredBG() -> some View {
+        if #available(iOS 16.4, tvOS 16.4, *) {
+            self.presentationBackground(.ultraThinMaterial)
+        } else {
+            self
+        }
+    }
+    @ViewBuilder
+    func addRepoAlert(browseview: BrowseView, adding16: Binding<Bool>, adding: Binding<Bool>, newRepoURL: Binding<String>) -> some View {
+        if #available(iOS 16.0, *) {
+            self.alert("Add Repo", isPresented: adding16, actions: {
+                TextField("URL", text: newRepoURL)
+                Button("Save", action: {
+                    Task {
+                        await browseview.addRepo()
+                    }
+                })
+                Button("Cancel", role: .cancel, action: {})
+            })
+        } else {
+            self.textFieldAlert(
+                title: "Add Repo",
+                message: "Hit Done to add repo or cancel",
+                textFields: [
+                    .init(text: newRepoURL)
+                ],
+                actions: [
+                    .init(title: "Done")
+                ],
+                isPresented: adding
+            )
+        }
+    }
     @ViewBuilder
     func hide(_ bool: Bool) -> some View {
         if bool {
@@ -33,7 +96,7 @@ extension View {
     }
     @ViewBuilder
     func noTabBarBG() -> some View {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, tvOS 16.0, *) {
             self.toolbar(.hidden, for: .tabBar)
         } else {
             self
@@ -52,32 +115,36 @@ extension View {
         }
     }
     @ViewBuilder
-    func BGImage(_ lowPower: Bool = true) -> some View {
+    func BGImage(_ appData: AppData) -> some View {
+        #if targetEnvironment(macCatalyst)
         self.background(
             VStack {
-                if !lowPower {
-                    FluidGradient(blobs: [.black, .purple, .black],
-                                  highlights: [.black, .purple, .black],
-                                  speed: 1.0,
-                                  blur: 0.75)
-                    .background(.quaternary)
+                Image("macBG")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+            }.edgesIgnoringSafeArea(.top)
+                .edgesIgnoringSafeArea(.bottom)
+                .frame(width: appData.size.width)
+        )
+        #else
+        self.background(
+            VStack {
+                Image("BG")
+                    .resizable()
                     .scaledToFill()
                     .edgesIgnoringSafeArea(.top)
                     .edgesIgnoringSafeArea(.bottom)
-                    .overlay(
-                        VisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial)).ignoresSafeArea()
-                    )
-                } else {
-                    Image("BG")
-                        .resizable()
-                        .background(.quaternary)
-                        .scaledToFill()
-                        .edgesIgnoringSafeArea(.top)
-                        .edgesIgnoringSafeArea(.bottom)
-                }
             }.edgesIgnoringSafeArea(.top)
                 .edgesIgnoringSafeArea(.bottom)
                 .frame(width: UIScreen.main.bounds.width)
         )
+        #endif
+    }
+    
+    @ViewBuilder
+    func noListRowSeparator() -> some View {
+        self.listRowSeparator(.hidden)
     }
 }
+

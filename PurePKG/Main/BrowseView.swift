@@ -8,12 +8,12 @@
 import Foundation
 import SwiftUI
 import Kingfisher
-import TextFieldAlert
 
 struct BrowseView: View {
     @EnvironmentObject var appData: AppData
     @State private var isAddingRepoURLAlertPresented = false
     @State private var isAddingRepoURLAlert16Presented = false
+    @State private var newRepoURL = ""
     
     var body: some View {
         NavigationView {
@@ -21,30 +21,56 @@ struct BrowseView: View {
                 List {
                     NavigationLink(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)) {
                         PlaceHolderRow(alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0)
-                    }.listRowBackground(Color.clear).padding(.vertical, 5).padding(.bottom, 10).listRowSeparator(.hidden)
+                    }.listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
                     Section("Repositories") {
-                        ForEach(appData.repos, id: \.name) { repo in
+                        ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.name) { repo in
                             NavigationLink(destination: RepoView(repo: repo)) {
                                 RepoRow(repo: repo)
-                            }.listRowSeparator(.hidden)
+                            }.noListRowSeparator()
                         }
-                    }.listRowBackground(Color.clear)
-                    Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
-                }.clearListBG().BGImage().navigationTitle("Browse").animation(.spring(), value: appData.repos.count).navigationBarTitleDisplayMode(.large).listStyle(.plain)
+                    }.listRowBackground(Color.clear).noListRowSeparator().animation(.spring())
+                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
                     .navigationBarItems(trailing:
-                                            Button(action: {
-                        if #available(iOS 16, *) {
-                            isAddingRepoURLAlert16Presented = true
-                        } else {
-                            isAddingRepoURLAlertPresented = true
+                                            HStack {
+                        #if targetEnvironment(macCatalyst)
+                        Button(action: {
+                            appData.repos = []
+                        }) {
+                            Image("refresh_icon")
+                                .renderingMode(.template)
                         }
-                    }) {
-                        Image("plus_icon")
-                            .renderingMode(.template)
+                        #endif
+                        Button(action: {
+                            if let repourl = URL(string: UIPasteboard.general.string ?? "") {
+                                newRepoURL = repourl.absoluteString
+                                Task {
+                                    await addRepo()
+                                }
+                            } else {
+                                if #available(iOS 16, *) {
+                                    isAddingRepoURLAlert16Presented = true
+                                } else {
+                                    isAddingRepoURLAlertPresented = true
+                                }
+                            }
+                        }) {
+                            Image("plus_icon")
+                                .renderingMode(.template)
+                                .shadow(color: .accentColor, radius: 5)
+                        }
                     }
                     ).refreshable {
                         appData.repos = []
+                    }.addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
+                    .onChange(of: isAddingRepoURLAlertPresented) { newValue in
+                        if !newValue {
+                            Task {
+                                await addRepo()
+                            }
+                        }
                     }
+                    .navigationBarTitleDisplayMode(.large)
             } else {
                 VStack {
                     ZStack {
@@ -57,9 +83,14 @@ struct BrowseView: View {
                         }
                         try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
                         DispatchQueue.main.async {
-                            appData.repo_urls = RepoHandler.getAptSources(Jailbreak.path()+"/etc/apt/sources.list.d")
+                            if appData.jbdata.jbtype != .jailed {
+                                appData.repo_urls = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
+                            } else {
+                                appData.repo_urls = [URL(string: "https://repo.chariz.com"), URL(string: "https://luki120.github.io"), URL(string: "https://sparkdev.me"), URL(string: "https://havoc.app")]
+                            }
+                            let repo_urls = appData.repo_urls
                             DispatchQueue.global(qos: .background).async {
-                                RepoHandler.getRepos(appData.repo_urls) { Repo in
+                                RepoHandler.getRepos(repo_urls) { Repo in
                                     DispatchQueue.main.async {
                                         if !appData.repos.contains(where: { $0.url == Repo.url }) {
                                             appData.repos.append(Repo)
@@ -68,12 +99,16 @@ struct BrowseView: View {
                                             do {
                                                 let jsonData = try jsonEncoder.encode(Repo)
                                                 do {
-                                                    try jsonData.write(to: repoCacheDir.appendingPathComponent("\(Repo.name).json"))
+                                                    var cleanname = Repo.name.filter { $0.isLetter || $0.isNumber }.trimmingCharacters(in: .whitespacesAndNewlines)
+                                                    if cleanname == "" {
+                                                        cleanname = "\(UUID())"
+                                                    }
+                                                    try jsonData.write(to: repoCacheDir.appendingPathComponent("\(cleanname).json"))
                                                 } catch {
-                                                    print("Error saving repo data: \(error)")
+                                                    log("Error saving repo data: \(error)")
                                                 }
                                             } catch {
-                                                print("Error encoding repo: \(error)")
+                                                log("Error encoding repo: \(error)")
                                             }
                                         }
                                     }
@@ -81,35 +116,62 @@ struct BrowseView: View {
                             }
                         }
                     }
-                }.BGImage().navigationTitle("Browse").navigationBarTitleDisplayMode(.large)
+                }.BGImage(appData).navigationTitle("Browse")
+                .navigationBarTitleDisplayMode(.large)
             }
         }.navigationViewStyle(.stack)
+    }
+    
+    func addRepo() async {
+        guard let url = URL(string: newRepoURL) else {
+            UIApplication.shared.alert(title: "Error", body: "Invalid Repo?", withButton: true)
+            return
+        }
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+        
+        do {
+            let (_, response) = try await session.data(from: request.url!)
+            let statuscode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            
+            if statuscode == 200 {
+                RepoHandler.addRepo(newRepoURL)
+                appData.repos = []
+            } else {
+                UIApplication.shared.alert(title: "Error", body: "Invalid Repo?", withButton: true)
+            }
+        } catch {
+            UIApplication.shared.alert(title: "Error", body: "Invalid Repo?", withButton: true)
+        }
     }
 }
 
 struct RepoView: View {
     @State var repo: Repo
+    @EnvironmentObject var appData: AppData
 
     var body: some View {
         List {
             NavigationLink(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: "All Tweaks", tweaks: repo.tweaks)) {
                 PlaceHolderRow(alltweaks: repo.tweaks.count, category: "", categoryTweaks: 0)
-            }.listRowBackground(Color.clear).padding(.vertical, 5).padding(.bottom, 10).listRowSeparator(.hidden)
+            }.listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
             Section("Categories") {
                 ForEach(Array(Set(repo.tweaks.map { $0.section })), id: \.self) { category in
                     let categoryTweaks = repo.tweaks.filter { $0.section == category }
                     NavigationLink(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: category, tweaks: categoryTweaks)) {
                         PlaceHolderRow(alltweaks: -1, category: category, categoryTweaks: categoryTweaks.count)
-                    }.listRowSeparator(.hidden)
+                    }.noListRowSeparator()
                 }
-            }.listRowBackground(Color.clear)
-            Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
+            }.listRowBackground(Color.clear).noListRowSeparator()
+            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
         }
         .clearListBG()
-        .BGImage()
+        .BGImage(appData)
         .navigationTitle(repo.name)
-        .navigationBarTitleDisplayMode(.large)
         .listStyle(.plain)
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -117,6 +179,7 @@ struct TweaksListView: View {
     let pageLabel: String
     let tweaksLabel: String
     let tweaks: [Package]
+    @EnvironmentObject var appData: AppData
     
     var body: some View {
         List {
@@ -124,15 +187,15 @@ struct TweaksListView: View {
                 ForEach(tweaks, id: \.name) { tweak in
                     NavigationLink(destination: TweakView(pkg: tweak)) {
                         TweakRow(tweak: tweak)
-                    }.listRowSeparator(.hidden)
+                    }.noListRowSeparator()
                 }
-            }.listRowBackground(Color.clear)
-            Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
+            }.listRowBackground(Color.clear).noListRowSeparator()
+            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
         }.clearListBG()
-            .BGImage()
+            .BGImage(appData)
             .navigationTitle(pageLabel)
-            .navigationBarTitleDisplayMode(.large)
             .listStyle(.plain)
+            .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -175,8 +238,8 @@ struct PlaceHolderRow: View {
 }
 
 struct RepoRow: View {
+    @EnvironmentObject var appData: AppData
     @State var repo: Repo
-//    @State var appData: AppData?
     
     var body: some View {
         HStack {
@@ -185,7 +248,7 @@ struct RepoRow: View {
                 .onFailureImage(UIImage(named: "DisplayAppIcon"))
                .scaledToFit()
                .frame(width: 50, height: 50)
-               .cornerRadius(8)
+               .cornerRadius(11)
                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
             
             VStack(alignment: .leading) {
@@ -206,18 +269,15 @@ struct RepoRow: View {
                 Text("Copy Repo URL")
                 Image("copy_icon").renderingMode(.template)
             }
-            Button(action: {
-                deleteRepo(repo: repo)
+            Button(role: .destructive, action: {
+                RepoHandler.removeRepo(repo.url)
+                appData.repos = []
             }) {
                 Text("Delete Repo")
                 Image("trash_icon").renderingMode(.template)
             }.foregroundColor(.red)
             
         })
-    }
-    
-    private func deleteRepo(repo: Repo?) {
-        
     }
 }
 
@@ -233,7 +293,7 @@ struct TweakRow: View {
                     .onFailureImage(UIImage(named: "DisplayAppIcon"))
                     .scaledToFit()
                     .frame(width: 50, height: 50)
-                    .cornerRadius(8)
+                    .cornerRadius(11)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
                     Image(systemName: "checkmark.circle.fill")

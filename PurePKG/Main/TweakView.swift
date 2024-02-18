@@ -22,10 +22,14 @@ struct TweakView: View {
                KFImage(banner)
                    .resizable()
                    .aspectRatio(contentMode: .fill)
+                #if targetEnvironment(macCatalyst)
+                   .frame(width: appData.size.width-40, height: 200)
+                #else
                    .frame(width: UIScreen.main.bounds.width-40, height: 200)
-                   .cornerRadius(15)
+                #endif
+                   .cornerRadius(20)
                    .clipped()
-                   .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                   .listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
                    .padding(.bottom)
                    .padding(.top, -40)
             }
@@ -54,38 +58,51 @@ struct TweakView: View {
                         Spacer()
                         Button(action: {
                             if !queued && !installed {
-                                appData.queued.append(pkg)
+                                appData.queued.install.append(pkg)
+                                appData.queued.all.append(pkg.id)
                             } else if queued {
-                                appData.queued.remove(at: appData.queued.firstIndex(where: { $0.id == pkg.id }) ?? -2)
+                                if let index = appData.queued.install.firstIndex(where: { $0.id == pkg.id }) {
+                                    appData.queued.install.remove(at: index)
+                                }
+                                if let index = appData.queued.uninstall.firstIndex(where: { $0.id == pkg.id }) {
+                                    appData.queued.uninstall.remove(at: index)
+                                }
+                                if let index = appData.queued.all.firstIndex(where: { $0 == pkg.id }) {
+                                    appData.queued.all.remove(at: index)
+                                }
+                            } else if installed {
+                                appData.queued.uninstall.append(pkg)
+                                appData.queued.all.append(pkg.id)
                             }
                         }, label: {
-                            Text(installed ? "Manage" : queued ? "Queued" : "Install")
+                            Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
                         }).buttonStyle(.borderedProminent).opacity(0.7).animation(.spring())
-                        Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
                     }
                 }
             }
-            .listRowBackground(Color.clear).listRowSeparator(.hidden)
+            .listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
             
-            TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparator(.hidden)
+            TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
             
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {
                     RepoRow(repo: pkg.repo)
-                }.listRowBackground(Color.clear).listRowSeparator(.hidden)
+                }.listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
             }
             
             HStack {
                 Spacer()
                 Text("\(pkg.id) (\(pkg.version))").foregroundColor(Color(UIColor.secondaryLabel))
                 Spacer()
-            }.listRowBackground(Color.clear).listRowSeparator(.hidden)
+            }.listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
+            
+            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
         }
-        .BGImage()
+        .BGImage(appData)
         .listStyle(.plain)
-        .onChange(of: appData.queued.count, perform: { _ in queued = appData.queued.contains(where: { $0.id == pkg.id }) })
+        .onChange(of: appData.queued.all.count, perform: { _ in queued = appData.queued.all.contains(pkg.id) })
         .onAppear() {
-            queued = appData.queued.contains(where: { $0.id == pkg.id })
+            queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
         }
     }

@@ -9,6 +9,17 @@ import SwiftUI
 import Combine
 
 @main
+struct PureKFDBinary {
+    static func main() {
+        if (getuid() != 0) {
+            purepkgApp.main();
+        } else {
+             exit(RootHelperMain());
+        }
+        
+    }
+}
+
 struct purepkgApp: App {
     @StateObject private var appData = AppData()
     
@@ -28,6 +39,7 @@ struct purepkgApp: App {
         WindowGroup {
             MainView()
                 .environmentObject(appData)
+                .accentColor(Color(UIColor(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "") ?? UIColor(hex: "#EBC2FF")!))
         }
     }
 }
@@ -41,28 +53,81 @@ struct tabBarIcons {
 
 struct MainView: View {
     @EnvironmentObject var appData: AppData
-    // i plan on allowing custom icons via files at some point but this will do for now
     @State private var icons = tabBarIcons()
     @State private var selectedTab = 0
-    @State private var queueOpen = false
-    @State private var queueListopacity: Double = 1.0
-    let tabItems = ["Featured", "Browse", "Installed", "Search"]
-    let tabItemImages = ["Featured":Image("home_icon"), "Browse":Image("browse_icon"), "Installed":Image("installed_icon"), "Search":Image("search_icon")]
     
     var body: some View {
+#if targetEnvironment(macCatalyst)
+        GeometryReader { geometry in
+            TabView(selection: $selectedTab) {
+                FeaturedView().tag(0)
+                BrowseView().tag(1)
+                InstalledView().tag(2)
+                SearchView().tag(3)
+            }.ignoresSafeArea(.all)
+                .frame(width: appData.size.width, height: appData.size.height)
+                .onChange(of: geometry.size, perform: { size in appData.size = size })
+                .toolbar {
+                    ToolbarItem(placement: .bottomBar) {
+                        tabbar(selectedTab: $selectedTab)
+                    }
+                }
+                .onAppear() {
+                    appData.jbdata.jbtype = Jailbreak.type(appData)
+                    appData.deviceInfo = getDeviceInfo()
+                    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+                    appData.repos = RepoHandler.getCachedRepos()
+                    appData.pkgs = appData.repos.flatMap { $0.tweaks }
+                    if appData.repos.isEmpty {
+                        selectedTab = 1
+                    }
+                }
+        }
+#else
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
                 FeaturedView().tag(0)
                 BrowseView().tag(1)
                 InstalledView().tag(2)
                 SearchView().tag(3)
-            }.frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height).ignoresSafeArea(.all)
+            }.edgesIgnoringSafeArea(.bottom)
+                .frame(width: UIScreen.main.bounds.width)
+            tabbar(selectedTab: $selectedTab)
+                .onAppear() {
+                    appData.jbdata.jbtype = Jailbreak.type(appData)
+                    appData.deviceInfo = getDeviceInfo()
+                    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+                    appData.repos = RepoHandler.getCachedRepos()
+                    appData.pkgs = appData.repos.flatMap { $0.tweaks }
+                    if appData.repos.isEmpty {
+                        selectedTab = 1
+                    }
+                }
+        }.background(Color.black).edgesIgnoringSafeArea(.bottom)
+#endif
+    }
+    
+    struct tabbar: View {
+        @Binding var selectedTab: Int
+        @EnvironmentObject var appData: AppData
+        @State private var queueOpen = false
+        @State private var installingQueue = false
+        @State private var installLog = ""
+        @State private var showLog = false
+        @State private var editing = false
+        let tabItems = ["Featured", "Browse", "Installed", "Search"]
+        let tabItemImages = ["Featured":Image("home_icon"), "Browse":Image("browse_icon"), "Installed":Image("installed_icon"), "Search":Image("search_icon")]
+        
+        var body: some View {
             VStack {
                 
-                if !appData.queued.isEmpty {
+                if !appData.queued.all.isEmpty {
                     VStack {
                         Button(action: {
-                            queueOpen.toggle()
+                            if !installingQueue {
+                                queueOpen.toggle()
+                                editing = false
+                            }
                         }) {
                             HStack {
                                 Image("queue_icon")
@@ -70,30 +135,85 @@ struct MainView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 36, height: 36)
-                                Text("\(appData.queued.count) Queued Tweak\(appData.queued.count >= 2 ? "s" : "")").padding(.horizontal, 5).animation(.spring(), value: appData.queued.count)
+                                Text("\(appData.queued.all.count) Queued Tweak\(appData.queued.all.count >= 2 ? "s" : "")").padding(.horizontal, 5).animation(.spring(), value: appData.queued.all.count)
                                 Spacer()
-                            }.padding(.horizontal, 20).padding(.vertical, 10).background(Color.black.opacity(0.001))
-                        }.buttonStyle(.plain).padding(.top, queueOpen ? UIApplication.shared.windows[0].safeAreaInsets.bottom > 0  ? 50 : 25 : 0)
-                        VStack(alignment: .leading) {
-                            ForEach(appData.queued, id: \.id) { package in
-                                HStack {
-                                    TweakRow(tweak: package)
-                                    Spacer()
-                                    Button(action: {
-                                        if appData.queued.count == 1 {
-                                            queueOpen = false
-                                        }
-                                        appData.queued.remove(at: appData.queued.firstIndex(where: { $0.id == package.id }) ?? -2)
-                                    }, label: {
-                                        ZStack(alignment: .center) {
-                                            RoundedRectangle(cornerRadius: 8).frame(width: 50, height: 50).foregroundColor(.red).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-                                            Image("trash_icon").renderingMode(.template).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2).foregroundColor(.black)
-                                        }
-                                    })
+                                if queueOpen {
+                                    Button(action: {editing.toggle()}, label: {Image(systemName: editing ? "checkmark" : "trash")})
                                 }
-                                    .opacity(queueOpen ? 1.0 : 0.0)
-                                    .frame(height: queueOpen ? 56.0 : 0.0)
-                                    .padding(.horizontal)
+                            }.padding(.horizontal, 20).padding(.vertical, 10).background(Color.black.opacity(0.001)).shadow(color: .accentColor, radius: 5).foregroundColor(.accentColor)
+                        }.buttonStyle(.plain).padding(.top, queueOpen ? UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 > 0  ? 50 : 25 : 0).padding(.bottom, -20)
+                        VStack(alignment: .leading) {
+                            if !showLog {
+                                if !appData.queued.install.isEmpty {
+                                    Section(content: {
+                                        ForEach(appData.queued.install, id: \.id) { package in
+                                            VStack {
+                                                HStack {
+                                                    TweakRow(tweak: package)
+                                                    Spacer()
+                                                    if editing {
+                                                        Button(action: {
+                                                            if appData.queued.all.count == 1 {
+                                                                queueOpen = false
+                                                            }
+                                                            appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
+                                                            appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                        }) {
+                                                            Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
+                                                        }
+                                                    }
+                                                }.padding(.trailing)
+                                                if installingQueue {
+                                                    VStack(alignment: .leading) {
+                                                        Text(appData.queued.status[package.id]?.message ?? "Queued...")
+                                                        ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                            .progressViewStyle(LinearProgressViewStyle())
+                                                            .frame(height: 2)
+                                                    }
+                                                    .foregroundColor(.secondary).padding(.top, 5)
+                                                }
+                                            }.opacity(queueOpen ? 1.0 : 0.0)
+                                                .frame(height: queueOpen ? 56.0 : 0.0)
+                                                .padding(.horizontal)
+                                        }
+                                    }, header: {Text(queueOpen ? "Install" : "").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                                }
+                                if !appData.queued.uninstall.isEmpty {
+                                    Section(content: {
+                                        ForEach(appData.queued.uninstall, id: \.id) { package in
+                                            VStack {
+                                                HStack {
+                                                    TweakRow(tweak: package)
+                                                    Spacer()
+                                                    if editing {
+                                                        Button(action: {
+                                                            if appData.queued.all.count == 1 {
+                                                                queueOpen = false
+                                                            }
+                                                            appData.queued.uninstall.remove(at: appData.queued.uninstall.firstIndex(where: { $0.id == package.id }) ?? -2)
+                                                            appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                        }) {
+                                                            Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
+                                                        }
+                                                    }
+                                                }.padding(.trailing)
+                                                if installingQueue {
+                                                    VStack(alignment: .leading) {
+                                                        Text(appData.queued.status[package.id]?.message ?? "Queued...")
+                                                        ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                            .progressViewStyle(LinearProgressViewStyle())
+                                                            .frame(height: 2)
+                                                    }
+                                                    .foregroundColor(.secondary).padding(.top, 5)
+                                                }
+                                            }.opacity(queueOpen ? 1.0 : 0.0)
+                                                .frame(height: queueOpen ? 56.0 : 0.0)
+                                                .padding(.horizontal)
+                                        }
+                                    }, header: {Text(queueOpen ? "Uninstall" : "").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                                }
+                            } else {
+                                Text(installLog).padding().frame(height: queueOpen ? .infinity : 0)
                             }
                             if queueOpen {
                                 Spacer()
@@ -102,11 +222,43 @@ struct MainView: View {
                                 if !queueOpen {
                                     Spacer()
                                 }
-                                Button(action: {}, label: {
+                                Button(action: {
+                                    if !showLog {
+                                        if Jailbreak.type(appData) == .jailed {
+                                            UIApplication.shared.alert(title: ":frcoal:", body: "PurePKG is in Jailed Mode, You cannot install tweaks.")
+                                        } else {
+                                            installingQueue = true
+                                            APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: RepoHandler.getDeps(appData.queued.install, appData),
+                                            progressCallback: { _, statusValid, statusReadable, package in
+                                                log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
+                                                var percent: Double = 0
+                                                if statusReadable.contains("Installed") {
+                                                    percent = 1
+                                                } else if statusReadable.contains("Configuring") {
+                                                    percent = 0.7
+                                                } else if statusReadable.contains("Preparing") {
+                                                    percent = 0.4
+                                                }
+                                                if appData.queued.status[package]?.percentage ?? 0 <= percent {
+                                                    appData.queued.status[package] = installStatus(message: statusReadable, percentage: percent)
+                                                }
+                                            },
+                                            outputCallback: { output, _ in installLog += "\(output)" },
+                                            completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status"); showLog = true })
+                                        }
+                                    } else {
+                                        installingQueue = false
+                                        queueOpen = false
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            appData.queued = PKGQueue()
+                                            showLog = false
+                                        }
+                                    }
+                                }, label: {
                                     if queueOpen {
                                         Spacer()
                                     }
-                                    Text("Install Tweaks").padding()
+                                    Text(showLog ? "Close" : "Install Tweaks").padding()
                                     if queueOpen {
                                         Spacer()
                                     }
@@ -119,43 +271,42 @@ struct MainView: View {
                     }
                 }
                 
-                if queueOpen && !appData.queued.isEmpty {
+                if queueOpen && !appData.queued.all.isEmpty {
                     Spacer()
                 }
                 
                 HStack {
                     ForEach(0..<4) { index in
-                        Spacer()
-                        Button(action: { self.selectedTab = index }) {
+                        Button(action: { selectedTab = index }) {
                             HStack {
                                 tabItemImages[tabItems[index]]?
                                     .renderingMode(.template)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 36, height: 36)
-                                if self.selectedTab == index {
-                                    Text("\(tabItems[index])")
+                                if selectedTab == index {
+                                    Text("\(tabItems[index])").lineLimit(1)
                                 }
-                            }
-                        }
-                        .foregroundColor(self.selectedTab == index ? .accentColor : .primary)
+                            }.padding(.horizontal, 23)
+                        }.padding(.top, 16).background(Color.black.opacity(0.001))
+                        .foregroundColor(selectedTab == index ? .accentColor : .accentColor.opacity(0.2))
+                        .shadow(color: selectedTab == index ? .accentColor : .accentColor.opacity(0.2), radius: 5)
                         .animation(.spring(), value: selectedTab)
-                        .padding(.bottom, UIApplication.shared.windows[0].safeAreaInsets.bottom > 0 ? 30 : 16)
-                        Spacer()
+                        .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 > 0 ? 35 : 16)
                     }
-                }.padding(.top, appData.queued.isEmpty ? 16 : 0)
-            }.frame(width: UIScreen.main.bounds.width).padding(.horizontal).background(VisualEffectView(effect: UIBlurEffect(style: .dark)).edgesIgnoringSafeArea(.all))
-                .transition(.move(edge: .bottom))
-                .animation(.spring(), value: appData.queued.isEmpty).animation(.spring(), value: queueOpen).noTabBarBG()
-        }.ignoresSafeArea(.all, edges: .top)
-            .padding()
-            .background(Color.black)
-            .onAppear() {
-                appData.jbdata.jbtype = Jailbreak.type()
-                appData.deviceInfo = getDeviceInfo()
-                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path()+"/Library/dpkg/status")
-                appData.repos = RepoHandler.getCachedRepos()
-                appData.pkgs  = appData.repos.flatMap { $0.tweaks }
+                }.frame(width: UIScreen.main.bounds.width)//.background(Color.black)
+                    //.background(VisualEffectView(effect: UIBlurEffect(style: .dark)).edgesIgnoringSafeArea(.bottom))
+                    .transition(.move(edge: .bottom))
+                    .noTabBarBG()
             }
+#if targetEnvironment(macCatalyst)
+            .frame(width: appData.size.width, height: queueOpen ? .infinity : appData.size.height/25)
+#else
+            .frame(width: UIScreen.main.bounds.width)
+#endif
+            .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).edgesIgnoringSafeArea(.all))
+            .transition(.move(edge: .bottom))
+            .animation(.spring(), value: appData.queued.all.isEmpty).animation(.spring(), value: queueOpen).animation(.spring(), value: editing).noTabBarBG()
+        }
     }
 }

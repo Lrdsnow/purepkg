@@ -6,20 +6,37 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct JBData {
-    var jbtype: jbtype = .jailed
+    var jbtype: jbType = .unknown
     var jbroot: String = ""
+    var jbarch: String = ""
+}
+
+struct installStatus {
+    var message: String = "Queued..."
+    var percentage: Double = 0.0
+}
+
+struct PKGQueue {
+    var install: [Package] = []
+    var uninstall: [Package] = []
+    var status: [String:installStatus] = [:]
+    var all: [String] = [] // just a way to keep track of all the ids
 }
 
 class AppData: ObservableObject {
-    @Published var repo_urls: [URL?] = [URL(string: "https://apt.procurs.us/dists/iphoneos-arm64-rootless/1800/main/binary-iphoneos-arm64"), URL(string:"https://havoc.app"), URL(string:"https://repo.chariz.com"), URL(string: "https://dekotas.org/")]
+    @Published var repo_urls: [URL?] = []
     @Published var repos: [Repo] = []
     @Published var pkgs: [Package] = []
     @Published var installed_pkgs: [Package] = []
     @Published var jbdata: JBData = JBData()
     @Published var deviceInfo: DeviceInfo = DeviceInfo()
-    @Published var queued: [Package] = []
+    @Published var queued: PKGQueue = PKGQueue()
+    @Published var size: CGSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+    
+    @Published var test = false
     
     static let shared = AppData()
 }

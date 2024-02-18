@@ -11,6 +11,7 @@ import SwiftUI
 struct InstalledView: View {
     @EnvironmentObject var appData: AppData
     @State private var searchText = ""
+    @State private var isAnimating = false
     
     var filteredPackages: [Package] {
         if searchText.isEmpty {
@@ -67,19 +68,19 @@ struct InstalledView: View {
                             }) {
                                 Text("Name")
                             }
-                        }
+                        }.shadow(color: .accentColor, radius: 5)
                     }) {
                         ForEach(filteredPackages, id: \.id) { package in
                             NavigationLink(destination: TweakView(pkg: package)) {
                                 TweakRow(tweak: package)
                             }
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
+                            .noListRowSeparator()
+                            .listRowBackground(Color.clear).noListRowSeparator()
                         }
-                    }
-                    Text("").padding(.bottom, 35).listRowBackground(Color.clear).listRowSeparator(.hidden)
+                    }.animation(.spring())
+                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.animation(.spring(), value: filteredPackages.count)
-            }.navigationBarTitle("Installed").navigationBarTitleDisplayMode(.large).listStyle(.plain).BGImage()
+            }.navigationBarTitle("Installed").listStyle(.plain).BGImage(appData).navigationBarTitleDisplayMode(.large)
         }.navigationViewStyle(.stack)
     }
 }

@@ -17,8 +17,21 @@ struct Package: Encodable, Decodable {
     var desc: String = "Unknown Desc" // Description
     var section: String = "Tweaks" // Section
     var version: String = "" // Version
-    var depends: [String] = [] // Depends
+    var versions: [String] = [] // Versions
+    var depends: [DepPackage] = [] // Depends
     var depiction: URL? = nil
     var icon: URL? = nil
+    var debPath: String? = nil
     var repo: Repo = Repo()
+}
+
+struct verReq: Encodable, Decodable {
+    var req: Bool = false
+    var version: String = ""
+    var minVer: Bool = false // if it should compare the ver as min ver or max ver
+}
+
+struct DepPackage: Encodable, Decodable {
+    var id: String = "uwu.lrdsnow.unknown"
+    var reqVer: verReq = verReq()
 }

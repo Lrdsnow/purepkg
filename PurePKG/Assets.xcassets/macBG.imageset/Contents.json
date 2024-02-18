@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "magicpattern-mesh-gradient-1705741140044.jpeg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "magicpattern-mesh-gradient-1705741140044 1.jpeg",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "magicpattern-mesh-gradient-1705741140044 2.jpeg",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

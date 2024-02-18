@@ -10,10 +10,14 @@
 		653895442B53BF18004F7094 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 653895432B53BF18004F7094 /* Kingfisher */; };
 		6538954A2B53DA03004F7094 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 653895492B53DA03004F7094 /* MarkdownUI */; };
 		656EA54C2B507D8C002364DC /* TweakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656EA54B2B507D8C002364DC /* TweakView.swift */; };
-		656FFF0A2B505E1700CEFF91 /* JBDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656FFF092B505E1700CEFF91 /* JBDetection.swift */; };
+		656FFF0A2B505E1700CEFF91 /* Jailbreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656FFF092B505E1700CEFF91 /* Jailbreak.swift */; };
 		657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B469E2B4DD9EE00AFC1F6 /* Main.swift */; };
 		657B46A12B4DD9F000AFC1F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };
+		658ADF122B5A232E0099AF32 /* APTWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658ADF112B5A232E0099AF32 /* APTWrapper.swift */; };
 		659BAE3F2B52739100922789 /* TweakDepictionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659BAE3E2B52739100922789 /* TweakDepictionView.swift */; };
+		65B2FC142B56584F001DBE60 /* RootHelperMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC132B56584F001DBE60 /* RootHelperMain.swift */; };
+		65B2FC172B5659AD001DBE60 /* spawnRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC162B5659AD001DBE60 /* spawnRoot.swift */; };
+		65B2FC1A2B5659D6001DBE60 /* waitpid_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC192B5659D6001DBE60 /* waitpid_decode.c */; };
 		65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */ = {isa = PBXBuildFile; productRef = 65B6ED142B4FA61F003C7993 /* TextFieldAlert */; };
 		65B820382B4F29A30032D504 /* RepoHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820372B4F29A30032D504 /* RepoHandler.swift */; };
 		65B8203B2B4F29B20032D504 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203A2B4F29B20032D504 /* Repo.swift */; };
@@ -21,7 +25,6 @@
 		65B8203F2B4F2A3E0032D504 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203E2B4F2A3E0032D504 /* Misc.swift */; };
 		65B820412B4F382A0032D504 /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820402B4F382A0032D504 /* AppData.swift */; };
 		65EC935C2B4F09CE00540DB6 /* ViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC935B2B4F09CE00540DB6 /* ViewModifier.swift */; };
-		65EC935F2B4F0EB400540DB6 /* FluidGradient in Frameworks */ = {isa = PBXBuildFile; productRef = 65EC935E2B4F0EB400540DB6 /* FluidGradient */; };
 		65EC93612B4F114200540DB6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC93602B4F114200540DB6 /* SettingsView.swift */; };
 		65EC93632B4F114B00540DB6 /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC93622B4F114B00540DB6 /* BrowseView.swift */; };
 		65EC93652B4F116A00540DB6 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC93642B4F116A00540DB6 /* SearchView.swift */; };
@@ -31,12 +34,19 @@
 
 /* Begin PBXFileReference section */
 		656EA54B2B507D8C002364DC /* TweakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakView.swift; sourceTree = "<group>"; };
-		656FFF092B505E1700CEFF91 /* JBDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JBDetection.swift; sourceTree = "<group>"; };
+		656FFF092B505E1700CEFF91 /* Jailbreak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jailbreak.swift; sourceTree = "<group>"; };
+		6572EF942B5BBBAC004FCD2B /* PurePKG.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PurePKG.entitlements; sourceTree = "<group>"; };
 		657B46992B4DD9ED00AFC1F6 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		657B469E2B4DD9EE00AFC1F6 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		658ADF112B5A232E0099AF32 /* APTWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APTWrapper.swift; sourceTree = "<group>"; };
 		659BAE3C2B5244B700922789 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		659BAE3E2B52739100922789 /* TweakDepictionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakDepictionView.swift; sourceTree = "<group>"; };
+		65B2FC132B56584F001DBE60 /* RootHelperMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootHelperMain.swift; sourceTree = "<group>"; };
+		65B2FC152B5658DE001DBE60 /* bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bridge.h; sourceTree = "<group>"; };
+		65B2FC162B5659AD001DBE60 /* spawnRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = spawnRoot.swift; sourceTree = "<group>"; };
+		65B2FC182B5659D6001DBE60 /* waitpid_decode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = waitpid_decode.h; sourceTree = "<group>"; };
+		65B2FC192B5659D6001DBE60 /* waitpid_decode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = waitpid_decode.c; sourceTree = "<group>"; };
 		65B820372B4F29A30032D504 /* RepoHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoHandler.swift; sourceTree = "<group>"; };
 		65B8203A2B4F29B20032D504 /* Repo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repo.swift; sourceTree = "<group>"; };
 		65B8203C2B4F29BB0032D504 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -56,7 +66,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				653895442B53BF18004F7094 /* Kingfisher in Frameworks */,
-				65EC935F2B4F0EB400540DB6 /* FluidGradient in Frameworks */,
 				65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */,
 				6538954A2B53DA03004F7094 /* MarkdownUI in Frameworks */,
 			);
@@ -68,6 +77,7 @@
 		657B46902B4DD9ED00AFC1F6 = {
 			isa = PBXGroup;
 			children = (
+				65B2FC122B56582F001DBE60 /* RootHelper */,
 				657B469B2B4DD9EE00AFC1F6 /* PurePKG */,
 				657B469A2B4DD9ED00AFC1F6 /* Products */,
 			);
@@ -84,6 +94,7 @@
 		657B469B2B4DD9EE00AFC1F6 /* PurePKG */ = {
 			isa = PBXGroup;
 			children = (
+				6572EF942B5BBBAC004FCD2B /* PurePKG.entitlements */,
 				659BAE3C2B5244B700922789 /* Info.plist */,
 				65B820362B4F29700032D504 /* Backend */,
 				65EC935A2B4F09BB00540DB6 /* Extensions */,
@@ -102,12 +113,33 @@
 			path = Others;
 			sourceTree = "<group>";
 		};
+		65B2FC122B56582F001DBE60 /* RootHelper */ = {
+			isa = PBXGroup;
+			children = (
+				65B2FC1B2B565EE4001DBE60 /* CBackend */,
+				65B2FC132B56584F001DBE60 /* RootHelperMain.swift */,
+				65B2FC162B5659AD001DBE60 /* spawnRoot.swift */,
+			);
+			path = RootHelper;
+			sourceTree = "<group>";
+		};
+		65B2FC1B2B565EE4001DBE60 /* CBackend */ = {
+			isa = PBXGroup;
+			children = (
+				65B2FC182B5659D6001DBE60 /* waitpid_decode.h */,
+				65B2FC192B5659D6001DBE60 /* waitpid_decode.c */,
+				65B2FC152B5658DE001DBE60 /* bridge.h */,
+			);
+			path = CBackend;
+			sourceTree = "<group>";
+		};
 		65B820362B4F29700032D504 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
 				65B820392B4F29A60032D504 /* Structs */,
 				65B820372B4F29A30032D504 /* RepoHandler.swift */,
-				656FFF092B505E1700CEFF91 /* JBDetection.swift */,
+				656FFF092B505E1700CEFF91 /* Jailbreak.swift */,
+				658ADF112B5A232E0099AF32 /* APTWrapper.swift */,
 			);
 			path = Backend;
 			sourceTree = "<group>";
@@ -163,7 +195,6 @@
 			);
 			name = PurePKG;
 			packageProductDependencies = (
-				65EC935E2B4F0EB400540DB6 /* FluidGradient */,
 				65B6ED142B4FA61F003C7993 /* TextFieldAlert */,
 				653895432B53BF18004F7094 /* Kingfisher */,
 				653895492B53DA03004F7094 /* MarkdownUI */,
@@ -197,7 +228,6 @@
 			);
 			mainGroup = 657B46902B4DD9ED00AFC1F6;
 			packageReferences = (
-				65EC935D2B4F0EB400540DB6 /* XCRemoteSwiftPackageReference "FluidGradient" */,
 				65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */,
 				653895422B53BF18004F7094 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				653895482B53DA03004F7094 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
@@ -225,7 +255,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		658A9D042B5099A700BA97D1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -238,7 +268,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\nmkdir ${BUILT_PRODUCTS_DIR}/Build\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app/PurePKG\ncd ${BUILT_PRODUCTS_DIR}/Build\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" \"./PurePKG.app/Info.plist\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r purepkg.ipa Payload\nrm -r Payload\n";
+			shellScript = "if [[ ${BUILT_PRODUCTS_DIR} != *\"iphonesimulator\"* ]]; then\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\nmkdir ${BUILT_PRODUCTS_DIR}/Build\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/PurePKG.app/Info.plist\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app/PurePKG\ncd ${BUILT_PRODUCTS_DIR}/Build\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\n\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir DEBIAN\nmkdir -p var/jb/Applications\ncp -r ../../PurePKG.app var/jb/Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmv uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64e\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -251,12 +281,16 @@
 				65EC93652B4F116A00540DB6 /* SearchView.swift in Sources */,
 				65EC93612B4F114200540DB6 /* SettingsView.swift in Sources */,
 				65B8203B2B4F29B20032D504 /* Repo.swift in Sources */,
-				656FFF0A2B505E1700CEFF91 /* JBDetection.swift in Sources */,
+				656FFF0A2B505E1700CEFF91 /* Jailbreak.swift in Sources */,
+				658ADF122B5A232E0099AF32 /* APTWrapper.swift in Sources */,
+				65B2FC172B5659AD001DBE60 /* spawnRoot.swift in Sources */,
 				65EC93632B4F114B00540DB6 /* BrowseView.swift in Sources */,
 				65B8203F2B4F2A3E0032D504 /* Misc.swift in Sources */,
 				65EC93672B4F119300540DB6 /* InstalledView.swift in Sources */,
+				65B2FC142B56584F001DBE60 /* RootHelperMain.swift in Sources */,
 				65B8203D2B4F29BB0032D504 /* Package.swift in Sources */,
 				65EC93692B4F11D700540DB6 /* FeaturedView.swift in Sources */,
+				65B2FC1A2B5659D6001DBE60 /* waitpid_decode.c in Sources */,
 				657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */,
 				65EC935C2B4F09CE00540DB6 /* ViewModifier.swift in Sources */,
 				65B820412B4F382A0032D504 /* AppData.swift in Sources */,
@@ -392,6 +426,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_ENTITLEMENTS = PurePKG/PurePKG.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -405,17 +441,23 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0b2;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
 		};
@@ -424,6 +466,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PurePKG/PurePKG.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -437,17 +480,23 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0b2;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};
@@ -499,14 +548,6 @@
 				minimumVersion = 1.4.0;
 			};
 		};
-		65EC935D2B4F0EB400540DB6 /* XCRemoteSwiftPackageReference "FluidGradient" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Cindori/FluidGradient.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -524,11 +565,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 65B6ED132B4FA61F003C7993 /* XCRemoteSwiftPackageReference "TextFieldAlert" */;
 			productName = TextFieldAlert;
-		};
-		65EC935E2B4F0EB400540DB6 /* FluidGradient */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 65EC935D2B4F0EB400540DB6 /* XCRemoteSwiftPackageReference "FluidGradient" */;
-			productName = FluidGradient;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

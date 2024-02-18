@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import MarkdownUI
+#if canImport(WebKit)
 import WebKit
 
 struct WebView: UIViewRepresentable {
@@ -26,6 +27,7 @@ struct WebView: UIViewRepresentable {
     }
 
 }
+#endif
 
 struct DepictionTabView {
     let classType: String
@@ -133,6 +135,7 @@ struct TweakDepictionView: View {
     @Binding var banner: URL?
     @State private var json: String?
     @State private var loaded: Bool = false
+    @EnvironmentObject var appData: AppData
 
     var body: some View {
         Group {
@@ -145,19 +148,26 @@ struct TweakDepictionView: View {
                         Section(header: Text(tab.tabname.trimmingCharacters(in: .whitespaces))) {
                             VStack {
                                 ForEach(tab.views, id: \.id) { view in
-                                    getView(for: view).listRowSeparator(.hidden)
+                                    getView(for: view).noListRowSeparator()
                                 }
-                            }.listRowSeparator(.hidden)
-                        }.listRowSeparator(.hidden)
+                            }.noListRowSeparator()
+                        }.noListRowSeparator()
                     }
                 } else {
                     if let depiction = pkg.depiction, UIApplication.shared.canOpenURL(depiction) {
+                        #if canImport(WebKit)
                         WebView(url: depiction)
-                            .frame(width: UIScreen.main.bounds.width, height: 800).listRowInsets(EdgeInsets()).padding(.top)
+                        #if targetEnvironment(macCatalyst)
+                            .frame(width: appData.size.width, height: 800)
+                        #else
+                            .frame(width: UIScreen.main.bounds.width, height: 800)
+                        #endif
+                            .listRowInsets(EdgeInsets()).padding(.top)
+                        #endif
                     } else {
                         Text("")
                             .onAppear() {
-                                print(json ?? "No JSON data")
+                                log(json ?? "No JSON data")
                             }
                     }
                 }
@@ -172,14 +182,14 @@ struct TweakDepictionView: View {
         .onAppear() {
             fetchJSONData(from: pkg.depiction?.absoluteString ?? "")
         }
-        .listRowSeparator(.hidden)
+        .noListRowSeparator()
     }
 
     private func fetchJSONData(from url: String) {
         if let url = URL(string: url) {
             URLSession.shared.dataTask(with: url) { data, response, error in
                 guard let data = data, error == nil else {
-                    print("Error fetching JSON data: \(error?.localizedDescription ?? "Unknown error")")
+                    log("Error fetching JSON data: \(error?.localizedDescription ?? "Unknown error")")
                     loaded = true
                     return
                 }
@@ -190,7 +200,7 @@ struct TweakDepictionView: View {
                         let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                         if let dict = dict {
                             if let bannerImage = dict["headerImage"] as? String {
-                                self.banner = URL(string: bannerImage)!
+                                self.banner = URL(string: bannerImage) ?? URL(fileURLWithPath: "/") // lol
                             }
                         }
                         loaded = true
@@ -278,7 +288,8 @@ struct TweakDepictionView: View {
         guard
             let itemCornerRadius = dict["itemCornerRadius"] as? CGFloat,
             let itemSizeArray = dict["itemSize"] as? [CGFloat],
-            let screenshotsData = dict["screenshots"] as? [[String: Any]]
+            let screenshotsData = dict["screenshots"] as? [[String: Any]],
+            itemSizeArray.count >= 2
         else {
             return nil
         }
