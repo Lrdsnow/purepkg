@@ -13,6 +13,7 @@ enum jbType {
     case rootless
     case roothide
     case macos
+    case tvOS_rootful
     case jailed
     case unknown
 }
@@ -29,6 +30,8 @@ struct DeviceInfo {
 func osString() -> String {
     #if targetEnvironment(macCatalyst)
     return "macOS"
+    #elseif os(tvOS)
+    return "tvOS"
     #else
     return "iOS"
     #endif
@@ -48,7 +51,7 @@ func getDeviceInfo() -> DeviceInfo {
                                 minor: minor,
                                 beta: false,
                                 build_number: "0",
-                                modelIdentifier: "Simulator")
+                                modelIdentifier: UIDevice.current.modelName)
     }
 #else
     let systemVersion = UIDevice.current.systemVersion
@@ -72,7 +75,7 @@ func getDeviceInfo() -> DeviceInfo {
                                 minor: minor,
                                 beta: beta,
                                 build_number: build_number,
-                                modelIdentifier: modelIdentifier)
+                                modelIdentifier: "\(UIDevice.current.modelName) (\(modelIdentifier))")
     }
 #endif
     return deviceInfo
@@ -116,6 +119,8 @@ public class Jailbreak {
         let jbtype = self.type(appData)
         if jbtype == .macos {
             jbarch = "darwin-amd64"
+        } else if jbtype == .tvOS_rootful {
+            jbarch = "appletvos-arm64"
         } else if jbtype == .rootful {
             jbarch = "iphoneos-arm"
         } else if jbtype == .rootless {
@@ -132,7 +137,9 @@ public class Jailbreak {
     }
     
     static func type(_ appData: AppData? = nil) -> (jbType) {
-        return .rootless
+        #if targetEnvironment(simulator)
+        return .tvOS_rootful
+        #else
         var jbtype: jbType = .unknown
         if let appData = appData {
             if appData.jbdata.jbtype != .unknown {
@@ -142,8 +149,12 @@ public class Jailbreak {
         let filemgr = FileManager.default
         if filemgr.fileExists(atPath: "/opt/procursus") {
             jbtype = .macos
-        } else if filemgr.fileExists(atPath: "/etc/apt") {
-            jbtype = .rootful
+        } else if filemgr.fileExists(atPath: "/private/etc/apt") {
+            if #available(tvOS 9.0, *) {
+                jbtype = .tvOS_rootful
+            } else {
+                jbtype = .rootful
+            }
         } else if filemgr.fileExists(atPath: "/var/jb/etc/apt") {
             jbtype = .rootless
         } else if self.roothide_jbroot() != nil {
@@ -155,9 +166,13 @@ public class Jailbreak {
             appData.jbdata.jbtype = jbtype
         }
         return jbtype
+        #endif
     }
     
     static func path(_ appData: AppData? = nil) -> String {
+        #if targetEnvironment(simulator)
+        var jbroot = "/var/jb"
+        #else
         var jbroot = ""
         if let appData = appData {
             if appData.jbdata.jbroot != "" {
@@ -167,7 +182,7 @@ public class Jailbreak {
         let jbtype = self.type(appData)
         if jbtype == .macos {
             jbroot = "/opt/procursus"
-        } else if jbtype == .rootful {
+        } else if jbtype == .rootful || jbtype == .tvOS_rootful {
             jbroot = ""
         } else if jbtype == .rootless {
             jbroot = "/var/jb"
@@ -179,6 +194,7 @@ public class Jailbreak {
         if let appData = appData {
             appData.jbdata.jbroot = jbroot
         }
+        #endif
         return jbroot
     }
     

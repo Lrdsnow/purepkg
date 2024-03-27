@@ -124,7 +124,7 @@ public class RepoHandler {
         return []
     }
     
-    static func getRepos_limit(_ urls: [URL?], _ appData: AppData? = nil, completion: @escaping (Repo) -> Void) {
+    static func getRepos(_ urls: [URL?], _ distRepoComponents: [URL:String] = [:], completion: @escaping (Repo) -> Void) {
         for url in urls {
             if let url = url {
                 log("getting repo: \(url.absoluteString)")
@@ -132,26 +132,20 @@ public class RepoHandler {
                     if let result = result {
                         log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
                         var Repo = Repo()
-                        if url.absoluteString.contains("apt.procurs.us") {
-                            Repo.url = URL(string: "https://apt.procurs.us")!
-                        } else {
-                            Repo.url = url
-                        }
+                        Repo.url = url
                         Repo.name = result["Origin"] ?? "Unknown Repo"
                         Repo.label = result["Label"] ?? ""
                         Repo.description = result["Description"] ?? "Description"
                         Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
                         Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
-                        var supported = false
-                        for arch in Repo.archs {
-                            if Jailbreak.tweakArchSupported(arch, appData) {
-                                supported = true
-                            }
+                        var pkgsURL = url
+                        if let repoComponents = distRepoComponents[url] {
+                            pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
                         }
-                        log("gettings repo tweaks from: \(url.appendingPathComponent("Packages").absoluteString)")
-                        self.get(url.appendingPathComponent("Packages")) { (result, error) in
+                        log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
+                        self.get(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
                             if let result = result {
-                                log("got repo tweaks! \(url.appendingPathComponent("Packages").absoluteString)")
+                                log("got repo tweaks! \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
                                 var tweaks: [Package] = []
                                 for tweak in result {
                                     let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
@@ -159,53 +153,57 @@ public class RepoHandler {
                                         result[key.lowercased()] = value
                                     }
                                     var Tweak = Package()
-                                    Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
-                                    Tweak.desc = lowercasedTweak["description"] ?? "Description"
-                                    Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
+                                    print(lowercasedTweak)
                                     Tweak.arch = lowercasedTweak["architecture"] ?? ""
-                                    Tweak.name = lowercasedTweak["name"] ?? "Unknown Tweak"
-                                    Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
-                                    Tweak.version = lowercasedTweak["version"] ?? "0.0"
-                                    Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
-                                    for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
-                                        var tweakDep = DepPackage()
-                                        let components = dep.components(separatedBy: " ")
-                                        if components.count >= 1 {
-                                            tweakDep.id = components[0]
-                                        }
-                                        if components.count >= 2 {
-                                            var ver = components[1...].joined(separator: " ")
-                                            ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                                            let verComponents = ver.components(separatedBy: " ")
-                                            if verComponents.count >= 2 {
-                                                tweakDep.reqVer.req = true
-                                                let compare = verComponents[0]
-                                                let truVer = verComponents[1]
-                                                tweakDep.reqVer.version = truVer
-                                                if compare == ">=" {
-                                                    tweakDep.reqVer.minVer = true
+                                    if Tweak.arch == Jailbreak.arch() {
+                                        Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
+                                        Tweak.desc = lowercasedTweak["description"] ?? "Description"
+                                        Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
+                                        Tweak.name = lowercasedTweak["name"] ?? lowercasedTweak["package"] ?? "Unknown Tweak"
+                                        Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
+                                        Tweak.version = lowercasedTweak["version"] ?? "0.0"
+                                        Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
+                                        for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
+                                            var tweakDep = DepPackage()
+                                            let components = dep.components(separatedBy: " ")
+                                            if components.count >= 1 {
+                                                tweakDep.id = components[0]
+                                            }
+                                            if components.count >= 2 {
+                                                var ver = components[1...].joined(separator: " ")
+                                                ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
+                                                let verComponents = ver.components(separatedBy: " ")
+                                                if verComponents.count >= 2 {
+                                                    tweakDep.reqVer.req = true
+                                                    let compare = verComponents[0]
+                                                    let truVer = verComponents[1]
+                                                    tweakDep.reqVer.version = truVer
+                                                    if compare == ">=" {
+                                                        tweakDep.reqVer.minVer = true
+                                                    }
                                                 }
                                             }
+                                            if tweakDep.id != "" {
+                                                Tweak.depends.append(tweakDep)
+                                            }
                                         }
-                                        if tweakDep.id != "" {
-                                            Tweak.depends.append(tweakDep)
+                                        if let depiction = lowercasedTweak["depiction"] {
+                                            Tweak.depiction = URL(string: depiction)
                                         }
-                                    }
-                                    if let depiction = lowercasedTweak["depiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let depiction = lowercasedTweak["sileodepiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let icon = lowercasedTweak["icon"] {
-                                        Tweak.icon = URL(string: icon)
-                                    }
-                                    Tweak.repo = Repo
-                                    Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-                                    if Jailbreak.tweakArchSupported(Tweak.arch, appData) {
+                                        if let depiction = lowercasedTweak["sileodepiction"] {
+                                            Tweak.depiction = URL(string: depiction)
+                                        }
+                                        if let icon = lowercasedTweak["icon"] {
+                                            Tweak.icon = URL(string: icon)
+                                        }
+                                        Tweak.repo = Repo
+                                        Tweak.author = Tweak.author.removingBetweenAngleBrackets()
                                         if let index = tweaks.firstIndex(where: { $0.id == Tweak.id }) {
-                                            let existingTweak = tweaks[index]
+                                            var existingTweak = tweaks[index]
+                                            existingTweak.versions += [Tweak.version]
+                                            tweaks[index] = existingTweak
                                             if Tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
+                                                Tweak.versions = existingTweak.versions
                                                 tweaks[index] = Tweak
                                             }
                                         } else {
@@ -228,107 +226,7 @@ public class RepoHandler {
         }
     }
     
-    static func getRepos(_ urls: [URL?], completion: @escaping (Repo) -> Void) {
-        for url in urls {
-            if let url = url {
-                log("getting repo: \(url.absoluteString)")
-                self.get_dict(url.appendingPathComponent("Release")) { (result, error) in
-                    if let result = result {
-                        log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
-                        var Repo = Repo()
-                        if url.absoluteString.contains("apt.procurs.us") {
-                            Repo.url = URL(string: "https://apt.procurs.us")!
-                        } else {
-                            Repo.url = url
-                        }
-                        Repo.name = result["Origin"] ?? "Unknown Repo"
-                        Repo.label = result["Label"] ?? ""
-                        Repo.description = result["Description"] ?? "Description"
-                        Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
-                        Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
-                        log("gettings repo tweaks from: \(url.appendingPathComponent("Packages").absoluteString)")
-                        self.get(url.appendingPathComponent("Packages")) { (result, error) in
-                            if let result = result {
-                                log("got repo tweaks! \(url.appendingPathComponent("Packages").absoluteString)")
-                                var tweaks: [Package] = []
-                                for tweak in result {
-                                    let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
-                                        let (key, value) = element
-                                        result[key.lowercased()] = value
-                                    }
-                                    var Tweak = Package()
-                                    Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
-                                    Tweak.desc = lowercasedTweak["description"] ?? "Description"
-                                    Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
-                                    Tweak.arch = lowercasedTweak["architecture"] ?? ""
-                                    Tweak.name = lowercasedTweak["name"] ?? "Unknown Tweak"
-                                    Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
-                                    Tweak.version = lowercasedTweak["version"] ?? "0.0"
-                                    Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
-                                    for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
-                                        var tweakDep = DepPackage()
-                                        let components = dep.components(separatedBy: " ")
-                                        if components.count >= 1 {
-                                            tweakDep.id = components[0]
-                                        }
-                                        if components.count >= 2 {
-                                            var ver = components[1...].joined(separator: " ")
-                                            ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                                            let verComponents = ver.components(separatedBy: " ")
-                                            if verComponents.count >= 2 {
-                                                tweakDep.reqVer.req = true
-                                                let compare = verComponents[0]
-                                                let truVer = verComponents[1]
-                                                tweakDep.reqVer.version = truVer
-                                                if compare == ">=" {
-                                                    tweakDep.reqVer.minVer = true
-                                                }
-                                            }
-                                        }
-                                        if tweakDep.id != "" {
-                                            Tweak.depends.append(tweakDep)
-                                        }
-                                    }
-                                    if let depiction = lowercasedTweak["depiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let depiction = lowercasedTweak["sileodepiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let icon = lowercasedTweak["icon"] {
-                                        Tweak.icon = URL(string: icon)
-                                    }
-                                    Tweak.repo = Repo
-                                    Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-                                    if let index = tweaks.firstIndex(where: { $0.id == Tweak.id }) {
-                                        var existingTweak = tweaks[index]
-                                        existingTweak.versions += [Tweak.version]
-                                        tweaks[index] = existingTweak
-                                        if Tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
-                                            Tweak.versions = existingTweak.versions
-                                            tweaks[index] = Tweak
-                                        }
-                                        
-                                    } else {
-                                        tweaks.append(Tweak)
-                                    }
-                                }
-                                Repo.tweaks = tweaks
-                                completion(Repo)
-                            } else if let error = error {
-                                log("Error getting repo tweaks: \(error.localizedDescription)")
-                                completion(Repo)
-                            }
-                        }
-                    } else if let error = error {
-                        log("Error getting repo: \(error.localizedDescription)")
-                    }
-                }
-            }
-        }
-    }
-    
-    static func getAptSources(_ directoryPath: String) -> [URL?] {
+    static func getAptSources(_ directoryPath: String) -> ([URL], [URL:String]) {
         do {
             log("Repo Sources Directory: \(directoryPath)")
             let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
@@ -337,7 +235,8 @@ public class RepoHandler {
             
             log("source Files: \(sourceFiles)")
             
-            var parsedURLs: [URL?] = []
+            var parsedURLs: [URL] = []
+            var distRepoComponents: [URL:String] = [:]
             
             for sourceFile in sourceFiles {
                 let fileURL = URL(fileURLWithPath: directoryPath).appendingPathComponent(sourceFile)
@@ -345,11 +244,19 @@ public class RepoHandler {
                 let arrayOfDictionaries = self.get_local(fileURL.path)
                 
                 for sourceDict in arrayOfDictionaries {
-                    if let suites = sourceDict["Suites"], suites == "./" {
-                        if let urlString = sourceDict["URIs"], let url = URL(string: urlString) {
+                    var suites = "."
+                    if let dict_suites = sourceDict["Suites"] {
+                        suites = dict_suites
+                    }
+                    if let urlString = sourceDict["URIs"], let url = URL(string: urlString) {
+                        if suites == "./" || suites == "." {
                             parsedURLs.append(url)
                         } else {
-                            parsedURLs.append(nil)
+                            let finalURL = url.appendingPathComponent("dists").appendingPathComponent(suites)
+                            parsedURLs.append(finalURL)
+                            if let components = sourceDict["Components"] {
+                                distRepoComponents[finalURL] = components
+                            }
                         }
                     }
                 }
@@ -357,10 +264,10 @@ public class RepoHandler {
             
             log("sources: \(parsedURLs)")
             
-            return parsedURLs
+            return (parsedURLs, distRepoComponents)
         } catch {
             log("Error reading directory: \(error.localizedDescription)")
-            return []
+            return ([], [:])
         }
     }
     

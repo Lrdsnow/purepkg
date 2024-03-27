@@ -105,7 +105,7 @@ class APTWrapper {
                                         progressCallback: @escaping (Double, Bool, String, String) -> Void,
                                         outputCallback: @escaping (String, Int) -> Void,
                                         completionCallback: @escaping (Int, FINISH, Bool) -> Void) {
-        #if targetEnvironment(simulator) || TARGET_SANDBOX || os(tvOS)
+        #if targetEnvironment(simulator) || TARGET_SANDBOX
         return completionCallback(0, .back, true)
         #else
         var arguments = ["\(Jailbreak.path())/usr/bin/apt-get",
@@ -157,19 +157,19 @@ class APTWrapper {
             }
 
             var fileActions: posix_spawn_file_actions_t?
-            posix_spawn_file_actions_init(&fileActions)
-            posix_spawn_file_actions_addclose(&fileActions, pipestdout[0])
-            posix_spawn_file_actions_addclose(&fileActions, pipestderr[0])
-            posix_spawn_file_actions_addclose(&fileActions, pipestatusfd[0])
-            posix_spawn_file_actions_addclose(&fileActions, pipesileo[0])
-            posix_spawn_file_actions_adddup2(&fileActions, pipestdout[1], STDOUT_FILENO)
-            posix_spawn_file_actions_adddup2(&fileActions, pipestderr[1], STDERR_FILENO)
-            posix_spawn_file_actions_adddup2(&fileActions, pipestatusfd[1], 5)
-            posix_spawn_file_actions_adddup2(&fileActions, pipesileo[1], Int32(sileoFD))
-            posix_spawn_file_actions_addclose(&fileActions, pipestdout[1])
-            posix_spawn_file_actions_addclose(&fileActions, pipestderr[1])
-            posix_spawn_file_actions_addclose(&fileActions, pipestatusfd[1])
-            posix_spawn_file_actions_addclose(&fileActions, pipesileo[1])
+            custom_posix_spawn_file_actions_init(&fileActions)
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipestdout[0])
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipestderr[0])
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipestatusfd[0])
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipesileo[0])
+            custom_posix_spawn_file_actions_adddup2(&fileActions, pipestdout[1], STDOUT_FILENO)
+            custom_posix_spawn_file_actions_adddup2(&fileActions, pipestderr[1], STDERR_FILENO)
+            custom_posix_spawn_file_actions_adddup2(&fileActions, pipestatusfd[1], 5)
+            custom_posix_spawn_file_actions_adddup2(&fileActions, pipesileo[1], Int32(sileoFD))
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipestdout[1])
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipestderr[1])
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipestatusfd[1])
+            custom_posix_spawn_file_actions_addclose(&fileActions, pipesileo[1])
         
             let command = arguments.first!
             arguments[0] = String(command.split(separator: "/").last!)
@@ -193,11 +193,11 @@ class APTWrapper {
             
             let spawnStatus: Int32
             var attr: posix_spawnattr_t?
-            posix_spawnattr_init(&attr)
+            custom_posix_spawnattr_init(&attr)
             posix_spawnattr_set_persona_np(&attr, 99, UInt32(POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE));
             posix_spawnattr_set_persona_uid_np(&attr, 0);
             posix_spawnattr_set_persona_gid_np(&attr, 0);
-            spawnStatus = posix_spawn(&pid, command, &fileActions, &attr, argv + [nil], env + [nil])
+            spawnStatus = custom_posix_spawn(&pid, command, &fileActions, &attr, argv + [nil], env + [nil])
             
             if spawnStatus != 0 {
                 return

@@ -56,31 +56,31 @@ struct InstalledView: View {
                     Section(header: HStack {
                         Text("Installed Tweaks")
                             .font(.headline)
-                        Spacer()
-                        Menu("Sort By") {
-                            Button(action: {
-                                self.appData.installed_pkgs.sort(by: { $0.installed_size < $1.installed_size })
-                            }) {
-                                Text("Install Size")
+                        if #available(tvOS 17.0, iOS 14.0, macCatalyst 14.0, *) {
+                            Spacer()
+                            Menu("Sort By") {
+                                Button(action: {
+                                    self.appData.installed_pkgs.sort(by: { $0.installed_size < $1.installed_size })
+                                }) {
+                                    Text("Install Size")
+                                }
+                                Button(action: {
+                                    self.appData.installed_pkgs.sort(by: { $0.name < $1.name })
+                                }) {
+                                    Text("Name")
+                                }
                             }
-                            Button(action: {
-                                self.appData.installed_pkgs.sort(by: { $0.name < $1.name })
-                            }) {
-                                Text("Name")
-                            }
-                        }.shadow(color: .accentColor, radius: 5)
+                            .accentShadow()
+                        }
                     }) {
                         ForEach(filteredPackages, id: \.id) { package in
-                            NavigationLink(destination: TweakView(pkg: package)) {
-                                TweakRow(tweak: package)
-                            }
-                            .noListRowSeparator()
+                            TweakRowNavLinkWrapper(tweak: package).noListRowSeparator()
                             .listRowBackground(Color.clear).noListRowSeparator()
                         }
                     }.animation(.spring())
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.animation(.spring(), value: filteredPackages.count)
-            }.navigationBarTitle("Installed").listStyle(.plain).BGImage(appData).navigationBarTitleDisplayMode(.large)
+            }.navigationBarTitle("Installed").listStyle(.plain).BGImage(appData).largeNavBarTitle()
         }.navigationViewStyle(.stack)
     }
 }

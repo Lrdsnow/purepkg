@@ -86,7 +86,7 @@ struct TweakView: View {
             
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {
-                    RepoRow(repo: pkg.repo)
+                    RepoRow(repo: pkg.repo, focused: .constant(false))
                 }.listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
             }
             

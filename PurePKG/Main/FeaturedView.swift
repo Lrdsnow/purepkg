@@ -20,6 +20,8 @@ struct FeaturedView: View {
             VStack {
                 List {
                     if featured.count >= 4 {
+                        #if os(tvOS)
+                        #else
                         VStack {
                             HStack {
                                 CustomNavigationLink {TweakView(pkg: featured[0])} label: {
@@ -38,11 +40,10 @@ struct FeaturedView: View {
                                 }.transition(.move(edge: .trailing)).animation(.spring()).padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
                             }
                         }.listRowBackground(Color.clear).noListRowSeparator()
+                        #endif
                         Section("Need Ideas?") {
                             ForEach(otherFeatured, id: \.id) { tweak in
-                                NavigationLink(destination: TweakView(pkg: tweak)) {
-                                    TweakRow(tweak: tweak)
-                                }.listRowBackground(Color.clear).noListRowSeparator()
+                                TweakRowNavLinkWrapper(tweak: tweak).listRowBackground(Color.clear).noListRowSeparator()
                             }
                         }.animation(.spring())
                     }
@@ -85,11 +86,17 @@ struct FeaturedView: View {
     
     private var gearButton: some View {
         NavigationLink(destination: SettingsView()) {
+            #if os(tvOS)
+            Image("gear_icon")
+                .font(.system(size: 24))
+                .frame(width: 44, height: 44)
+            #else
             Image("gear_icon")
                 .renderingMode(.template)
                 .font(.system(size: 24))
                 .frame(width: 44, height: 44)
                 .shadow(color: .accentColor, radius: 5)
+            #endif
         }
     }
 }
@@ -154,12 +161,12 @@ struct FeaturedAppRectangle: View {
         .cornerRadius(20)
         .shadow(radius: 5)
         .frame(height: scale)
+        .SystemFillRoundedBG()
         #if targetEnvironment(macCatalyst)
             .onAppear() {
                 self.scale = appData.size.height/7.717
             }
         #endif
-        .background(Color(.systemFill).opacity(0.5).cornerRadius(20))
     }
 }
 

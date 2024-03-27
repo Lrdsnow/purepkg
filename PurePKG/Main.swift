@@ -24,6 +24,8 @@ struct purepkgApp: App {
     @StateObject private var appData = AppData()
     
     init() {
+        #if os(tvOS)
+        #else
         UINavigationBar.appearance().prefersLargeTitles = true
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
@@ -33,6 +35,7 @@ struct purepkgApp: App {
         UITableView.appearance().separatorStyle = .none
         UITableView.appearance().separatorColor = .clear
         UITabBar.appearance().isHidden = true
+        #endif
     }
     
     var body: some Scene {
@@ -82,6 +85,50 @@ struct MainView: View {
                         selectedTab = 1
                     }
                 }
+        }
+#elseif os(tvOS)
+        TabView(selection: $selectedTab) {
+            FeaturedView().tag(0).tabItem {
+                HStack {
+                    Image("home_icon")
+                    Text("Featured")
+                }
+            }
+            BrowseView().tag(1).tabItem {
+                HStack {
+                    Image("browse_icon")
+                    Text("Browse")
+                }
+            }
+            InstalledView().tag(2).tabItem {
+                HStack {
+                    Image("installed_icon")
+                    Text("Installed")
+                }
+            }
+            SearchView().tag(3).tabItem {
+                HStack {
+                    Image("search_icon")
+                    Text("Search")
+                }
+            }
+            if !appData.queued.all.isEmpty {
+                TvOSQueuedView().tag(4).tabItem {
+                    HStack {
+                        Image("queue_icon")
+                        Text("Queued")
+                    }
+                }
+            }
+        }.onAppear() {
+            appData.jbdata.jbtype = Jailbreak.type(appData)
+            appData.deviceInfo = getDeviceInfo()
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+            appData.repos = RepoHandler.getCachedRepos()
+            appData.pkgs = appData.repos.flatMap { $0.tweaks }
+            if appData.repos.isEmpty {
+                selectedTab = 1
+            }
         }
 #else
         ZStack(alignment: .bottom) {
@@ -149,7 +196,7 @@ struct MainView: View {
                                         ForEach(appData.queued.install, id: \.id) { package in
                                             VStack {
                                                 HStack {
-                                                    TweakRow(tweak: package)
+                                                    TweakRow(tweak: package, focused: .constant(false))
                                                     Spacer()
                                                     if editing {
                                                         Button(action: {
@@ -183,7 +230,7 @@ struct MainView: View {
                                         ForEach(appData.queued.uninstall, id: \.id) { package in
                                             VStack {
                                                 HStack {
-                                                    TweakRow(tweak: package)
+                                                    TweakRow(tweak: package, focused: .constant(false))
                                                     Spacer()
                                                     if editing {
                                                         Button(action: {

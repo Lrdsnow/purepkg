@@ -108,11 +108,23 @@ extension View {
     }
     @ViewBuilder
     func clearListBG() -> some View {
+        #if os(tvOS)
+        self
+        #else
         if #available(iOS 16.0, *) {
             self.scrollContentBackground(.hidden)
         } else {
             self
         }
+        #endif
+    }
+    @ViewBuilder
+    func listStyleInsetGrouped() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.listStyle(.insetGrouped)
+        #endif
     }
     @ViewBuilder
     func BGImage(_ appData: AppData) -> some View {
@@ -144,7 +156,38 @@ extension View {
     
     @ViewBuilder
     func noListRowSeparator() -> some View {
+        #if os(tvOS)
+        self
+        #else
         self.listRowSeparator(.hidden)
+        #endif
+    }
+    
+    @ViewBuilder
+    func largeNavBarTitle() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.navigationBarTitleDisplayMode(.large)
+        #endif
+    }
+    
+    @ViewBuilder
+    func SystemFillRoundedBG() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.background(Color(.systemFill).opacity(0.5).cornerRadius(20))
+        #endif
+    }
+    
+    @ViewBuilder
+    func accentShadow() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.shadow(color: .accentColor, radius: 5)
+        #endif
     }
 }
 

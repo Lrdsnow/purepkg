@@ -9,6 +9,23 @@ import Foundation
 import UIKit
 import SwiftUI
 
+public extension UIDevice {
+    var modelName: String {
+        #if targetEnvironment(simulator)
+            let identifier = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "Unknown"
+        #else
+            var systemInfo = utsname()
+            uname(&systemInfo)
+            let machineMirror = Mirror(reflecting: systemInfo.machine)
+            let identifier = machineMirror.children.reduce("") { identifier, element in
+                guard let value = element.value as? Int8, value != 0 else { return identifier }
+                return identifier + String(UnicodeScalar(UInt8(value)))
+            }
+        #endif
+        return identifier
+    }
+}
+
 extension URL {
     var isDirectory: Bool {
        (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
@@ -33,6 +50,34 @@ extension String {
     func removingBetweenAngleBrackets() -> String {
         let regex = try! NSRegularExpression(pattern: "<.*?>", options: .caseInsensitive)
         return regex.stringByReplacingMatches(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count), withTemplate: "").trimmingCharacters(in: .whitespaces)
+    }
+}
+
+extension Color {
+    private func makeColor(componentDelta: CGFloat) -> UIColor {
+        var red: CGFloat = 0
+        var blue: CGFloat = 0
+        var green: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        // Extract r,g,b,a components from the current UIColor
+        UIColor(self).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        // Create a new UIColor modifying each component by componentDelta
+        return UIColor(
+            red: add(componentDelta, toComponent: red),
+            green: add(componentDelta, toComponent: green),
+            blue: add(componentDelta, toComponent: blue),
+            alpha: alpha
+        )
+    }
+    
+    func darker(_ componentDelta: CGFloat = 0.1) -> Color {
+        return Color(makeColor(componentDelta: -1 * componentDelta))
+    }
+    
+    private func add(_ delta: CGFloat, toComponent component: CGFloat) -> CGFloat {
+        return max(0, min(1, component + delta))
     }
 }
 

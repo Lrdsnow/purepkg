@@ -59,14 +59,12 @@ struct SearchView: View {
                     .padding(.horizontal, 10)
                 List {
                     ForEach(filteredPackages, id: \.id) { package in
-                        NavigationLink(destination: TweakView(pkg: package)) {
-                            TweakRow(tweak: package)
-                        }.noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()
+                        TweakRowNavLinkWrapper(tweak: package).noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()
                     }
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.animation(.spring(), value: filteredPackages.count).animation(.spring())
             }.navigationBarTitle("Search").listStyle(.plain).BGImage(appData)
-            .navigationBarTitleDisplayMode(.large)
+            .largeNavBarTitle()
         }.navigationViewStyle(.stack)
     }
 }

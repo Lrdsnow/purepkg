@@ -19,29 +19,36 @@ struct BrowseView: View {
         NavigationView {
             if !appData.repos.isEmpty {
                 List {
-                    NavigationLink(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)) {
-                        PlaceHolderRow(alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0)
-                    }.listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
+                    PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs), alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0).listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
                     Section("Repositories") {
                         ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.name) { repo in
-                            NavigationLink(destination: RepoView(repo: repo)) {
-                                RepoRow(repo: repo)
-                            }.noListRowSeparator()
+                            RepoRowNavLinkWrapper(repo: repo).noListRowSeparator()
                         }
                     }.listRowBackground(Color.clear).noListRowSeparator().animation(.spring())
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
                     .navigationBarItems(trailing:
                                             HStack {
-                        #if targetEnvironment(macCatalyst)
+                        #if targetEnvironment(macCatalyst) || os(tvOS)
                         Button(action: {
                             appData.repos = []
                         }) {
+                            #if os(tvOS)
+                            Image("refresh_icon")
+                            #else
                             Image("refresh_icon")
                                 .renderingMode(.template)
+                            #endif
                         }
                         #endif
                         Button(action: {
+                            #if os(tvOS)
+                            if #available(tvOS 16, *) {
+                                isAddingRepoURLAlert16Presented = true
+                            } else {
+                                isAddingRepoURLAlertPresented = true
+                            }
+                            #else
                             if let repourl = URL(string: UIPasteboard.general.string ?? "") {
                                 newRepoURL = repourl.absoluteString
                                 Task {
@@ -54,10 +61,15 @@ struct BrowseView: View {
                                     isAddingRepoURLAlertPresented = true
                                 }
                             }
+                            #endif
                         }) {
+                            #if os(tvOS)
+                            Image("plus_icon")
+                            #else
                             Image("plus_icon")
                                 .renderingMode(.template)
                                 .shadow(color: .accentColor, radius: 5)
+                            #endif
                         }
                     }
                     ).refreshable {
@@ -70,7 +82,7 @@ struct BrowseView: View {
                             }
                         }
                     }
-                    .navigationBarTitleDisplayMode(.large)
+                    .largeNavBarTitle()
             } else {
                 VStack {
                     ZStack {
@@ -84,13 +96,16 @@ struct BrowseView: View {
                         try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
                         DispatchQueue.main.async {
                             if appData.jbdata.jbtype != .jailed {
-                                appData.repo_urls = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
+                                let repoData = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
+                                appData.repo_urls = repoData.0
+                                appData.dist_repo_components = repoData.1
                             } else {
-                                appData.repo_urls = [URL(string: "https://repo.chariz.com"), URL(string: "https://luki120.github.io"), URL(string: "https://sparkdev.me"), URL(string: "https://havoc.app")]
+                                appData.repo_urls = [URL(string: "https://repo.chariz.com")!, URL(string: "https://luki120.github.io")!, URL(string: "https://sparkdev.me")!, URL(string: "https://havoc.app")!]
                             }
                             let repo_urls = appData.repo_urls
+                            let dist_repo_components = appData.dist_repo_components
                             DispatchQueue.global(qos: .background).async {
-                                RepoHandler.getRepos(repo_urls) { Repo in
+                                RepoHandler.getRepos(repo_urls, dist_repo_components) { Repo in
                                     DispatchQueue.main.async {
                                         if !appData.repos.contains(where: { $0.url == Repo.url }) {
                                             appData.repos.append(Repo)
@@ -117,7 +132,7 @@ struct BrowseView: View {
                         }
                     }
                 }.BGImage(appData).navigationTitle("Browse")
-                .navigationBarTitleDisplayMode(.large)
+                .largeNavBarTitle()
             }
         }.navigationViewStyle(.stack)
     }
@@ -154,15 +169,19 @@ struct RepoView: View {
 
     var body: some View {
         List {
-            NavigationLink(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: "All Tweaks", tweaks: repo.tweaks)) {
-                PlaceHolderRow(alltweaks: repo.tweaks.count, category: "", categoryTweaks: 0)
-            }.listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
+            PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: "All Tweaks", tweaks: repo.tweaks),
+                                         alltweaks: repo.tweaks.count,
+                                         category: "",
+                                         categoryTweaks: 0)
+            .listRowBackground(Color.clear)
+            .noListRowSeparator()
+            .padding(.vertical, 5)
+            .padding(.bottom, 10)
+            .noListRowSeparator()
             Section("Categories") {
                 ForEach(Array(Set(repo.tweaks.map { $0.section })), id: \.self) { category in
                     let categoryTweaks = repo.tweaks.filter { $0.section == category }
-                    NavigationLink(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: category, tweaks: categoryTweaks)) {
-                        PlaceHolderRow(alltweaks: -1, category: category, categoryTweaks: categoryTweaks.count)
-                    }.noListRowSeparator()
+                    PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: category, tweaks: categoryTweaks), alltweaks: -1, category: category, categoryTweaks: categoryTweaks.count).noListRowSeparator()
                 }
             }.listRowBackground(Color.clear).noListRowSeparator()
             Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
@@ -171,7 +190,7 @@ struct RepoView: View {
         .BGImage(appData)
         .navigationTitle(repo.name)
         .listStyle(.plain)
-        .navigationBarTitleDisplayMode(.large)
+        .largeNavBarTitle()
     }
 }
 
@@ -185,9 +204,7 @@ struct TweaksListView: View {
         List {
             Section(tweaksLabel) {
                 ForEach(tweaks, id: \.name) { tweak in
-                    NavigationLink(destination: TweakView(pkg: tweak)) {
-                        TweakRow(tweak: tweak)
-                    }.noListRowSeparator()
+                    TweakRowNavLinkWrapper(tweak: tweak)
                 }
             }.listRowBackground(Color.clear).noListRowSeparator()
             Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
@@ -195,7 +212,32 @@ struct TweaksListView: View {
             .BGImage(appData)
             .navigationTitle(pageLabel)
             .listStyle(.plain)
-            .navigationBarTitleDisplayMode(.large)
+            .largeNavBarTitle()
+    }
+}
+
+struct PlaceHolderRowNavLinkWrapper<Destination: View>: View {
+    let destination: Destination
+    let alltweaks: Int
+    let category: String
+    let categoryTweaks: Int
+    @FocusState private var isFocused: Bool
+    @State private var focused: Bool = false
+    
+    var body: some View {
+        NavigationLink(destination: destination) {
+            #if os(tvOS)
+            PlaceHolderRow(alltweaks: alltweaks, category: category, categoryTweaks: categoryTweaks, focused: $focused)
+            #else
+            PlaceHolderRow(alltweaks: alltweaks, category: category, categoryTweaks: categoryTweaks, focused: .constant(false))
+            #endif
+        }
+        #if os(tvOS)
+        .focusable(true) { isFocused in
+            self.isFocused = isFocused
+            self.focused = isFocused
+        }
+        #endif
     }
 }
 
@@ -203,7 +245,8 @@ struct PlaceHolderRow: View {
     let alltweaks: Int
     let category: String
     let categoryTweaks: Int
-    
+    @Binding var focused: Bool
+
     var body: some View {
         HStack {
             Image("DisplayAppIcon")
@@ -216,20 +259,20 @@ struct PlaceHolderRow: View {
                 if alltweaks != -1 {
                     Text("All Tweaks")
                         .font(.headline)
-                        .foregroundColor(Color.accentColor)
+                        .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     Text("\(alltweaks) Tweaks Total")
                         .font(.subheadline)
-                        .foregroundColor(Color.accentColor.opacity(0.7))
+                        .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 } else {
                     Text(category)
                         .font(.headline)
-                        .foregroundColor(Color.accentColor)
+                        .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     Text("\(categoryTweaks) Tweaks")
                         .font(.subheadline)
-                        .foregroundColor(Color.accentColor.opacity(0.7))
+                        .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 }
             }
@@ -237,9 +280,33 @@ struct PlaceHolderRow: View {
     }
 }
 
+struct RepoRowNavLinkWrapper: View {
+    let repo: Repo
+    @FocusState private var isFocused: Bool
+    @State private var focused: Bool = false
+    
+    var body: some View {
+        NavigationLink(destination: RepoView(repo: repo)) {
+            #if os(tvOS)
+            RepoRow(repo: repo, focused: $focused)
+            #else
+            RepoRow(repo: repo, focused: .constant(false))
+            #endif
+        }
+        .noListRowSeparator()
+        #if os(tvOS)
+        .focusable(true) { isFocused in
+            self.isFocused = isFocused
+            self.focused = isFocused
+        }
+        #endif
+    }
+}
+
 struct RepoRow: View {
     @EnvironmentObject var appData: AppData
     @State var repo: Repo
+    @Binding var focused: Bool
     
     var body: some View {
         HStack {
@@ -254,14 +321,16 @@ struct RepoRow: View {
             VStack(alignment: .leading) {
                 Text(repo.name)
                     .font(.headline)
-                    .foregroundColor(Color.accentColor)
+                    .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 Text(repo.url.absoluteString)
                     .font(.subheadline)
-                    .foregroundColor(Color.accentColor.opacity(0.7))
+                    .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
             }
         }.padding(.vertical, 5).contextMenu(menuItems: {
+            #if os(tvOS)
+            #else
             Button(action: {
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = repo.url.absoluteString
@@ -269,6 +338,7 @@ struct RepoRow: View {
                 Text("Copy Repo URL")
                 Image("copy_icon").renderingMode(.template)
             }
+            #endif
             Button(role: .destructive, action: {
                 RepoHandler.removeRepo(repo.url)
                 appData.repos = []
@@ -281,9 +351,33 @@ struct RepoRow: View {
     }
 }
 
+struct TweakRowNavLinkWrapper: View {
+    let tweak: Package
+    @FocusState private var isFocused: Bool
+    @State private var focused: Bool = false
+    
+    var body: some View {
+        NavigationLink(destination: TweakView(pkg: tweak)) {
+            #if os(tvOS)
+            TweakRow(tweak: tweak, focused: $focused)
+            #else
+            TweakRow(tweak: tweak, focused: .constant(false))
+            #endif
+        }
+        .noListRowSeparator()
+        #if os(tvOS)
+        .focusable(true) { isFocused in
+            self.isFocused = isFocused
+            self.focused = isFocused
+        }
+        #endif
+    }
+}
+
 struct TweakRow: View {
     @EnvironmentObject var appData: AppData
     @State var tweak: Package
+    @Binding var focused: Bool
     
     var body: some View {
         HStack {
@@ -306,16 +400,16 @@ struct TweakRow: View {
             VStack(alignment: .leading) {
                 Text(tweak.name)
                     .font(.headline)
-                    .foregroundColor(Color.accentColor)
+                    .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 Text("\(tweak.author) · \(tweak.version) · \(tweak.id)")
                     .font(.subheadline)
-                    .foregroundColor(Color.accentColor.opacity(0.7))
+                    .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
                 Text(tweak.desc)
                     .font(.footnote)
-                    .foregroundColor(Color.accentColor.opacity(0.5))
+                    .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.5) : Color.accentColor.opacity(0.5))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
             }
