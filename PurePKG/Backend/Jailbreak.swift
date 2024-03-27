@@ -138,7 +138,7 @@ public class Jailbreak {
     
     static func type(_ appData: AppData? = nil) -> (jbType) {
         #if targetEnvironment(simulator)
-        return .tvOS_rootful
+        return .rootless
         #else
         var jbtype: jbType = .unknown
         if let appData = appData {

@@ -1,0 +1,35 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: appletvos-arm64 darwin-amd64 darwin-arm64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e
+Codename: purepkg
+Components: main
+Date: Wed, 27 Mar 2024 18:02:50 +0000
+Description: PurePKG
+Label: PurePKG
+Origin: PurePKG
+Suite: stable
+Version: 1.0
+MD5Sum:
+ 021ca2e099501354435ef5b84cf847a5             4780 Packages
+ 5f555bbdc8b57ef087329b4cdd30da47             1538 Packages.gz
+ 624fc2150c97e2beb2d862714eab1c0f              253 Release
+SHA1:
+ 3a9d751c5609a2c4c5c6e5604cfcc8c70e713968             4780 Packages
+ 1235e5f5c7496b8b8618ce22ed31289b15d1b3f4             1538 Packages.gz
+ 3e510d2abd4feb17319ed48e4d25e589de52eaea              253 Release
+SHA256:
+ cab26804b1a6b4a2aa286d85d5c164fcfa5f61d1d59e19ecfe71758038b8bb24             4780 Packages
+ 7c892c6c5e51885b724bbcca668ec5a142c36eb8777f7bddef9ed293ec834abe             1538 Packages.gz
+ e01918f41d8837ad07b831aa1556d27c04b333ec0d51e4b6b2b24cb16f12e20d              253 Release
+SHA512:
+ 3b136d128ae64d04cb67c186637c076c7533086927648aeac658f1efdee6a28a40f72d7f2ad03627412a5dd5c8b23613fc782abd12916b813913bdeaae247b38             4780 Packages
+ 3c5a3752e7c6a410d5cbfd96c7a93fe2a1f35f2a1aa854bde1da052ac0b11a70c63b08003db88022b916867bb2dfd7ae5310252f9b7f4934801a4359c30ab84b             1538 Packages.gz
+ 7a0ddcdd7b56337145d82ef88b1acca164ff018c3370e742fe16d4cfb6f73e216ed843ce26cd276fbef7f45f4aa80e58d07544c2baba2b496e6aac1927d0bd53              253 Release
+-----BEGIN PGP SIGNATURE-----
+
+iIsEARYKADMWIQQBMWcIEpH45YhabS7JZ9mKny64ZgUCZgRfTxUcbHJkc25vdzEw
+MUBnbWFpbC5jb20ACgkQyWfZip8uuGaRWwD/e3Hg1Si5YxyyEvckvi+yv0NsI0wH
+MfzeAES2DfoCPXUBAJaepLLgPzeov7Q2r1V5dXBSOJO8AtMng7PXUilgmN4F
+=X2w1
+-----END PGP SIGNATURE-----

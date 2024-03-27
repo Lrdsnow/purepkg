@@ -334,15 +334,14 @@ struct MainView: View {
                                 if selectedTab == index {
                                     Text("\(tabItems[index])").lineLimit(1)
                                 }
-                            }.padding(.horizontal, 23)
+                            }.padding(.horizontal, UIScreen.main.bounds.width * 0.03)
                         }.padding(.top, 16).background(Color.black.opacity(0.001))
                         .foregroundColor(selectedTab == index ? .accentColor : .accentColor.opacity(0.2))
                         .shadow(color: selectedTab == index ? .accentColor : .accentColor.opacity(0.2), radius: 5)
                         .animation(.spring(), value: selectedTab)
                         .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 > 0 ? 35 : 16)
                     }
-                }.frame(width: UIScreen.main.bounds.width)//.background(Color.black)
-                    //.background(VisualEffectView(effect: UIBlurEffect(style: .dark)).edgesIgnoringSafeArea(.bottom))
+                }.frame(width: UIScreen.main.bounds.width)
                     .transition(.move(edge: .bottom))
                     .noTabBarBG()
             }

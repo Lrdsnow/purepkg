@@ -76,7 +76,7 @@ struct TweakView: View {
                             }
                         }, label: {
                             Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
-                        }).buttonStyle(.borderedProminent).opacity(0.7).animation(.spring())
+                        }).buttonStyle(.borderedProminent).opacity(0.7).springAnim()
                     }
                 }
             }

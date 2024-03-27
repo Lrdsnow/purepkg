@@ -24,7 +24,7 @@ struct BrowseView: View {
                         ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.name) { repo in
                             RepoRowNavLinkWrapper(repo: repo).noListRowSeparator()
                         }
-                    }.listRowBackground(Color.clear).noListRowSeparator().animation(.spring())
+                    }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
                     .navigationBarItems(trailing:
@@ -323,10 +323,12 @@ struct RepoRow: View {
                     .font(.headline)
                     .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                    .lineLimit(1)
                 Text(repo.url.absoluteString)
                     .font(.subheadline)
                     .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                    .lineLimit(1)
             }
         }.padding(.vertical, 5).contextMenu(menuItems: {
             #if os(tvOS)

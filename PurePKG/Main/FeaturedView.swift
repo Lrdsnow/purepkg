@@ -19,69 +19,110 @@ struct FeaturedView: View {
         NavigationView {
             VStack {
                 List {
+                    #if os(tvOS)
+                    #else
                     if featured.count >= 4 {
-                        #if os(tvOS)
-                        #else
                         VStack {
                             HStack {
                                 CustomNavigationLink {TweakView(pkg: featured[0])} label: {
                                     FeaturedAppRectangle(pkg: featured[0], flipped: false)
-                                }.transition(.move(edge: .leading)).animation(.spring()).padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+                                }.transition(.move(edge: .leading)).springAnim().padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
                                 CustomNavigationLink {TweakView(pkg: featured[1])} label: {
                                     FeaturedAppSquare(pkg: featured[1])
-                                }.transition(.move(edge: .trailing)).animation(.spring())
+                                }.transition(.move(edge: .trailing)).springAnim()
                             }
                             HStack {
                                 CustomNavigationLink {TweakView(pkg: featured[2])} label: {
                                     FeaturedAppSquare(pkg: featured[2])
-                                }.transition(.move(edge: .leading)).animation(.spring())
+                                }.transition(.move(edge: .leading)).springAnim()
                                 CustomNavigationLink {TweakView(pkg: featured[3])} label: {
                                     FeaturedAppRectangle(pkg: featured[3], flipped: true)
-                                }.transition(.move(edge: .trailing)).animation(.spring()).padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+                                }.transition(.move(edge: .trailing)).springAnim().padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
                             }
                         }.listRowBackground(Color.clear).noListRowSeparator()
-                        #endif
+                    }
+                    #endif
+                    if otherFeatured.count >= 1 {
                         Section("Need Ideas?") {
                             ForEach(otherFeatured, id: \.id) { tweak in
                                 TweakRowNavLinkWrapper(tweak: tweak).listRowBackground(Color.clear).noListRowSeparator()
                             }
-                        }.animation(.spring())
+                        }.springAnim()
                     }
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.listStyle(.plain).clearListBG()
 //                Text("Featured View")
 //                NavigationLink(destination: SettingsView(), label: {Text("Settings")})
-            }.BGImage(appData).navigationTitle("Featured").navigationBarItems(trailing: gearButton)
-        }.navigationViewStyle(.stack).onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured {
-            featured = []
-            let CleanPKGS = appData.pkgs.filter { $0.icon != nil && $0.name != "Unknown Tweak" && $0.desc != "Unknown Desc" && $0.id != "uwu.lrdsnow.unknown" }
-            if CleanPKGS.count != 0 {
-                if let index = CleanPKGS.firstIndex(where: { $0.id == "com.mtac.alpine" }) {
-                    featured.append(CleanPKGS[index])
-                } else {
-                    featured.append(CleanPKGS[Int(arc4random_uniform(UInt32(CleanPKGS.count-1)))])
+            }.BGImage(appData).navigationTitle("Featured").navigationBarItems(trailing: HStack {
+                #if targetEnvironment(macCatalyst) || os(tvOS)
+                Button(action: {
+                    generateFeatured()
+                }) {
+                    #if os(tvOS)
+                    Image("refresh_icon")
+                        .font(.system(size: 24))
+                        .frame(width: 44, height: 44)
+                    #else
+                    Image("refresh_icon")
+                        .renderingMode(.template)
+                        .font(.system(size: 24))
+                        .frame(width: 44, height: 44)
+                    #endif
                 }
-                if let index = CleanPKGS.firstIndex(where: { $0.id == "ws.hbang.newterm2" }) {
-                    featured.append(CleanPKGS[index])
-                } else {
-                    featured.append(CleanPKGS[Int(arc4random_uniform(UInt32(CleanPKGS.count-1)))])
+                #endif
+                gearButton
+            })
+        }.navigationViewStyle(.stack).onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generatedFeatured } }).refreshable { generateFeatured() }
+        
+    }
+    
+    func generateFeatured() {
+        featured = []
+        
+        let cleanPKGS = appData.pkgs.filter { $0.icon != nil && $0.name != "Unknown Tweak" && $0.desc != "Unknown Desc" && $0.id != "uwu.lrdsnow.unknown" }
+        
+        if cleanPKGS.isEmpty {
+            return
+        }
+        
+        #if os(tvOS)
+        #else
+        let addToFeatured = { (id: String) in
+            if let index = cleanPKGS.firstIndex(where: { $0.id == id }) {
+                featured.append(cleanPKGS[index])
+            } else {
+                while true {
+                    let newpkg = cleanPKGS[Int(arc4random_uniform(UInt32(cleanPKGS.count)))]
+                    if !featured.contains(where: { $0.name == newpkg.name }) && !otherFeatured.contains(where: { $0.name == newpkg.name }) {
+                        featured.append(newpkg)
+                        break
+                    }
+                    if featured.count + otherFeatured.count == cleanPKGS.count {
+                        break
+                    }
                 }
-                if let index = CleanPKGS.firstIndex(where: { $0.id == "com.mtac.lynxtwo" }) {
-                    featured.append(CleanPKGS[index])
-                } else {
-                    featured.append(CleanPKGS[Int(arc4random_uniform(UInt32(CleanPKGS.count-1)))])
-                }
-                if let index = CleanPKGS.firstIndex(where: { $0.id == "com.spark.aion" }) {
-                    featured.append(CleanPKGS[index])
-                } else {
-                    featured.append(CleanPKGS[Int(arc4random_uniform(UInt32(CleanPKGS.count-1)))])
-                }
-                for _ in 1...8 {
-                    otherFeatured.append(CleanPKGS[Int(arc4random_uniform(UInt32(CleanPKGS.count-1)))])
-                }
-                generatedFeatured = true
             }
-        } })
+        }
+        
+        if 4 <= cleanPKGS.count {
+            addToFeatured("com.mtac.alpine")
+            addToFeatured("ws.hbang.newterm2")
+            addToFeatured("com.mtac.lynxtwo")
+            addToFeatured("com.spark.aion")
+        }
+        #endif
+        
+        while featured.count + otherFeatured.count < cleanPKGS.count && featured.count < 8 {
+            let newpkg = cleanPKGS[Int(arc4random_uniform(UInt32(cleanPKGS.count)))]
+            print(newpkg.name)
+            if !featured.contains(where: { $0.name == newpkg.name }) && !otherFeatured.contains(where: { $0.name == newpkg.name }) {
+                otherFeatured.append(newpkg)
+            }
+        }
+        
+        print(otherFeatured.count)
+        
+        generatedFeatured = true
     }
     
     private var gearButton: some View {
@@ -101,6 +142,8 @@ struct FeaturedView: View {
     }
 }
 
+#if os(tvOS)
+#else
 struct FeaturedAppRectangle: View {
     let pkg: Package
     let flipped: Bool
@@ -195,3 +238,4 @@ struct FeaturedAppSquare: View {
         #endif
     }
 }
+#endif

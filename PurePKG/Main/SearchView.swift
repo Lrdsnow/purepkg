@@ -62,7 +62,7 @@ struct SearchView: View {
                         TweakRowNavLinkWrapper(tweak: package).noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()
                     }
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
-                }.animation(.spring(), value: filteredPackages.count).animation(.spring())
+                }.animation(.spring(), value: filteredPackages.count).springAnim()
             }.navigationBarTitle("Search").listStyle(.plain).BGImage(appData)
             .largeNavBarTitle()
         }.navigationViewStyle(.stack)

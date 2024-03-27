@@ -77,7 +77,7 @@ struct InstalledView: View {
                             TweakRowNavLinkWrapper(tweak: package).noListRowSeparator()
                             .listRowBackground(Color.clear).noListRowSeparator()
                         }
-                    }.animation(.spring())
+                    }.springAnim()
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.animation(.spring(), value: filteredPackages.count)
             }.navigationBarTitle("Installed").listStyle(.plain).BGImage(appData).largeNavBarTitle()

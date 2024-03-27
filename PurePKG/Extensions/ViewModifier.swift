@@ -139,6 +139,8 @@ extension View {
                 .edgesIgnoringSafeArea(.bottom)
                 .frame(width: appData.size.width)
         )
+        #elseif os(tvOS)
+        self.background(Color(hex:"#2d003d").frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height).edgesIgnoringSafeArea(.all))
         #else
         self.background(
             VStack {
@@ -187,6 +189,15 @@ extension View {
         self
         #else
         self.shadow(color: .accentColor, radius: 5)
+        #endif
+    }
+    
+    @ViewBuilder
+    func springAnim() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.animation(.spring())
         #endif
     }
 }
