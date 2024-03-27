@@ -1,0 +1,8 @@
+Origin: PurePKG
+Label: PurePKG
+Suite: stable
+Version: 1.0
+Codename: purepkg
+Architectures: appletvos-arm64 darwin-amd64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e
+Components: main
+Description: PurePKG

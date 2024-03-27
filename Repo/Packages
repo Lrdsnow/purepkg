@@ -1,0 +1,17 @@
+Package: uwu.lrdsnow.purepkg
+Version: 1.0b3
+Architecture: darwin-amd64
+Maintainer: Lrdsnow
+Depends: firmware (>= 15.0)
+Filename: ./uwu.lrdsnow.purepkg_1.0b3_darwin-amd64.deb
+Size: 16684528
+MD5sum: fdcf3192d61774202e2d115758f51dc3
+SHA1: 66fb9f07729d368b8e7c846bbf6c6d670d54fa4d
+SHA256: fc93dea83e24ab08b04ddddfb9e6375de1fed95c8936bfc14c47c16612e86dec
+Section: Package Manager
+Description: The purest package manager ever!
+Author: Lrdsnow
+Icon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true
+Name: PurePKG
+Support: https://discord.gg/purity-1140456506119176224
+
