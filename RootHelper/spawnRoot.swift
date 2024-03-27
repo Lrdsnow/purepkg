@@ -32,27 +32,27 @@ func spawnRootHelper(args: [String]) -> (Int, String, String) {
     
     var actions: posix_spawn_file_actions_t?
     
-    posix_spawn_file_actions_init(&actions);
-    posix_spawn_file_actions_addclose(&actions, stdoutPipe[0]);
-    posix_spawn_file_actions_addclose(&actions, stderrPipe[0]);
-    posix_spawn_file_actions_adddup2(&actions, stdoutPipe[1], STDOUT_FILENO);
-    posix_spawn_file_actions_adddup2(&actions, stderrPipe[1], STDERR_FILENO);
-    posix_spawn_file_actions_addclose(&actions, stdoutPipe[1]);
-    posix_spawn_file_actions_addclose(&actions, stderrPipe[1]);
+    custom_posix_spawn_file_actions_init(&actions);
+    custom_posix_spawn_file_actions_addclose(&actions, stdoutPipe[0]);
+    custom_posix_spawn_file_actions_addclose(&actions, stderrPipe[0]);
+    custom_posix_spawn_file_actions_adddup2(&actions, stdoutPipe[1], STDOUT_FILENO);
+    custom_posix_spawn_file_actions_adddup2(&actions, stderrPipe[1], STDERR_FILENO);
+    custom_posix_spawn_file_actions_addclose(&actions, stdoutPipe[1]);
+    custom_posix_spawn_file_actions_addclose(&actions, stderrPipe[1]);
     
     
     var pid: pid_t = 0
     
     var attr: posix_spawnattr_t?
-    posix_spawnattr_init(&attr);
+    custom_posix_spawnattr_init(&attr);
     posix_spawnattr_set_persona_np(&attr, 99, UInt32(POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE));
     posix_spawnattr_set_persona_uid_np(&attr, 0);
     posix_spawnattr_set_persona_gid_np(&attr, 0);
     
-    let spawnStatus = posix_spawn(&pid, Bundle.main.executablePath, &actions, &attr, argv + [nil], envp + [nil]);
+    let spawnStatus = custom_posix_spawn(&pid, Bundle.main.executablePath, &actions, &attr, argv + [nil], envp + [nil]);
     
-    posix_spawnattr_destroy(&attr);
-    posix_spawn_file_actions_destroy(&actions);
+    custom_posix_spawnattr_destroy(&attr);
+    custom_posix_spawn_file_actions_destroy(&actions);
     close(stdoutPipe[1]);
     close(stderrPipe[1]);
     
@@ -173,27 +173,27 @@ func spawnAsRoot(command: String, args: [String]) -> (Int, String, String) {
     
     var actions: posix_spawn_file_actions_t?
     
-    posix_spawn_file_actions_init(&actions);
-    posix_spawn_file_actions_addclose(&actions, stdoutPipe[0]);
-    posix_spawn_file_actions_addclose(&actions, stderrPipe[0]);
-    posix_spawn_file_actions_adddup2(&actions, stdoutPipe[1], STDOUT_FILENO);
-    posix_spawn_file_actions_adddup2(&actions, stderrPipe[1], STDERR_FILENO);
-    posix_spawn_file_actions_addclose(&actions, stdoutPipe[1]);
-    posix_spawn_file_actions_addclose(&actions, stderrPipe[1]);
+    custom_posix_spawn_file_actions_init(&actions);
+    custom_posix_spawn_file_actions_addclose(&actions, stdoutPipe[0]);
+    custom_posix_spawn_file_actions_addclose(&actions, stderrPipe[0]);
+    custom_posix_spawn_file_actions_adddup2(&actions, stdoutPipe[1], STDOUT_FILENO);
+    custom_posix_spawn_file_actions_adddup2(&actions, stderrPipe[1], STDERR_FILENO);
+    custom_posix_spawn_file_actions_addclose(&actions, stdoutPipe[1]);
+    custom_posix_spawn_file_actions_addclose(&actions, stderrPipe[1]);
     
     
     var pid: pid_t = 0
     
     var attr: posix_spawnattr_t?
-    posix_spawnattr_init(&attr);
+    custom_posix_spawnattr_init(&attr);
     posix_spawnattr_set_persona_np(&attr, 99, UInt32(POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE));
     posix_spawnattr_set_persona_uid_np(&attr, 0);
     posix_spawnattr_set_persona_gid_np(&attr, 0);
     
-    let spawnStatus = posix_spawn(&pid, command, &actions, &attr, argv + [nil], envp + [nil]);
+    let spawnStatus = custom_posix_spawn(&pid, command, &actions, &attr, argv + [nil], envp + [nil]);
     
-    posix_spawnattr_destroy(&attr);
-    posix_spawn_file_actions_destroy(&actions);
+    custom_posix_spawnattr_destroy(&attr);
+    custom_posix_spawn_file_actions_destroy(&actions);
     close(stdoutPipe[1]);
     close(stderrPipe[1]);
     

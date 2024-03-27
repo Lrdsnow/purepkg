@@ -43,7 +43,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Jailbreak Type")
                         Spacer()
-                        Text(appData.jbdata.jbtype == .macos ? "MacOS" : appData.jbdata.jbtype == .rootful ? "Rootful" : appData.jbdata.jbtype == .rootless ? "Rootless" : appData.jbdata.jbtype == .roothide ? "Roothide" : "Jailed")
+                        Text(appData.jbdata.jbtype == .macos ? "MacOS (darwin-amd64)" : appData.jbdata.jbtype == .rootful ? "Rootful (iphoneos-arm)" : appData.jbdata.jbtype == .tvOS_rootful ? "Rootful (appletvos-arm64)" : appData.jbdata.jbtype == .rootless ? "Rootless (iphoneos-arm64)" : appData.jbdata.jbtype == .roothide ? "Roothide (iphoneos-arm64e)" : "Jailed")
                     }.listRowBG()
                     if jb != nil {
                         HStack {
@@ -62,6 +62,8 @@ struct SettingsView: View {
                     }.listRowBG()
                 }
                 Section() {
+                    #if os(tvOS)
+                    #else
                     ColorPicker("Accent color", selection: $accent).listRowBG().onChange(of: accent) { newValue in
                         UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
                         appData.test.toggle()
@@ -72,6 +74,7 @@ struct SettingsView: View {
                             appData.test.toggle()
                         }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
                     })
+                    #endif
                     NavigationLink(destination: IconsView()) {
                         Text("Change Icon")
                     }.listRowBG()
@@ -82,7 +85,7 @@ struct SettingsView: View {
                 }
                 Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
             }.clearListBG().BGImage(appData).sheet(isPresented: $showBGChanger) {ChangeBGView().blurredBG()}.onAppear() { jb = Jailbreak.jailbreak() }
-            .listStyle(.insetGrouped)
+            .listStyleInsetGrouped()
     }
 }
 
@@ -187,6 +190,6 @@ struct CreditView: View {
             scale = appData.size.height/10
         }
         #endif
-        .background(Color(.systemFill).opacity(0.5))
+        .SystemFillRoundedBG()
     }
 }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		653895442B53BF18004F7094 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 653895432B53BF18004F7094 /* Kingfisher */; };
 		6538954A2B53DA03004F7094 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 653895492B53DA03004F7094 /* MarkdownUI */; };
+		6548735B2BB39DBB002F30F9 /* TvOSQueuedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6548735A2BB39DBB002F30F9 /* TvOSQueuedView.swift */; };
 		656EA54C2B507D8C002364DC /* TweakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656EA54B2B507D8C002364DC /* TweakView.swift */; };
 		656FFF0A2B505E1700CEFF91 /* Jailbreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656FFF092B505E1700CEFF91 /* Jailbreak.swift */; };
 		657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B469E2B4DD9EE00AFC1F6 /* Main.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6548735A2BB39DBB002F30F9 /* TvOSQueuedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TvOSQueuedView.swift; sourceTree = "<group>"; };
 		656EA54B2B507D8C002364DC /* TweakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakView.swift; sourceTree = "<group>"; };
 		656FFF092B505E1700CEFF91 /* Jailbreak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jailbreak.swift; sourceTree = "<group>"; };
 		6572EF942B5BBBAC004FCD2B /* PurePKG.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PurePKG.entitlements; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 				65EC93662B4F119300540DB6 /* InstalledView.swift */,
 				65EC93682B4F11D700540DB6 /* FeaturedView.swift */,
 				656EA54B2B507D8C002364DC /* TweakView.swift */,
+				6548735A2BB39DBB002F30F9 /* TvOSQueuedView.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -268,7 +271,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ ${BUILT_PRODUCTS_DIR} != *\"iphonesimulator\"* ]]; then\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\nmkdir ${BUILT_PRODUCTS_DIR}/Build\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/PurePKG.app/Info.plist\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/PurePKG.app/PurePKG\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\ncd ${BUILT_PRODUCTS_DIR}/Build\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\n\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir DEBIAN\nmkdir -p var/jb/Applications\ncp -r ../../PurePKG.app var/jb/Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmv uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64e\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nfi\n";
+			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\nmkdir ${BUILT_PRODUCTS_DIR}/Build\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/PurePKG.app/Info.plist\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/PurePKG.app/PurePKG\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\ncd ${BUILT_PRODUCTS_DIR}/Build\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\n\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir DEBIAN\nmkdir -p var/jb/Applications\ncp -r ../../PurePKG.app var/jb/Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmv uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64e\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\nmkdir uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: appletvos-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\nrm -rf PurePKG.app\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"maccatalyst\"* ]]; then\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Contents/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\nmkdir uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\ncd uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: darwin-amd64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\nrm -rf PurePKG.app\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -292,6 +295,7 @@
 				65EC93692B4F11D700540DB6 /* FeaturedView.swift in Sources */,
 				65B2FC1A2B5659D6001DBE60 /* waitpid_decode.c in Sources */,
 				657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */,
+				6548735B2BB39DBB002F30F9 /* TvOSQueuedView.swift in Sources */,
 				65EC935C2B4F09CE00540DB6 /* ViewModifier.swift in Sources */,
 				65B820412B4F382A0032D504 /* AppData.swift in Sources */,
 				656EA54C2B507D8C002364DC /* TweakView.swift in Sources */,
@@ -362,6 +366,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 17.4;
 			};
 			name = Debug;
 		};
@@ -417,6 +422,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				TVOS_DEPLOYMENT_TARGET = 17.4;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -426,6 +432,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = PurePKG/PurePKG.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -447,16 +454,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0b2;
+				MARKETING_VERSION = 1.0b3;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
 				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
@@ -466,6 +473,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = PurePKG/PurePKG.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -486,16 +494,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0b2;
+				MARKETING_VERSION = 1.0b3;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
 				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
