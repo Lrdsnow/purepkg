@@ -80,7 +80,7 @@ public class RepoHandler {
             
             if let fileContent = String(data: data, encoding: .utf8) {
                 do {
-                    if (url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release") {
+                    if (url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("InRelease") {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         try data.write(to: tempFilePath)
@@ -194,15 +194,21 @@ public class RepoHandler {
                                 let validAndTrusted = APTWrapper.verifySignature(key: savedReleaseGPGPath, data: savedReleasePath, error: &errorStr);
 
                                 if (!validAndTrusted || !errorStr.isEmpty) {
-                                    log("Invalid signarure at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                    log("Invalid signature at \(pkgsURL.appendingPathComponent("Release.gpg"))");
                                     signature_ok = false;
                                 } else {
                                     signature_ok = true;
-                                    log("Good signarure at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                    log("Good signature at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                    
+                                    self.get(pkgsURL.appendingPathComponent("InRelease")) { (result, error) in
+                                        if let error = error {
+                                            log("Error getting InRelease: \(error.localizedDescription)")
+                                        }
+                                    }
                                 }
                             }
                         }
-                        
+            
                         #if false
                         if (!signature_ok) {
                             completion(Repo);
