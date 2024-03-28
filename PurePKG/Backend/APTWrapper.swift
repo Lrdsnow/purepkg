@@ -3,7 +3,7 @@
 //  PurePKG
 //
 //  Created by Lrdsnow on 1/18/24.
-//
+//  This file contains software developed by the Sileo Team
 
 import Foundation
 
@@ -98,7 +98,201 @@ class APTWrapper {
         let statusReadable = statusParts[3]
         return (true, rawProgress, statusReadable, packageName)
     }
+    
+    @discardableResult private static func spawn(command: String, args: [String], root: Bool = false) -> (Int, String, String) {
+        var pipestdout: [Int32] = [0, 0]
+        var pipestderr: [Int32] = [0, 0]
 
+        let bufsiz = Int(BUFSIZ)
+
+        pipe(&pipestdout)
+        pipe(&pipestderr)
+
+        guard fcntl(pipestdout[0], F_SETFL, O_NONBLOCK) != -1 else {
+            return (-1, "", "")
+        }
+        guard fcntl(pipestderr[0], F_SETFL, O_NONBLOCK) != -1 else {
+            return (-1, "", "")
+        }
+
+        var fileActions: posix_spawn_file_actions_t?
+        custom_posix_spawn_file_actions_init(&fileActions)
+        custom_posix_spawn_file_actions_addclose(&fileActions, pipestdout[0])
+        custom_posix_spawn_file_actions_addclose(&fileActions, pipestderr[0])
+        custom_posix_spawn_file_actions_adddup2(&fileActions, pipestdout[1], STDOUT_FILENO)
+        custom_posix_spawn_file_actions_adddup2(&fileActions, pipestderr[1], STDERR_FILENO)
+        custom_posix_spawn_file_actions_addclose(&fileActions, pipestdout[1])
+        custom_posix_spawn_file_actions_addclose(&fileActions, pipestderr[1])
+
+        let argv: [UnsafeMutablePointer<CChar>?] = args.map { $0.withCString(strdup) }
+        defer { for case let arg? in argv { free(arg) } }
+
+        var pid: pid_t = 0
+
+        #if targetEnvironment(macCatalyst)
+        let env = [ "PATH=/opt/procursus/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin" ]
+        let proenv: [UnsafeMutablePointer<CChar>?] = env.map { $0.withCString(strdup) }
+        defer { for case let pro? in proenv { free(pro) } }
+        let spawnStatus = custom_posix_spawn(&pid, command, &fileActions, nil, argv + [nil], proenv + [nil])
+        #else
+        // Weird problem with a weird workaround
+        let env = [ "PATH=\(Jailbreak.path())/usr/bin:\(Jailbreak.path())/usr/local/bin:\(Jailbreak.path())/bin:\(Jailbreak.path())/usr/sbin" ]
+        let envp: [UnsafeMutablePointer<CChar>?] = env.map { $0.withCString(strdup) }
+        defer { for case let env? in envp { free(env) } }
+        
+        let spawnStatus: Int32
+        if #available(iOS 13, *) {
+            if root {
+                var attr: posix_spawnattr_t?
+                custom_posix_spawnattr_init(&attr)
+                posix_spawnattr_set_persona_np(&attr, 99, UInt32(POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE))
+                posix_spawnattr_set_persona_uid_np(&attr, 0)
+                posix_spawnattr_set_persona_gid_np(&attr, 0)
+                spawnStatus = custom_posix_spawn(&pid, command, &fileActions, &attr, argv + [nil], envp + [nil])
+            } else {
+                spawnStatus = custom_posix_spawn(&pid, command, &fileActions, nil, argv + [nil], envp + [nil])
+            }
+        } else {
+            spawnStatus = custom_posix_spawn(&pid, command, &fileActions, nil, argv + [nil], envp + [nil])
+        }
+        #endif
+        if spawnStatus != 0 {
+            return (Int(spawnStatus), "ITS FAILING HERE", "Error = \(errno)  \(String(cString: strerror(spawnStatus))) \(String(cString: strerror(errno)))\n\(command)")
+        }
+
+        close(pipestdout[1])
+        close(pipestderr[1])
+
+        var stdoutStr = ""
+        var stderrStr = ""
+
+        let mutex = DispatchSemaphore(value: 0)
+
+        let readQueue = DispatchQueue(label: "org.coolstar.sileo.command",
+                                      qos: .userInitiated,
+                                      attributes: .concurrent,
+                                      autoreleaseFrequency: .inherit,
+                                      target: nil)
+
+        let stdoutSource = DispatchSource.makeReadSource(fileDescriptor: pipestdout[0], queue: readQueue)
+        let stderrSource = DispatchSource.makeReadSource(fileDescriptor: pipestderr[0], queue: readQueue)
+
+        stdoutSource.setCancelHandler {
+            close(pipestdout[0])
+            mutex.signal()
+        }
+        stderrSource.setCancelHandler {
+            close(pipestderr[0])
+            mutex.signal()
+        }
+
+        stdoutSource.setEventHandler {
+            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufsiz)
+            defer { buffer.deallocate() }
+
+            let bytesRead = read(pipestdout[0], buffer, bufsiz)
+            guard bytesRead > 0 else {
+                if bytesRead == -1 && errno == EAGAIN {
+                    return
+                }
+
+                stdoutSource.cancel()
+                return
+            }
+
+            let array = Array(UnsafeBufferPointer(start: buffer, count: bytesRead)) + [UInt8(0)]
+            array.withUnsafeBufferPointer { ptr in
+                let str = String(cString: unsafeBitCast(ptr.baseAddress, to: UnsafePointer<CChar>.self))
+                stdoutStr += str
+            }
+        }
+        stderrSource.setEventHandler {
+            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufsiz)
+            defer { buffer.deallocate() }
+
+            let bytesRead = read(pipestderr[0], buffer, bufsiz)
+            guard bytesRead > 0 else {
+                if bytesRead == -1 && errno == EAGAIN {
+                    return
+                }
+
+                stderrSource.cancel()
+                return
+            }
+
+            let array = Array(UnsafeBufferPointer(start: buffer, count: bytesRead)) + [UInt8(0)]
+            array.withUnsafeBufferPointer { ptr in
+                let str = String(cString: unsafeBitCast(ptr.baseAddress, to: UnsafePointer<CChar>.self))
+                stderrStr += str
+            }
+        }
+
+        stdoutSource.resume()
+        stderrSource.resume()
+
+        mutex.wait()
+        mutex.wait()
+        var status: Int32 = 0
+        waitpid(pid, &status, 0)
+
+        return (Int(status), stdoutStr, stderrStr)
+    }
+
+    public static func verifySignature(key: String, data: String, error: inout String) -> Bool {
+        #if targetEnvironment(simulator) || TARGET_SANDBOX
+
+        error = "GnuPG not available in sandboxed environment"
+        return false
+
+        #else
+        
+        let (_, output, _) = spawn(command: "\(Jailbreak.path())/bin/sh", args: ["sh", "\(Jailbreak.path())/usr/bin/apt-key", "verify", "-q", "--status-fd", "1", key, data])
+        
+        log("apt-key output: \(output)");
+
+        let outputLines = output.components(separatedBy: "\n")
+
+        var keyIsGood = false
+        var keyIsTrusted = false
+
+        let substrCount = GNUPGPREFIX.count + 1
+
+        for outputLine in outputLines {
+            for prefix in [GNUPGBADSIG, GNUPGERRSIG, GNUPGEXPSIG, GNUPGREVKEYSIG, GNUPGNOPUBKEY, GNUPGNODATA] {
+                if outputLine.hasPrefix(prefix) {
+                    let index = outputLine.index(outputLine.startIndex, offsetBy: substrCount)
+                    error = String(outputLine[index...])
+                    keyIsGood = false
+                }
+            }
+            if outputLine.hasPrefix(GNUPGGOODSIG) {
+                keyIsGood = true
+            }
+            if outputLine.hasPrefix(GNUPGVALIDSIG) {
+                let sigComponents = outputLine.components(separatedBy: " ")
+                if sigComponents.count < 10 {
+                    continue
+                }
+
+                // let sig = sigComponents[2]
+                let digestType = sigComponents[9]
+
+                guard let digestIdx = Int(digestType),
+                    digestIdx <= digests.count else {
+                        continue
+                }
+
+                let digest = digests[digestIdx]
+                if digest.state == .trusted {
+                    keyIsTrusted = true
+                }
+            }
+        }
+        return keyIsGood && keyIsTrusted
+
+        #endif
+    }
+    
     public class func performOperations(installs: [Package],
                                         removals: [Package],
                                         installDeps: [Package],

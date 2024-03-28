@@ -29,9 +29,9 @@ func RootHelperMain() -> Int32 {
             fputs("error adding repo\n", stderr)
             return -1
         }
-    case "saveRepoPackages":
+    case "saveRepoFiles":
         do {
-            try RepoHandler.RootHelper_saveRepoPackages(URL(fileURLWithPath: CommandLine.arguments[2]))
+            try RepoHandler.RootHelper_saveRepoFiles(URL(fileURLWithPath: CommandLine.arguments[2]))
             return 0
         } catch {
             fputs("error saving repo packages\n", stderr)

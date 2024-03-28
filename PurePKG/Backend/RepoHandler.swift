@@ -26,6 +26,17 @@ public class RepoHandler {
             }
             
             if let fileContent = String(data: data, encoding: .utf8) {
+                if ((url.pathComponents.last ?? "").contains("Release")) {
+                    let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                    let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                    do {
+                        try data.write(to: tempFilePath)
+                        spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
+                    } catch {
+                        
+                    }
+                }
+                
                 let lines = fileContent.components(separatedBy: .newlines)
                 
                 var dictionary: [String: String] = [:]
@@ -48,7 +59,7 @@ public class RepoHandler {
         task.resume()
     }
     
-    public static func RootHelper_saveRepoPackages(_ url: URL) throws {
+    public static func RootHelper_saveRepoFiles(_ url: URL) throws {
         try? FileManager.default.createDirectory(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists", withIntermediateDirectories: true)
         let data = try Data(contentsOf: url)
         try data.write(to: URL(fileURLWithPath: "\(Jailbreak.path())/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
@@ -69,11 +80,11 @@ public class RepoHandler {
             
             if let fileContent = String(data: data, encoding: .utf8) {
                 do {
-                    if (url.pathComponents.last ?? "").contains("Packages") {
+                    if (url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release") {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         try data.write(to: tempFilePath)
-                        spawnRootHelper(args: ["saveRepoPackages", tempFilePath.path])
+                        spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
                     }
                     
                     let paragraphs = fileContent.components(separatedBy: "\n\n")
@@ -113,6 +124,11 @@ public class RepoHandler {
         task.resume()
     }
     
+    static func getSavedRepoFilePath(_ url: URL) -> String {
+        let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+        return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(fileName)";
+    }
+    
     static func get_local(_ path: String) -> [[String:String]] {
         if let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
            let fileContent = String(data: data, encoding: .utf8) {
@@ -149,6 +165,7 @@ public class RepoHandler {
     static func getRepos(_ urls: [URL?], _ distRepoComponents: [URL:String] = [:], completion: @escaping (Repo) -> Void) {
         for url in urls {
             if let url = url {
+            
                 log("getting repo: \(url.absoluteString)")
                 self.get_dict(url.appendingPathComponent("Release")) { (result, error) in
                     if let result = result {
@@ -164,6 +181,35 @@ public class RepoHandler {
                         if let repoComponents = distRepoComponents[url] {
                             pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
                         }
+                        
+                        log("getting repo signature: \(pkgsURL.appendingPathComponent("Release.gpg"))")
+                        var signature_ok: Bool = false;
+                        self.get(pkgsURL.appendingPathComponent("Release.gpg")) { (result, error) in
+                            if let result = result {
+                                let savedReleasePath = self.getSavedRepoFilePath(pkgsURL.appendingPathComponent("Release"));
+                                let savedReleaseGPGPath = self.getSavedRepoFilePath(pkgsURL.appendingPathComponent("Release.gpg"));
+                                log("verify \(savedReleasePath) with \(savedReleaseGPGPath)")
+                                
+                                var errorStr: String = "";
+                                let validAndTrusted = APTWrapper.verifySignature(key: savedReleaseGPGPath, data: savedReleasePath, error: &errorStr);
+
+                                if (!validAndTrusted || !errorStr.isEmpty) {
+                                    log("Invalid signarure at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                    signature_ok = false;
+                                } else {
+                                    signature_ok = true;
+                                    log("Good signarure at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                }
+                            }
+                        }
+                        
+                        #if false
+                        if (!signature_ok) {
+                            completion(Repo);
+                            return;
+                        }
+                        #endif
+                        
                         log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
                         self.get(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
                             if let result = result {
