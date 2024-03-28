@@ -35,6 +35,16 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>PurePKGwatchOS Watch App.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>PurePKGwatchOS.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 		<key>purepkg.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>

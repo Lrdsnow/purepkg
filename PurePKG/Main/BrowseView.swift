@@ -29,6 +29,8 @@ struct CustomNavigationView<Content: View>: View {
     }
 }
 
+
+
 struct BrowseView: View {
     @EnvironmentObject var appData: AppData
     @State private var isAddingRepoURLAlertPresented = false
@@ -157,47 +159,7 @@ struct BrowseView: View {
                         ProgressView()
                         Text("\n\n\nGetting Repos...").foregroundColorCustom(Color.accentColor)
                     }.task() {
-                        let repoCacheDir = URL.documents.appendingPathComponent("repoCache")
-                        if FileManager.default.fileExists(atPath: repoCacheDir.path) {
-                            try? FileManager.default.removeItem(at: repoCacheDir)
-                        }
-                        try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
-                        DispatchQueue.main.async {
-                            if appData.jbdata.jbtype != .jailed {
-                                let repoData = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
-                                appData.repo_urls = repoData.0
-                                appData.dist_repo_components = repoData.1
-                            } else {
-                                appData.repo_urls = [URL(string: "https://repo.chariz.com")!, URL(string: "https://luki120.github.io")!, URL(string: "https://sparkdev.me")!, URL(string: "https://havoc.app")!]
-                            }
-                            let repo_urls = appData.repo_urls
-                            let dist_repo_components = appData.dist_repo_components
-                            DispatchQueue.global(qos: .background).async {
-                                RepoHandler.getRepos(repo_urls, dist_repo_components) { Repo in
-                                    DispatchQueue.main.async {
-                                        if !appData.repos.contains(where: { $0.url == Repo.url }) {
-                                            appData.repos.append(Repo)
-                                            appData.pkgs  = appData.repos.flatMap { $0.tweaks }
-                                            let jsonEncoder = JSONEncoder()
-                                            do {
-                                                let jsonData = try jsonEncoder.encode(Repo)
-                                                do {
-                                                    var cleanname = Repo.name.filter { $0.isLetter || $0.isNumber }.trimmingCharacters(in: .whitespacesAndNewlines)
-                                                    if cleanname == "" {
-                                                        cleanname = "\(UUID())"
-                                                    }
-                                                    try jsonData.write(to: repoCacheDir.appendingPathComponent("\(cleanname).json"))
-                                                } catch {
-                                                    log("Error saving repo data: \(error)")
-                                                }
-                                            } catch {
-                                                log("Error encoding repo: \(error)")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        refreshRepos(false, appData)
                     }
                 }.BGImage(appData).navigationTitle("Browse")
                 .largeNavBarTitle()
@@ -324,15 +286,27 @@ struct PlaceHolderRow: View {
     let category: String
     let categoryTweaks: Int
     @Binding var focused: Bool
-
+    
     var body: some View {
         HStack {
-            Image("DisplayAppIcon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
-                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+            VStack(alignment: .center) {
+                Spacer()
+                Image("DisplayAppIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+#if os(tvOS)
+                    .frame(width: 70, height: 70)
+                    .cornerRadius(15)
+#else
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(11)
+#endif
+                Spacer()
+            }
+#if os(tvOS)
+            .padding(.trailing, -40)
+#endif
             VStack(alignment: .leading) {
                 if alltweaks != -1 {
                     Text("All Tweaks")
@@ -388,13 +362,25 @@ struct RepoRow: View {
     
     var body: some View {
         HStack {
-            KFImage(repo.url.appendingPathComponent("CydiaIcon.png"))
-                .resizable()
-                .onFailureImage(UIImage(named: "DisplayAppIcon"))
-               .scaledToFit()
-               .frame(width: 50, height: 50)
-               .cornerRadius(11)
-               .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+            VStack(alignment: .center) {
+                Spacer()
+                KFImage(repo.url.appendingPathComponent("CydiaIcon.png"))
+                    .resizable()
+                    .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                    .scaledToFit()
+                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+#if os(tvOS)
+                    .frame(width: 70, height: 70)
+                    .cornerRadius(15)
+#else
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(11)
+#endif
+                Spacer()
+            }
+#if os(tvOS)
+            .padding(.trailing, -40)
+#endif
             
             VStack(alignment: .leading) {
                 Text(repo.name)
@@ -407,24 +393,31 @@ struct RepoRow: View {
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
+                if let error = repo.error {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
+                        .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                        .lineLimit(1)
+                }
             }
         }.padding(.vertical, 5).contextMenu(menuItems: {
-            #if os(tvOS)
-            #else
+#if os(tvOS)
+#else
             Button(action: {
-                #if os(macOS)
+#if os(macOS)
                 let pasteboard = NSPasteboard.general
                 pasteboard.clearContents()
                 pasteboard.setString(repo.url.absoluteString, forType: .string)
-                #else
+#else
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = repo.url.absoluteString
-                #endif
+#endif
             }) {
                 Text("Copy Repo URL")
                 Image("copy_icon").renderingMode(.template)
             }
-            #endif
+#endif
             Button(role: .destructive, action: {
                 RepoHandler.removeRepo(repo.url)
                 appData.repos = []
@@ -468,18 +461,34 @@ struct TweakRow: View {
     var body: some View {
         HStack {
             ZStack(alignment: .bottomTrailing) {
-                KFImage(tweak.icon)
-                    .resizable()
-                    .onFailureImage(UIImage(named: "DisplayAppIcon"))
-                    .scaledToFit()
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(11)
-                    .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                VStack(alignment: .center) {
+                    Spacer()
+                    KFImage(tweak.icon)
+                        .resizable()
+                        .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                        .scaledToFit()
+                        .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+#if os(tvOS)
+                        .frame(width: 70, height: 70)
+                        .cornerRadius(15)
+#else
+                        .frame(width: 50, height: 50)
+                        .cornerRadius(11)
+#endif
+                    Spacer()
+                }
+#if os(tvOS)
+                .padding(.trailing, -40)
+#endif
                 if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(Color.accentColor)
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+#if os(tvOS)
+                        .offset(x: 55, y: -2)
+#else
                         .offset(x: 5, y: 5)
+#endif
                 }
             }
             

@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var accent = Color.accentColor
     @State private var showBGChanger = false
     @State private var jb: String? = nil
+    @State private var VerifySignature: Bool = true
     
     var body: some View {
         List {
@@ -65,6 +66,14 @@ struct SettingsView: View {
                     Spacer()
                     Text("\(appData.installed_pkgs.filter { (pkg: Package) -> Bool in return pkg.section == "Tweaks"}.count)")
                 }.listRowBG()
+                
+                HStack {
+                    Toggle(isOn: $VerifySignature, label: {
+                        Text("Verify GPG Signature")
+                    })
+                }.listRowBG().onChange(of: VerifySignature) { _ in
+                    UserDefaults.standard.set(!VerifySignature, forKey: "ignoreSignature")
+                }
 #if !os(macOS)
                 NavigationLink(destination: CreditsView()) {
                     Text("Credits")
@@ -74,7 +83,7 @@ struct SettingsView: View {
 #if os(macOS)
             Section("Credits") {
                 Link(destination: URL(string: "https://github.com/Lrdsnow")!) {
-                    CreditView(name: "Lrdsnow", role: "Lead Developer", icon: "lrdsnow")
+                    CreditView(name: "Lrdsnow", role: "Developer", icon: "lrdsnow")
                 }
                 Link(destination: URL(string: "https://icons8.com")!) {
                     CreditView(name: "Icons8", role: "Default Plumpy Icons", icon: "icons8")
@@ -108,7 +117,10 @@ struct SettingsView: View {
         }
         .clearListBG()
         .BGImage(appData)
-        .onAppear() { jb = Jailbreak.jailbreak() }
+        .onAppear() {
+            jb = Jailbreak.jailbreak()
+            VerifySignature = !UserDefaults.standard.bool(forKey: "ignoreSignature")
+        }
         .listStyleInsetGrouped()
 #if !os(macOS) && !os(tvOS)
         .sheet(isPresented: $showBGChanger) {ChangeBGView().blurredBG()}
@@ -190,10 +202,10 @@ struct CreditsView: View {
     var body: some View {
         VStack {
             Link(destination: URL(string: "https://github.com/Lrdsnow")!) {
-                CreditView(name: "Lrdsnow", role: "Lead Developer", icon: "lrdsnow")
+                CreditView(name: "Lrdsnow", role: "Developer", icon: "lrdsnow")
             }
             Link(destination: URL(string: "https://icons8.com")!) {
-                CreditView(name: "Icons8", role: "Default Plumpy Icons", icon: "icons8")
+                CreditView(name: "Icons8", role: "Default Icons", icon: "icons8")
             }
             Link(destination: URL(string: "https://github.com/Sileo")!) {
                 CreditView(name: "Sileo", role: "APTWrapper", icon: "sileo")
@@ -234,7 +246,7 @@ struct CreditView: View {
                     .multilineTextAlignment(.center)
                 
                 Text(role)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)

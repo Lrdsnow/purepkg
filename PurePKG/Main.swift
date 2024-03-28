@@ -114,6 +114,9 @@ struct MainView: View {
             if appData.repos.isEmpty {
                 selectedTab = 1
             }
+            Task(priority: .background) {
+                refreshRepos(true, appData)
+            }
         }
 #elseif os(tvOS)
         TabView(selection: $selectedTab) {
@@ -158,6 +161,9 @@ struct MainView: View {
             if appData.repos.isEmpty {
                 selectedTab = 1
             }
+            Task(priority: .background) {
+                refreshRepos(true, appData)
+            }
         }
 #else
         ZStack(alignment: .bottom) {
@@ -177,6 +183,9 @@ struct MainView: View {
                     appData.pkgs = appData.repos.flatMap { $0.tweaks }
                     if appData.repos.isEmpty {
                         selectedTab = 1
+                    }
+                    Task(priority: .background) {
+                        refreshRepos(true, appData)
                     }
                 }
         }.background(Color.black).edgesIgnoringSafeArea(.bottom)

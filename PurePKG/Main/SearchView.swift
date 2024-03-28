@@ -8,12 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct SearchView2: View {
-    var body: some View {
-        Text("Search View")
-    }
-}
-
 struct SearchView: View {
     @EnvironmentObject var appData: AppData
     @State private var searchText = ""

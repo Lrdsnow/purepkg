@@ -18,7 +18,7 @@ apt-ftparchive \
         -o APT::FTPArchive::Release::Suite="stable" \
         -o APT::FTPArchive::Release::Version="1.0" \
         -o APT::FTPArchive::Release::Codename="purepkg" \
-        -o APT::FTPArchive::Release::Architectures="appletvos-arm64 darwin-amd64 darwin-arm64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e" \
+        -o APT::FTPArchive::Release::Architectures="watchos-arm appletvos-arm64 darwin-amd64 darwin-arm64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e" \
         -o APT::FTPArchive::Release::Components="main" \
         -o APT::FTPArchive::Release::Description="PurePKG" \
         release . > Release
