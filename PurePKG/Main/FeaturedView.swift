@@ -16,17 +16,21 @@ struct FeaturedView: View {
     @State private var generatedFeatured = false
     
     var body: some View {
-        NavigationView {
+        CustomNavigationView {
             VStack {
                 List {
-                    #if os(tvOS)
-                    #else
+                    #if !os(tvOS) && !os(macOS)
                     if featured.count >= 4 {
                         VStack {
                             HStack {
                                 CustomNavigationLink {TweakView(pkg: featured[0])} label: {
                                     FeaturedAppRectangle(pkg: featured[0], flipped: false)
-                                }.transition(.move(edge: .leading)).springAnim().padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+                                }
+                                .transition(.move(edge: .leading))
+                                .springAnim()
+                                #if !os(macOS)
+                                .padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+                                #endif
                                 CustomNavigationLink {TweakView(pkg: featured[1])} label: {
                                     FeaturedAppSquare(pkg: featured[1])
                                 }.transition(.move(edge: .trailing)).springAnim()
@@ -37,7 +41,12 @@ struct FeaturedView: View {
                                 }.transition(.move(edge: .leading)).springAnim()
                                 CustomNavigationLink {TweakView(pkg: featured[3])} label: {
                                     FeaturedAppRectangle(pkg: featured[3], flipped: true)
-                                }.transition(.move(edge: .trailing)).springAnim().padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+                                }
+                                .transition(.move(edge: .trailing))
+                                .springAnim()
+                                #if !os(macOS)
+                                .padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+                                #endif
                             }
                         }.listRowBackground(Color.clear).noListRowSeparator()
                     }
@@ -51,28 +60,49 @@ struct FeaturedView: View {
                     }
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.listStyle(.plain).clearListBG()
-//                Text("Featured View")
-//                NavigationLink(destination: SettingsView(), label: {Text("Settings")})
-            }.BGImage(appData).navigationTitle("Featured").navigationBarItems(trailing: HStack {
-                #if targetEnvironment(macCatalyst) || os(tvOS)
-                Button(action: {
-                    generateFeatured()
-                }) {
-                    #if os(tvOS)
-                    Image("refresh_icon")
-                        .font(.system(size: 24))
-                        .frame(width: 44, height: 44)
-                    #else
-                    Image("refresh_icon")
-                        .renderingMode(.template)
-                        .font(.system(size: 24))
-                        .frame(width: 44, height: 44)
-                    #endif
+            }.BGImage(appData).navigationTitle("Featured")
+            #if os(macOS)
+                .toolbar {
+                    ToolbarItem {
+                        Spacer()
+                    }
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                generateFeatured()
+                            }) {
+                                Image("refresh_icon")
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            }
+                            NavigationLink(destination: SettingsView()) {
+                                Image("gear_icon")
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            }
+                        }
+                    }
                 }
-                #endif
-                gearButton
-            })
-        }.navigationViewStyle(.stack).onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generatedFeatured } }).refreshable { generateFeatured() }
+            #else
+                .navigationBarItems(trailing: HStack {
+                    #if os(tvOS)
+                    Button(action: {
+                        generateFeatured()
+                    }) {
+                        Image("refresh_icon")
+                            .font(.system(size: 24))
+                            .frame(width: 44, height: 44)
+                    }
+                    #endif
+                    gearButton
+                })
+            #endif
+        }
+            .onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generateFeatured() } })
+            .refreshable { generateFeatured() }
         
     }
     
@@ -85,8 +115,7 @@ struct FeaturedView: View {
             return
         }
         
-        #if os(tvOS)
-        #else
+        #if !os(tvOS) && !os(macOS)
         let addToFeatured = { (id: String) in
             if let index = cleanPKGS.firstIndex(where: { $0.id == id }) {
                 featured.append(cleanPKGS[index])
@@ -142,17 +171,11 @@ struct FeaturedView: View {
     }
 }
 
-#if os(tvOS)
-#else
+#if !os(tvOS) && !os(macOS)
 struct FeaturedAppRectangle: View {
     let pkg: Package
     let flipped: Bool
-    #if targetEnvironment(macCatalyst)
-    @State private var scale: CGFloat = 0
-    @EnvironmentObject var appData: AppData
-    #else
     let scale = UIScreen.main.bounds.height/7.717
-    #endif
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
@@ -205,22 +228,12 @@ struct FeaturedAppRectangle: View {
         .shadow(radius: 5)
         .frame(height: scale)
         .SystemFillRoundedBG()
-        #if targetEnvironment(macCatalyst)
-            .onAppear() {
-                self.scale = appData.size.height/7.717
-            }
-        #endif
     }
 }
 
 struct FeaturedAppSquare: View {
     let pkg: Package
-    #if targetEnvironment(macCatalyst)
-    @State private var scale: CGFloat = 0
-    @EnvironmentObject var appData: AppData
-    #else
     let scale = UIScreen.main.bounds.height/7.717
-    #endif
     
     var body: some View {
         KFImage(pkg.icon)
@@ -231,11 +244,6 @@ struct FeaturedAppSquare: View {
             .aspectRatio(contentMode: .fit)
             .frame(width: scale, height: scale)
             .cornerRadius(20)
-        #if targetEnvironment(macCatalyst)
-            .onAppear() {
-                self.scale = appData.size.height/7.717
-            }
-        #endif
     }
 }
 #endif

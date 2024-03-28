@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import MarkdownUI
-#if canImport(WebKit)
+#if canImport(WebKit) && !os(macOS)
 import WebKit
 
 struct WebView: UIViewRepresentable {
@@ -154,22 +154,23 @@ struct TweakDepictionView: View {
                         }.noListRowSeparator()
                     }
                 } else {
+                    #if canImport(WebKit) && !os(macOS)
                     if let depiction = pkg.depiction, UIApplication.shared.canOpenURL(depiction) {
-                        #if canImport(WebKit)
                         WebView(url: depiction)
-                        #if targetEnvironment(macCatalyst)
-                            .frame(width: appData.size.width, height: 800)
-                        #else
                             .frame(width: UIScreen.main.bounds.width, height: 800)
-                        #endif
                             .listRowInsets(EdgeInsets()).padding(.top)
-                        #endif
                     } else {
                         Text("")
                             .onAppear() {
                                 log(json ?? "No JSON data")
                             }
                     }
+                    #else
+                    Text("")
+                        .onAppear() {
+                            log(json ?? "No JSON data")
+                        }
+                    #endif
                 }
             } else {
                 HStack {

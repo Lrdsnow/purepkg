@@ -1,5 +1,5 @@
 <p align="right">
-  <img align="right" height="140" src="https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true" alt="PurePKG Logo" style="float: right; border-radius: 10px;"/>
+  <img align="right" height="140" src="https://github.com/Lrdsnow/PurePKG/blob/main/PrettyIcon.png?raw=true" alt="PurePKG Logo" style="float: right; border-radius: 10px;"/>
 </p>
 
 <h1 align="left">PurePKG - The Purest iOS Package Manager</h1>

@@ -10,16 +10,18 @@
 		653895442B53BF18004F7094 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 653895432B53BF18004F7094 /* Kingfisher */; };
 		6538954A2B53DA03004F7094 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 653895492B53DA03004F7094 /* MarkdownUI */; };
 		6548735B2BB39DBB002F30F9 /* TvOSQueuedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6548735A2BB39DBB002F30F9 /* TvOSQueuedView.swift */; };
+		6548735E2BB49F4A002F30F9 /* spawn_stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 6548735C2BB49EEA002F30F9 /* spawn_stuff.m */; };
 		656EA54C2B507D8C002364DC /* TweakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656EA54B2B507D8C002364DC /* TweakView.swift */; };
 		656FFF0A2B505E1700CEFF91 /* Jailbreak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656FFF092B505E1700CEFF91 /* Jailbreak.swift */; };
 		657B469F2B4DD9EE00AFC1F6 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B469E2B4DD9EE00AFC1F6 /* Main.swift */; };
 		657B46A12B4DD9F000AFC1F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };
+		6587E5312BB52E7B00A13E62 /* AppKitCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6587E5302BB52E7B00A13E62 /* AppKitCompat.swift */; };
 		658ADF122B5A232E0099AF32 /* APTWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658ADF112B5A232E0099AF32 /* APTWrapper.swift */; };
 		659BAE3F2B52739100922789 /* TweakDepictionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659BAE3E2B52739100922789 /* TweakDepictionView.swift */; };
 		65B2FC142B56584F001DBE60 /* RootHelperMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC132B56584F001DBE60 /* RootHelperMain.swift */; };
-		65B2FC172B5659AD001DBE60 /* spawnRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC162B5659AD001DBE60 /* spawnRoot.swift */; };
+		65B2FC172B5659AD001DBE60 /* spawnStuff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC162B5659AD001DBE60 /* spawnStuff.swift */; };
 		65B2FC1A2B5659D6001DBE60 /* waitpid_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 65B2FC192B5659D6001DBE60 /* waitpid_decode.c */; };
-		65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */ = {isa = PBXBuildFile; productRef = 65B6ED142B4FA61F003C7993 /* TextFieldAlert */; };
+		65B6ED152B4FA61F003C7993 /* TextFieldAlert in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, tvos, ); productRef = 65B6ED142B4FA61F003C7993 /* TextFieldAlert */; };
 		65B820382B4F29A30032D504 /* RepoHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820372B4F29A30032D504 /* RepoHandler.swift */; };
 		65B8203B2B4F29B20032D504 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203A2B4F29B20032D504 /* Repo.swift */; };
 		65B8203D2B4F29BB0032D504 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203C2B4F29BB0032D504 /* Package.swift */; };
@@ -35,18 +37,21 @@
 
 /* Begin PBXFileReference section */
 		6548735A2BB39DBB002F30F9 /* TvOSQueuedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TvOSQueuedView.swift; sourceTree = "<group>"; };
+		6548735C2BB49EEA002F30F9 /* spawn_stuff.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = spawn_stuff.m; sourceTree = "<group>"; };
+		6548735D2BB49F00002F30F9 /* spawn_stuff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spawn_stuff.h; sourceTree = "<group>"; };
 		656EA54B2B507D8C002364DC /* TweakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakView.swift; sourceTree = "<group>"; };
 		656FFF092B505E1700CEFF91 /* Jailbreak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jailbreak.swift; sourceTree = "<group>"; };
 		6572EF942B5BBBAC004FCD2B /* PurePKG.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PurePKG.entitlements; sourceTree = "<group>"; };
 		657B46992B4DD9ED00AFC1F6 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		657B469E2B4DD9EE00AFC1F6 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6587E5302BB52E7B00A13E62 /* AppKitCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKitCompat.swift; sourceTree = "<group>"; };
 		658ADF112B5A232E0099AF32 /* APTWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APTWrapper.swift; sourceTree = "<group>"; };
 		659BAE3C2B5244B700922789 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		659BAE3E2B52739100922789 /* TweakDepictionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakDepictionView.swift; sourceTree = "<group>"; };
 		65B2FC132B56584F001DBE60 /* RootHelperMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootHelperMain.swift; sourceTree = "<group>"; };
 		65B2FC152B5658DE001DBE60 /* bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bridge.h; sourceTree = "<group>"; };
-		65B2FC162B5659AD001DBE60 /* spawnRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = spawnRoot.swift; sourceTree = "<group>"; };
+		65B2FC162B5659AD001DBE60 /* spawnStuff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = spawnStuff.swift; sourceTree = "<group>"; };
 		65B2FC182B5659D6001DBE60 /* waitpid_decode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = waitpid_decode.h; sourceTree = "<group>"; };
 		65B2FC192B5659D6001DBE60 /* waitpid_decode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = waitpid_decode.c; sourceTree = "<group>"; };
 		65B820372B4F29A30032D504 /* RepoHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoHandler.swift; sourceTree = "<group>"; };
@@ -120,7 +125,7 @@
 			children = (
 				65B2FC1B2B565EE4001DBE60 /* CBackend */,
 				65B2FC132B56584F001DBE60 /* RootHelperMain.swift */,
-				65B2FC162B5659AD001DBE60 /* spawnRoot.swift */,
+				65B2FC162B5659AD001DBE60 /* spawnStuff.swift */,
 			);
 			path = RootHelper;
 			sourceTree = "<group>";
@@ -131,6 +136,8 @@
 				65B2FC182B5659D6001DBE60 /* waitpid_decode.h */,
 				65B2FC192B5659D6001DBE60 /* waitpid_decode.c */,
 				65B2FC152B5658DE001DBE60 /* bridge.h */,
+				6548735C2BB49EEA002F30F9 /* spawn_stuff.m */,
+				6548735D2BB49F00002F30F9 /* spawn_stuff.h */,
 			);
 			path = CBackend;
 			sourceTree = "<group>";
@@ -176,6 +183,7 @@
 			children = (
 				65EC935B2B4F09CE00540DB6 /* ViewModifier.swift */,
 				65B8203E2B4F2A3E0032D504 /* Misc.swift */,
+				6587E5302BB52E7B00A13E62 /* AppKitCompat.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -190,7 +198,7 @@
 				657B46952B4DD9ED00AFC1F6 /* Sources */,
 				657B46962B4DD9ED00AFC1F6 /* Frameworks */,
 				657B46972B4DD9ED00AFC1F6 /* Resources */,
-				658A9D042B5099A700BA97D1 /* ShellScript */,
+				658A9D042B5099A700BA97D1 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -256,7 +264,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		658A9D042B5099A700BA97D1 /* ShellScript */ = {
+		658A9D042B5099A700BA97D1 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 12;
 			files = (
@@ -265,13 +273,14 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\nmkdir ${BUILT_PRODUCTS_DIR}/Build\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/PurePKG.app/Info.plist\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/PurePKG.app/PurePKG\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\ncd ${BUILT_PRODUCTS_DIR}/Build\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\n\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir DEBIAN\nmkdir -p var/jb/Applications\ncp -r ../../PurePKG.app var/jb/Applications/PurePKG.app\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi' > DEBIAN/postinst\nchmod 755 DEBIAN/postinst\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64\nmkdir uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi' > DEBIAN/postinst\nchmod 755 DEBIAN/postinst\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm\nmv uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\ncd uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi' > DEBIAN/postinst\nchmod 755 DEBIAN/postinst\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: iphoneos-arm64e\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nTag: compatible_min::ios15.0\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_iphoneos-arm64e\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\nmkdir uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi' > DEBIAN/postinst\nchmod 755 DEBIAN/postinst\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: appletvos-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\nrm -rf PurePKG.app\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_appletvos-arm64\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"maccatalyst\"* ]]; then\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Contents/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\nmkdir uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\ncd uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app' > DEBIAN/postinst\nchmod 755 DEBIAN/postinst\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: darwin-amd64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\nrm -rf PurePKG.app\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_darwin-amd64\nmkdir uwu.lrdsnow.purepkg_${VERSION}_darwin-arm64\ncd uwu.lrdsnow.purepkg_${VERSION}_darwin-arm64\nmkdir DEBIAN\nmkdir Applications\ncp -r ../../PurePKG.app Applications/PurePKG.app\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app' > DEBIAN/postinst\nchmod 755 DEBIAN/postinst\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: darwin-arm64\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= 15.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purity-1140456506119176224\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/PurePKG/Assets.xcassets/AppIcon.appiconset/Untitled%20drawing-29-2.png?raw=true\" > DEBIAN/control\ncd ..\ndpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_darwin-arm64\nrm -rf PurePKG.app\nrm -rf uwu.lrdsnow.purepkg_${VERSION}_darwin-arm64\nfi\n";
+			shellScript = "gen_control() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_postinst() {\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi'\n}\ngen_macos_postinst() {\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app'\n}\ngen_deb() {\n    local arch=$1\n    local path=$2\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir -p \"${path}\"\n    cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n    gen_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"15\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${VERSION}_${arch}\n}\ngen_macos_deb() {\n    local arch=$1\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir Applications\n    cp -r ../../PurePKG.app Applications/PurePKG.app\n    gen_macos_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf PurePKG.app\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nBundleName=\"PurePKG.app\"\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    BundleName=\"PurePKG.app/Contents\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\n\ncp Icon.png ${BUILT_PRODUCTS_DIR}/$BundleName/Icon.png\n\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    plutil -insert CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    plutil -replace CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    cp Icon.icns ${BUILT_PRODUCTS_DIR}/$BundleName/Resources\nfi\n\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\n    cp -r PurePKG/Assets.xcassets ${BUILT_PRODUCTS_DIR}/Build/Assets.xcassets\nfi\n\ncd ${BUILT_PRODUCTS_DIR}/Build\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\n    cd Assets.xcassets\n    find . -type f \\( -iname \\*.jpg -o -iname \\*.jpeg -o -iname \\*.png \\) -exec sips -Z 1000 -s formatOptions 50 {} \\;\n    cd ..\n    mkdir build\n    xcrun actool Assets.xcassets --compile build --platform appletvos --minimum-deployment-target 15.0\n    cp build/Assets.car ./Assets.car\n    rm -rf Assets.xcassets\n    rm -rf build\n    rm -rf ../../$BundleName/Assets.car\n    cp Assets.car ../../$BundleName/\n    rm -rf Assets.car\nfi\n\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../$BundleName/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\ngen_deb iphoneos-arm64 var/jb/Applications\ngen_deb iphoneos-arm Applications\ngen_deb iphoneos-arm64e Applications\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\ngen_deb appletvos-arm64 Applications\nfi\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\ngen_macos_deb darwin-amd64\ngen_macos_deb darwin-arm64\nfi\n\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\nfor deb_file in ./*.deb; do\n    filename=$(basename \"$deb_file\")\n    version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n    new_filename=\"${filename//_$version/}\"\n    cp \"$deb_file\" \"../../../Build/$new_filename\"\ndone\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -286,9 +295,11 @@
 				65B8203B2B4F29B20032D504 /* Repo.swift in Sources */,
 				656FFF0A2B505E1700CEFF91 /* Jailbreak.swift in Sources */,
 				658ADF122B5A232E0099AF32 /* APTWrapper.swift in Sources */,
-				65B2FC172B5659AD001DBE60 /* spawnRoot.swift in Sources */,
+				65B2FC172B5659AD001DBE60 /* spawnStuff.swift in Sources */,
+				6548735E2BB49F4A002F30F9 /* spawn_stuff.m in Sources */,
 				65EC93632B4F114B00540DB6 /* BrowseView.swift in Sources */,
 				65B8203F2B4F2A3E0032D504 /* Misc.swift in Sources */,
+				6587E5312BB52E7B00A13E62 /* AppKitCompat.swift in Sources */,
 				65EC93672B4F119300540DB6 /* InstalledView.swift in Sources */,
 				65B2FC142B56584F001DBE60 /* RootHelperMain.swift in Sources */,
 				65B8203D2B4F29BB0032D504 /* Package.swift in Sources */,
@@ -454,11 +465,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0b4;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0b5;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
@@ -494,11 +506,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0b4;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0b5;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;

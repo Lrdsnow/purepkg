@@ -6,7 +6,11 @@
 //
 
 import Foundation
+#if os(macOS)
+import AppKit
+#else
 import UIKit
+#endif
 
 public class RepoHandler {
     public static func get_dict(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
@@ -44,6 +48,13 @@ public class RepoHandler {
         task.resume()
     }
     
+    public static func RootHelper_saveRepoPackages(_ url: URL) throws {
+        try? FileManager.default.createDirectory(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists", withIntermediateDirectories: true)
+        let data = try Data(contentsOf: url)
+        try data.write(to: URL(fileURLWithPath: "\(Jailbreak.path())/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
+        try FileManager.default.removeItem(at: url)
+    }
+    
     public static func get(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {
@@ -57,32 +68,43 @@ public class RepoHandler {
             }
             
             if let fileContent = String(data: data, encoding: .utf8) {
-                let paragraphs = fileContent.components(separatedBy: "\n\n")
-                
-                var arrayOfDictionaries: [[String: String]] = []
-                
-                for paragraph in paragraphs {
-                    let lines = paragraph.components(separatedBy: .newlines)
+                do {
+                    if (url.pathComponents.last ?? "").contains("Packages") {
+                        let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                        try data.write(to: tempFilePath)
+                        spawnRootHelper(args: ["saveRepoPackages", tempFilePath.path])
+                    }
                     
-                    var dictionary: [String: String] = [:]
+                    let paragraphs = fileContent.components(separatedBy: "\n\n")
                     
-                    for line in lines {
-                        let components = line.components(separatedBy: ":")
-                        if components.count >= 2 {
-                            let key = components[0].trimmingCharacters(in: .whitespaces)
-                            var temp_components = components
-                            temp_components.removeFirst()
-                            let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
-                            dictionary[key] = value
+                    var arrayOfDictionaries: [[String: String]] = []
+                    
+                    for paragraph in paragraphs {
+                        let lines = paragraph.components(separatedBy: .newlines)
+                        
+                        var dictionary: [String: String] = [:]
+                        
+                        for line in lines {
+                            let components = line.components(separatedBy: ":")
+                            if components.count >= 2 {
+                                let key = components[0].trimmingCharacters(in: .whitespaces)
+                                var temp_components = components
+                                temp_components.removeFirst()
+                                let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
+                                dictionary[key] = value
+                            }
+                        }
+                        
+                        if !dictionary.isEmpty {
+                            arrayOfDictionaries.append(dictionary)
                         }
                     }
                     
-                    if !dictionary.isEmpty {
-                        arrayOfDictionaries.append(dictionary)
-                    }
+                    completion(arrayOfDictionaries, nil)
+                } catch {
+                    completion(nil, "Failed to save/parse data: \(error.localizedDescription)")
                 }
-                
-                completion(arrayOfDictionaries, nil)
             } else {
                 completion(nil, "Failed to decode data")
             }
@@ -244,16 +266,18 @@ public class RepoHandler {
                 let arrayOfDictionaries = self.get_local(fileURL.path)
                 
                 for sourceDict in arrayOfDictionaries {
-                    var suites = "."
+                    var suites = "./"
                     if let dict_suites = sourceDict["Suites"] {
                         suites = dict_suites
                     }
                     if let urlString = sourceDict["URIs"], let url = URL(string: urlString) {
-                        if suites == "./" || suites == "." {
-                            parsedURLs.append(url)
-                        } else {
-                            let finalURL = url.appendingPathComponent("dists").appendingPathComponent(suites)
-                            parsedURLs.append(finalURL)
+                        var finalURL = url
+                        if suites != "./" {
+                            finalURL = url.appendingPathComponent("dists")
+                        }
+                        finalURL = finalURL.appendingPathComponent(suites)
+                        parsedURLs.append(finalURL)
+                        if suites != "./" {
                             if let components = sourceDict["Components"] {
                                 distRepoComponents[finalURL] = components
                             }
@@ -263,6 +287,16 @@ public class RepoHandler {
             }
             
             log("sources: \(parsedURLs)")
+            var tempParsedURLs: [URL] = []
+            var distURLs: [URL] = []
+            for url in parsedURLs {
+                if url.absoluteString.contains("/dists/") {
+                    distURLs.append(url)
+                } else {
+                    tempParsedURLs.append(url)
+                }
+            }
+            parsedURLs = tempParsedURLs + distURLs
             
             return (parsedURLs, distRepoComponents)
         } catch {

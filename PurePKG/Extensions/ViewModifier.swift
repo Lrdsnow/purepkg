@@ -7,8 +7,50 @@
 
 import Foundation
 import SwiftUI
+#if os(macOS)
+import AppKit
+#else
 import TextFieldAlert
+#endif
 
+#if os(macOS)
+struct VisualEffectView: NSViewRepresentable {
+    let material: NSVisualEffectView.Material
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        nsView.material = material
+    }
+}
+
+struct VisualEffectView2: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let effectView = NSVisualEffectView()
+        effectView.state = .active
+        return effectView
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
+extension NSTableView {
+    open override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        
+        backgroundColor = NSColor.clear
+        if let esv = enclosingScrollView {
+            esv.drawsBackground = false
+        }
+        
+        headerView?.tableView?.backgroundColor = NSColor.clear
+    }
+}
+#else
 struct VisualEffectView: UIViewRepresentable {
     let effect: UIVisualEffect
 
@@ -21,6 +63,7 @@ struct VisualEffectView: UIViewRepresentable {
         uiView.effect = effect
     }
 }
+#endif
 
 struct CustomNavigationLink<D: View, L: View>: View {
   @ViewBuilder var destination: () -> D
@@ -54,7 +97,7 @@ struct CustomNavigationLink<D: View, L: View>: View {
 extension View {
     @ViewBuilder
     func blurredBG() -> some View {
-        if #available(iOS 16.4, tvOS 16.4, *) {
+        if #available(iOS 16.4, tvOS 16.4, macOS 13.3, *) {
             self.presentationBackground(.ultraThinMaterial)
         } else {
             self
@@ -62,7 +105,7 @@ extension View {
     }
     @ViewBuilder
     func addRepoAlert(browseview: BrowseView, adding16: Binding<Bool>, adding: Binding<Bool>, newRepoURL: Binding<String>) -> some View {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, tvOS 16.0, *) {
             self.alert("Add Repo", isPresented: adding16, actions: {
                 TextField("URL", text: newRepoURL)
                 Button("Save", action: {
@@ -73,6 +116,9 @@ extension View {
                 Button("Cancel", role: .cancel, action: {})
             })
         } else {
+            #if os(macOS)
+            self
+            #else
             self.textFieldAlert(
                 title: "Add Repo",
                 message: "Hit Done to add repo or cancel",
@@ -84,6 +130,7 @@ extension View {
                 ],
                 isPresented: adding
             )
+            #endif
         }
     }
     @ViewBuilder
@@ -96,15 +143,23 @@ extension View {
     }
     @ViewBuilder
     func noTabBarBG() -> some View {
+        #if os(macOS)
+        self
+        #else
         if #available(iOS 16.0, tvOS 16.0, *) {
             self.toolbar(.hidden, for: .tabBar)
         } else {
             self
         }
+        #endif
     }
     @ViewBuilder
     func listRowBG() -> some View {
+        #if os(macOS) || os(tvOS)
+        self
+        #else
         self.listRowBackground(Color.accentColor.opacity(0.05))
+        #endif
     }
     @ViewBuilder
     func clearListBG() -> some View {
@@ -120,25 +175,24 @@ extension View {
     }
     @ViewBuilder
     func listStyleInsetGrouped() -> some View {
-        #if os(tvOS)
+        #if os(tvOS) || os(macOS)
         self
         #else
         self.listStyle(.insetGrouped)
         #endif
     }
+    
+    #if os(macOS)
+    @ViewBuilder
+    func BGBlur() -> some View {
+        self.background(VisualEffectView2().ignoresSafeArea(.all))
+    }
+    #endif
+    
     @ViewBuilder
     func BGImage(_ appData: AppData) -> some View {
-        #if targetEnvironment(macCatalyst)
-        self.background(
-            VStack {
-                Image("macBG")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.all)
-            }.edgesIgnoringSafeArea(.top)
-                .edgesIgnoringSafeArea(.bottom)
-                .frame(width: appData.size.width)
-        )
+        #if os(macOS)
+        self
         #elseif os(tvOS)
         self.background(Color(hex:"#2d003d").frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height).edgesIgnoringSafeArea(.all))
         #else
@@ -167,7 +221,7 @@ extension View {
     
     @ViewBuilder
     func largeNavBarTitle() -> some View {
-        #if os(tvOS)
+        #if os(tvOS) || os(macOS)
         self
         #else
         self.navigationBarTitleDisplayMode(.large)
@@ -179,7 +233,11 @@ extension View {
         #if os(tvOS)
         self
         #else
-        self.background(Color(.systemFill).opacity(0.5).cornerRadius(20))
+        if #available(macOS 14.0, *) {
+            self.background(Color(.systemFill).opacity(0.5).cornerRadius(20))
+        } else {
+            self
+        }
         #endif
     }
     
@@ -198,6 +256,15 @@ extension View {
         self
         #else
         self.animation(.spring())
+        #endif
+    }
+    
+    @ViewBuilder
+    func foregroundColorCustom(_ color: Color) -> some View {
+        #if os(macOS)
+        self
+        #else
+        self.foregroundColor(color)
         #endif
     }
 }

@@ -9,6 +9,7 @@
 #define bridge_h
 
 #include "waitpid_decode.h"
+#include "spawn_stuff.h"
 #include <spawn.h>
 #define POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE 1
 int posix_spawnattr_set_persona_np(const posix_spawnattr_t* __restrict, uid_t, uint32_t);

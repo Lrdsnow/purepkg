@@ -6,7 +6,11 @@
 //
 
 import Foundation
+#if os(macOS)
+import AppKit
+#else
 import UIKit
+#endif
 import SwiftUI
 
 struct TvOSQueuedView: View {
@@ -18,7 +22,7 @@ struct TvOSQueuedView: View {
     @State private var focused: Bool = false
     
     var body: some View {
-        NavigationView {
+        CustomNavigationView {
             VStack(alignment: .leading) {
                 if !showLog {
                     if !appData.queued.install.isEmpty {

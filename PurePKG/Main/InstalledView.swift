@@ -25,7 +25,7 @@ struct InstalledView: View {
     }
     
     var body: some View {
-        NavigationView {
+        CustomNavigationView {
             VStack {
                 TextField("Search Installed Tweaks", text: $searchText)
                     .padding(7)
@@ -80,7 +80,13 @@ struct InstalledView: View {
                     }.springAnim()
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.animation(.spring(), value: filteredPackages.count)
-            }.navigationBarTitle("Installed").listStyle(.plain).BGImage(appData).largeNavBarTitle()
-        }.navigationViewStyle(.stack)
+            }
+            .listStyle(.plain)
+            .BGImage(appData)
+            .largeNavBarTitle()
+            #if !os(macOS)
+            .navigationBarTitle("Installed")
+            #endif
+        }
     }
 }

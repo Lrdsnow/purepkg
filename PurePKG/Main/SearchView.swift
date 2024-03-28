@@ -30,7 +30,7 @@ struct SearchView: View {
     }
     
     var body: some View {
-        NavigationView {
+        CustomNavigationView {
             VStack {
                 TextField("Search", text: $searchText)
                     .padding(7)
@@ -62,9 +62,14 @@ struct SearchView: View {
                         TweakRowNavLinkWrapper(tweak: package).noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()
                     }
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
-                }.animation(.spring(), value: filteredPackages.count).springAnim()
-            }.navigationBarTitle("Search").listStyle(.plain).BGImage(appData)
+                }.BGImage(appData).animation(.spring(), value: filteredPackages.count).springAnim()
+            }
+            .BGImage(appData)
+            .listStyle(.plain)
             .largeNavBarTitle()
-        }.navigationViewStyle(.stack)
+            #if !os(macOS)
+            .navigationBarTitle("Search")
+            #endif
+        }
     }
 }

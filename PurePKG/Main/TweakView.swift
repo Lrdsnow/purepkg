@@ -22,9 +22,7 @@ struct TweakView: View {
                KFImage(banner)
                    .resizable()
                    .aspectRatio(contentMode: .fill)
-                #if targetEnvironment(macCatalyst)
-                   .frame(width: appData.size.width-40, height: 200)
-                #else
+                #if !os(macOS)
                    .frame(width: UIScreen.main.bounds.width-40, height: 200)
                 #endif
                    .cornerRadius(20)

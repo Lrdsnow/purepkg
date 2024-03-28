@@ -9,6 +9,26 @@ import Foundation
 import SwiftUI
 import Kingfisher
 
+struct CustomNavigationView<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+#if os(macOS)
+        NavigationStack {
+            content
+        }
+#else
+        NavigationView {
+            content
+        }.navigationViewStyle(.stack)
+#endif
+    }
+}
+
 struct BrowseView: View {
     @EnvironmentObject var appData: AppData
     @State private var isAddingRepoURLAlertPresented = false
@@ -16,7 +36,7 @@ struct BrowseView: View {
     @State private var newRepoURL = ""
     
     var body: some View {
-        NavigationView {
+        CustomNavigationView {
             if !appData.repos.isEmpty {
                 List {
                     PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs), alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0).listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
@@ -27,9 +47,60 @@ struct BrowseView: View {
                     }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
-                    .navigationBarItems(trailing:
-                                            HStack {
-                        #if targetEnvironment(macCatalyst) || os(tvOS)
+                .refreshable {
+                    appData.repos = []
+                }.addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
+                .onChange(of: isAddingRepoURLAlertPresented) { newValue in
+                    if !newValue {
+                        Task {
+                            await addRepo()
+                        }
+                    }
+                }
+                .largeNavBarTitle()
+                #if os(macOS)
+                .toolbar {
+                    ToolbarItem {
+                        Spacer()
+                    }
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        HStack {
+                            Button(action: {
+                                appData.repos = []
+                            }) {
+                                Image("refresh_icon")
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            }
+                            Button(action: {
+                                let pasteboard = NSPasteboard.general
+                                let clipboardString = pasteboard.string(forType: .string) ?? ""
+                                if let repourl = URL(string: clipboardString) {
+                                    newRepoURL = repourl.absoluteString
+                                    Task {
+                                        await addRepo()
+                                    }
+                                } else {
+                                    if #available(iOS 16, *) {
+                                        isAddingRepoURLAlert16Presented = true
+                                    } else {
+                                        isAddingRepoURLAlertPresented = true
+                                    }
+                                }
+                            }) {
+                                Image("plus_icon")
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            }
+                        }
+                    }
+                }
+                #else
+                .navigationBarItems(trailing:
+                        HStack {
+                        #if os(macOS) || os(tvOS)
                         Button(action: {
                             appData.repos = []
                         }) {
@@ -49,7 +120,13 @@ struct BrowseView: View {
                                 isAddingRepoURLAlertPresented = true
                             }
                             #else
-                            if let repourl = URL(string: UIPasteboard.general.string ?? "") {
+                            #if os(macOS)
+                            let pasteboard = NSPasteboard.general
+                            let clipboardString = pasteboard.string(forType: .string) ?? ""
+                            #else
+                            let clipboardString = UIPasteboard.general.string ?? ""
+                            #endif
+                            if let repourl = URL(string: clipboardString) {
                                 newRepoURL = repourl.absoluteString
                                 Task {
                                     await addRepo()
@@ -72,22 +149,13 @@ struct BrowseView: View {
                             #endif
                         }
                     }
-                    ).refreshable {
-                        appData.repos = []
-                    }.addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
-                    .onChange(of: isAddingRepoURLAlertPresented) { newValue in
-                        if !newValue {
-                            Task {
-                                await addRepo()
-                            }
-                        }
-                    }
-                    .largeNavBarTitle()
+                    )
+                #endif
             } else {
                 VStack {
                     ZStack {
                         ProgressView()
-                        Text("\n\n\nGetting Repos...").foregroundColor(Color.accentColor)
+                        Text("\n\n\nGetting Repos...").foregroundColorCustom(Color.accentColor)
                     }.task() {
                         let repoCacheDir = URL.documents.appendingPathComponent("repoCache")
                         if FileManager.default.fileExists(atPath: repoCacheDir.path) {
@@ -134,7 +202,7 @@ struct BrowseView: View {
                 }.BGImage(appData).navigationTitle("Browse")
                 .largeNavBarTitle()
             }
-        }.navigationViewStyle(.stack)
+        }
     }
     
     func addRepo() async {
@@ -203,8 +271,18 @@ struct TweaksListView: View {
     var body: some View {
         List {
             Section(tweaksLabel) {
-                ForEach(tweaks, id: \.name) { tweak in
-                    TweakRowNavLinkWrapper(tweak: tweak)
+                if !tweaks.isEmpty {
+                    ForEach(tweaks, id: \.name) { tweak in
+                        TweakRowNavLinkWrapper(tweak: tweak)
+                    }
+                } else {
+                    Button(action: {}, label: {
+                        HStack {
+                            Spacer()
+                            Text("No Tweaks Found")
+                            Spacer()
+                        }
+                    })
                 }
             }.listRowBackground(Color.clear).noListRowSeparator()
             Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
@@ -259,20 +337,20 @@ struct PlaceHolderRow: View {
                 if alltweaks != -1 {
                     Text("All Tweaks")
                         .font(.headline)
-                        .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
+                        .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     Text("\(alltweaks) Tweaks Total")
                         .font(.subheadline)
-                        .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
+                        .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 } else {
                     Text(category)
                         .font(.headline)
-                        .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
+                        .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     Text("\(categoryTweaks) Tweaks")
                         .font(.subheadline)
-                        .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
+                        .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 }
             }
@@ -321,12 +399,12 @@ struct RepoRow: View {
             VStack(alignment: .leading) {
                 Text(repo.name)
                     .font(.headline)
-                    .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
+                    .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
-                Text(repo.url.absoluteString)
+                Text(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").removeSubstringIfExists("/dists/"))
                     .font(.subheadline)
-                    .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
+                    .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
             }
@@ -334,8 +412,14 @@ struct RepoRow: View {
             #if os(tvOS)
             #else
             Button(action: {
+                #if os(macOS)
+                let pasteboard = NSPasteboard.general
+                pasteboard.clearContents()
+                pasteboard.setString(repo.url.absoluteString, forType: .string)
+                #else
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = repo.url.absoluteString
+                #endif
             }) {
                 Text("Copy Repo URL")
                 Image("copy_icon").renderingMode(.template)
@@ -402,16 +486,16 @@ struct TweakRow: View {
             VStack(alignment: .leading) {
                 Text(tweak.name)
                     .font(.headline)
-                    .foregroundColor(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
+                    .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 Text("\(tweak.author) · \(tweak.version) · \(tweak.id)")
                     .font(.subheadline)
-                    .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
+                    .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
                 Text(tweak.desc)
                     .font(.footnote)
-                    .foregroundColor(focused ? Color.accentColor.darker(0.8).opacity(0.5) : Color.accentColor.opacity(0.5))
+                    .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.5) : Color.accentColor.opacity(0.5))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
             }

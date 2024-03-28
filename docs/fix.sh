@@ -1,3 +1,13 @@
+# update purepkg
+rm -rf ./debs/uwu.lrdsnow.purepkg*.deb
+cp /Users/*/Library/Developer/Xcode/DerivedData/PurePKG-*/Build/Build/* ./debs
+for deb in ./debs/uwu.lrdsnow.purepkg*.deb; do
+    filename=$(basename "$deb")
+    version=$(dpkg-deb -I "$deb" | awk '/Version:/ {print $2}')
+    new_filename=$(echo "$filename" | sed "s/uwu\.lrdsnow\.purepkg/uwu.lrdsnow.purepkg_$version/")
+    mv "$deb" "$(dirname "$deb")/$new_filename"
+done
+# update repo
 apt-ftparchive packages ./debs > Packages
 apt-ftparchive contents ./debs > Contents
 gzip -k Packages

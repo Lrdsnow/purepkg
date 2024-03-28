@@ -118,6 +118,7 @@ class APTWrapper {
                          "-oAPT::Status-Fd=5",
                          "-oAPT::Keep-Fds::=6",
                          "-oAcquire::AllowUnsizedPackages=true",
+                         "-oDir::State::lists=purepkglists/",
                          "-oAPT::Sandbox::User=root",
                          "-oDpkg::Options::=--force-confdef",
                          "-oDpkg::Options::=--force-confnew"]
@@ -192,6 +193,7 @@ class APTWrapper {
             var pid: pid_t = 0
             
             let spawnStatus: Int32
+            
             var attr: posix_spawnattr_t?
             custom_posix_spawnattr_init(&attr)
             posix_spawnattr_set_persona_np(&attr, 99, UInt32(POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE));
@@ -389,12 +391,12 @@ class APTWrapper {
                     if appPath.path == Bundle.main.bundlePath {
                         refreshSileo = true
                     } else {
-                        spawnAsRoot(command: "\(Jailbreak.path())/usr/bin/uicache", args: ["uicache", "-p", "\(appPath.path)"])
+                        spawnRoot("\(Jailbreak.path())/usr/bin/uicache", ["uicache", "-p", "\(appPath.path)"], nil, nil)
                     }
                 }
             }
 
-            spawnAsRoot(command: "\(Jailbreak.path())/usr/bin/apt-get", args: ["clean"])
+            spawnRoot("\(Jailbreak.path())/usr/bin/apt-get", ["clean"], nil, nil)
             
             completionCallback(Int(status), finish, refreshSileo)
         }

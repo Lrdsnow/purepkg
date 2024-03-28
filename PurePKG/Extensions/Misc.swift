@@ -6,9 +6,27 @@
 //
 
 import Foundation
+#if os(macOS)
+import AppKit
+#else
 import UIKit
+#endif
 import SwiftUI
 
+#if os(macOS)
+public extension Host {
+    var modelName: String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        let identifier = machineMirror.children.reduce("") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return identifier }
+            return identifier + String(UnicodeScalar(UInt8(value)))
+        }
+        return identifier
+    }
+}
+#else
 public extension UIDevice {
     var modelName: String {
         #if targetEnvironment(simulator)
@@ -25,6 +43,7 @@ public extension UIDevice {
         return identifier
     }
 }
+#endif
 
 extension URL {
     var isDirectory: Bool {
@@ -50,6 +69,14 @@ extension String {
     func removingBetweenAngleBrackets() -> String {
         let regex = try! NSRegularExpression(pattern: "<.*?>", options: .caseInsensitive)
         return regex.stringByReplacingMatches(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count), withTemplate: "").trimmingCharacters(in: .whitespaces)
+    }
+    func removeSubstringIfExists(_ substring: String) -> String {
+        if let range = self.range(of: substring) {
+            let substringRange = self.startIndex..<range.lowerBound
+            return String(self[substringRange])
+        } else {
+            return self
+        }
     }
 }
 
@@ -81,6 +108,16 @@ extension Color {
     }
 }
 
+#if os(macOS)
+extension UIApplication {
+    
+    func dismissAlert(animated: Bool) {
+    }
+    
+    func alert(title: String = "", body: String, animated: Bool = true, withButton: Bool = true) {
+    }
+}
+#else
 // Alert++
 // credit: sourcelocation & TrollTools
 var currentUIAlertController: UIAlertController?
@@ -146,6 +183,7 @@ extension UIApplication {
         }
     }
 }
+#endif
 
 func log(_ text: Any...) {
     let logFilePath = URL.documents.appendingPathComponent("purepkg_app_logs.txt").path

@@ -6,7 +6,11 @@
 //
 
 import Foundation
+#if os(macOS)
+import AppKit
+#else
 import UIKit
+#endif
 
 enum jbType {
     case rootful
@@ -20,15 +24,15 @@ enum jbType {
 
 struct DeviceInfo {
     var major: Int = 0
-    var sub: Int = 0
     var minor: Int = 0
+    var patch: Int = 0
     var beta: Bool = false
     var build_number: String = "0"
     var modelIdentifier: String = "Unknown Device"
 }
 
 func osString() -> String {
-    #if targetEnvironment(macCatalyst)
+    #if os(macOS)
     return "macOS"
     #elseif os(tvOS)
     return "tvOS"
@@ -37,6 +41,37 @@ func osString() -> String {
     #endif
 }
 
+#if os(macOS)
+func getMacModelName() -> String {
+    var size = 0
+    sysctlbyname("hw.model", nil, &size, nil, 0)
+    var model = [CChar](repeating: 0, count: size)
+    sysctlbyname("hw.model", &model, &size, nil, 0)
+    return String(cString: model)
+}
+func getMacOSArchitecture() -> String? {
+    let process = Process()
+    process.launchPath = "/usr/bin/uname"
+    process.arguments = ["-m"]
+    
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.launch()
+    
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    let output = String(data: data, encoding: .utf8)
+    
+    if let rawArch = output?.trimmingCharacters(in: .whitespacesAndNewlines) {
+        if rawArch.contains("x86") {
+            return "amd64"
+        } else if rawArch.contains("arm") {
+            return "arm64"
+        }
+    }
+    return nil
+}
+#endif
+
 func getDeviceInfo() -> DeviceInfo {
     var deviceInfo = DeviceInfo()
 #if targetEnvironment(simulator)
@@ -44,22 +79,40 @@ func getDeviceInfo() -> DeviceInfo {
     let versionComponents = systemVersion.split(separator: ".").compactMap { Int($0) }
     if versionComponents.count >= 2 {
         let major = versionComponents[0]
-        let sub = versionComponents[1]
-        let minor = versionComponents.count >= 3 ? versionComponents[2] : 0
+        let minor = versionComponents[1]
+        let patch = versionComponents.count >= 3 ? versionComponents[2] : 0
         deviceInfo = DeviceInfo(major: major,
-                                sub: sub,
                                 minor: minor,
+                                patch: patch,
                                 beta: false,
                                 build_number: "0",
                                 modelIdentifier: UIDevice.current.modelName)
     }
+#elseif os(macOS)
+    let systemVersion = ProcessInfo().operatingSystemVersion
+        
+    // Check for beta and get model and <A12 check
+    let systemAttributes = NSDictionary(contentsOfFile: "/System/Library/CoreServices/SystemVersion.plist")
+    let build_number = systemAttributes?["ProductBuildVersion"] as? String ?? "0"
+    let beta = build_number.count > 6
+    let gestAltCache = NSDictionary(contentsOfFile: "/var/containers/Shared/SystemGroup/systemgroup.com.apple.mobilegestaltcache/Library/Caches/com.apple.MobileGestalt.plist")
+    let cacheExtras: [String: Any] = gestAltCache?["CacheExtra"] as? [String: Any] ?? [:]
+    let modelIdentifier = cacheExtras["0+nc/Udy4WNG8S+Q7a/s1A"] as? String ?? cacheExtras["h9jDsbgj7xIVeIQ8S3/X3Q"] as? String ?? "Unknown Device"
+    //
+    
+    deviceInfo = DeviceInfo(major: systemVersion.majorVersion,
+                            minor: systemVersion.minorVersion,
+                            patch: systemVersion.patchVersion,
+                            beta: beta,
+                            build_number: build_number,
+                            modelIdentifier: getMacModelName())
 #else
     let systemVersion = UIDevice.current.systemVersion
     let versionComponents = systemVersion.split(separator: ".").compactMap { Int($0) }
     if versionComponents.count >= 2 {
         let major = versionComponents[0]
-        let sub = versionComponents[1]
-        let minor = versionComponents.count >= 3 ? versionComponents[2] : 0
+        let minor = versionComponents[1]
+        let patch = versionComponents.count >= 3 ? versionComponents[2] : 0
         
         // Check for beta and get model and <A12 check
         let systemAttributes = NSDictionary(contentsOfFile: "/System/Library/CoreServices/SystemVersion.plist")
@@ -71,8 +124,8 @@ func getDeviceInfo() -> DeviceInfo {
         //
         
         deviceInfo = DeviceInfo(major: major,
-                                sub: sub,
                                 minor: minor,
+                                patch: patch,
                                 beta: beta,
                                 build_number: build_number,
                                 modelIdentifier: "\(UIDevice.current.modelName) (\(modelIdentifier))")
@@ -117,19 +170,19 @@ public class Jailbreak {
             }
         }
         let jbtype = self.type(appData)
-        if jbtype == .macos {
-            jbarch = "darwin-amd64"
-        } else if jbtype == .tvOS_rootful {
-            jbarch = "appletvos-arm64"
-        } else if jbtype == .rootful {
+#if os(macOS)
+        jbarch = "darwin-\(getMacOSArchitecture() ?? "unknown")"
+#elseif os(tvOS)
+        jbarch = "appletvos-arm64"
+#else
+        if jbtype == .rootful {
             jbarch = "iphoneos-arm"
         } else if jbtype == .rootless {
             jbarch = "iphoneos-arm64"
         } else if jbtype == .roothide {
             jbarch = "iphoneos-arm64e"
-        } else {
-            jbarch = ""
         }
+#endif
         if let appData = appData {
             appData.jbdata.jbarch = jbarch
         }

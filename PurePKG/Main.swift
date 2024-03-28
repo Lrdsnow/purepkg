@@ -6,7 +6,15 @@
 //
 
 import SwiftUI
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 import Combine
+#if os(macOS)
+import AppKit
+#endif
 
 @main
 struct PureKFDBinary {
@@ -24,8 +32,8 @@ struct purepkgApp: App {
     @StateObject private var appData = AppData()
     
     init() {
-        #if os(tvOS)
-        #else
+        #if os(macOS)
+        #elseif !os(tvOS)
         UINavigationBar.appearance().prefersLargeTitles = true
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
@@ -44,6 +52,9 @@ struct purepkgApp: App {
                 .environmentObject(appData)
                 .accentColor(Color(UIColor(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "") ?? UIColor(hex: "#EBC2FF")!))
         }
+        #if os(macOS)
+        .windowStyle(.hiddenTitleBar)
+        #endif
     }
 }
 
@@ -60,31 +71,49 @@ struct MainView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-#if targetEnvironment(macCatalyst)
-        GeometryReader { geometry in
-            TabView(selection: $selectedTab) {
-                FeaturedView().tag(0)
-                BrowseView().tag(1)
-                InstalledView().tag(2)
-                SearchView().tag(3)
-            }.ignoresSafeArea(.all)
-                .frame(width: appData.size.width, height: appData.size.height)
-                .onChange(of: geometry.size, perform: { size in appData.size = size })
-                .toolbar {
-                    ToolbarItem(placement: .bottomBar) {
-                        tabbar(selectedTab: $selectedTab)
+#if os(macOS)
+        TabView(selection: $selectedTab) {
+            FeaturedView().tag(0).tabItem {
+                VStack {
+                    Image("home_icon")
+                    Text("Featured")
+                }
+            }
+            BrowseView().tag(1).tabItem {
+                VStack {
+                    Image("browse_icon")
+                    Text("Browse")
+                }
+            }
+            InstalledView().tag(2).tabItem {
+                VStack {
+                    Image("installed_icon")
+                    Text("Installed")
+                }
+            }
+            SearchView().tag(3).tabItem {
+                VStack {
+                    Image("search_icon")
+                    Text("Search")
+                }
+            }
+            if !appData.queued.all.isEmpty {
+                TvOSQueuedView().tag(4).tabItem {
+                    VStack {
+                        Image("queue_icon")
+                        Text("Queued")
                     }
                 }
-                .onAppear() {
-                    appData.jbdata.jbtype = Jailbreak.type(appData)
-                    appData.deviceInfo = getDeviceInfo()
-                    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
-                    appData.repos = RepoHandler.getCachedRepos()
-                    appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                    if appData.repos.isEmpty {
-                        selectedTab = 1
-                    }
-                }
+            }
+        }.BGBlur().onAppear() {
+            appData.jbdata.jbtype = Jailbreak.type(appData)
+            appData.deviceInfo = getDeviceInfo()
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+            appData.repos = RepoHandler.getCachedRepos()
+            appData.pkgs = appData.repos.flatMap { $0.tweaks }
+            if appData.repos.isEmpty {
+                selectedTab = 1
+            }
         }
 #elseif os(tvOS)
         TabView(selection: $selectedTab) {
@@ -153,7 +182,8 @@ struct MainView: View {
         }.background(Color.black).edgesIgnoringSafeArea(.bottom)
 #endif
     }
-    
+
+#if !os(tvOS) && !os(macOS)
     struct tabbar: View {
         @Binding var selectedTab: Int
         @EnvironmentObject var appData: AppData
@@ -324,7 +354,7 @@ struct MainView: View {
                 
                 HStack {
                     ForEach(0..<4) { index in
-                        Button(action: { selectedTab = index }) {
+                        Button(action: { if !appData.repos.isEmpty { selectedTab = index } }) {
                             HStack {
                                 tabItemImages[tabItems[index]]?
                                     .renderingMode(.template)
@@ -345,14 +375,11 @@ struct MainView: View {
                     .transition(.move(edge: .bottom))
                     .noTabBarBG()
             }
-#if targetEnvironment(macCatalyst)
-            .frame(width: appData.size.width, height: queueOpen ? .infinity : appData.size.height/25)
-#else
             .frame(width: UIScreen.main.bounds.width)
-#endif
             .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).edgesIgnoringSafeArea(.all))
             .transition(.move(edge: .bottom))
             .animation(.spring(), value: appData.queued.all.isEmpty).animation(.spring(), value: queueOpen).animation(.spring(), value: editing).noTabBarBG()
         }
     }
+#endif
 }

@@ -9,16 +9,12 @@
 			<dict>
 				<key>location-parameters</key>
 				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>456</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
+					<string>522</string>
 					<key>StartingLineNumber</key>
-					<string>455</string>
+					<string>522</string>
 					<key>Timestamp</key>
-					<string>733193391.325639</string>
+					<string>733293904.931631</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,17 +30,13 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>    // absolutely terrible way of getting deps that i will rewrite later
-</string>
+				<string></string>
 				<key>leading</key>
 				<string>    }
-    
+}
 </string>
 				<key>trailing</key>
-				<string>    static func getDeps(_ pkgs: [Package], _ appData: AppData) -&gt; [Package] {
-        let all_pkgs = appData.pkgs + appData.installed_pkgs
-        // gets the deps ofc
-</string>
+				<string></string>
 			</dict>
 			<key>type</key>
 			<string>bookmark</string>
