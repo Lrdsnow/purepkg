@@ -222,7 +222,7 @@ public class RepoHandler {
                                     if (!validAndTrusted || !errorStr.isEmpty) {
                                         log("Error: Invalid signature at \(pkgsURL.appendingPathComponent("Release.gpg"))");
                                         signature_ok = false;
-                                        if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .watchOS_rootful {
+                                        if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .watchOS_rootful || Jailbreak.type() == .visionOS_rootful {
                                             if errorStr != "" {
                                                 Repo.error = errorStr
                                             } else {

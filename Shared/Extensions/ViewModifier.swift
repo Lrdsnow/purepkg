@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 #if os(macOS)
 import AppKit
-#elseif !os(watchOS)
+#elseif !os(watchOS) && !os(visionOS)
 import TextFieldAlert
 #endif
 
@@ -103,7 +103,7 @@ extension View {
             self
         }
     }
-    #if !os(watchOS)
+    #if !os(watchOS) && !os(visionOS)
     @ViewBuilder
     func addRepoAlert(browseview: BrowseView, adding16: Binding<Bool>, adding: Binding<Bool>, newRepoURL: Binding<String>) -> some View {
         if #available(iOS 16.0, tvOS 16.0, *) {
@@ -157,7 +157,7 @@ extension View {
     }
     @ViewBuilder
     func listRowBG() -> some View {
-        #if os(macOS)
+        #if os(macOS) || os(visionOS)
         self
         #elseif os(watchOS)
         self.listRowBackground(Color.accentColor.opacity(0.05).cornerRadius(8))
@@ -195,7 +195,7 @@ extension View {
     
     @ViewBuilder
     func BGImage(_ appData: AppData) -> some View {
-        #if os(macOS)
+        #if os(macOS) || os(visionOS)
         self
         #elseif os(tvOS)
         self.background(Color(hex:"#2d003d").frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height).edgesIgnoringSafeArea(.all))
@@ -256,7 +256,7 @@ extension View {
     
     @ViewBuilder
     func accentShadow() -> some View {
-        #if os(tvOS)
+        #if os(tvOS) || os(visionOS)
         self
         #else
         self.shadow(color: .accentColor, radius: 5)

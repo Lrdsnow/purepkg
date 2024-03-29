@@ -71,54 +71,7 @@ struct MainView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-#if os(macOS)
-        TabView(selection: $selectedTab) {
-            FeaturedView().tag(0).tabItem {
-                VStack {
-                    Image("home_icon")
-                    Text("Featured")
-                }
-            }
-            BrowseView().tag(1).tabItem {
-                VStack {
-                    Image("browse_icon")
-                    Text("Browse")
-                }
-            }
-            InstalledView().tag(2).tabItem {
-                VStack {
-                    Image("installed_icon")
-                    Text("Installed")
-                }
-            }
-            SearchView().tag(3).tabItem {
-                VStack {
-                    Image("search_icon")
-                    Text("Search")
-                }
-            }
-            if !appData.queued.all.isEmpty {
-                TvOSQueuedView().tag(4).tabItem {
-                    VStack {
-                        Image("queue_icon")
-                        Text("Queued")
-                    }
-                }
-            }
-        }.BGBlur().onAppear() {
-            appData.jbdata.jbtype = Jailbreak.type(appData)
-            appData.deviceInfo = getDeviceInfo()
-            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
-            appData.repos = RepoHandler.getCachedRepos()
-            appData.pkgs = appData.repos.flatMap { $0.tweaks }
-            if appData.repos.isEmpty {
-                selectedTab = 1
-            }
-            Task(priority: .background) {
-                refreshRepos(true, appData)
-            }
-        }
-#elseif os(tvOS)
+#if os(tvOS) || os(macOS)
         TabView(selection: $selectedTab) {
             FeaturedView().tag(0).tabItem {
                 HStack {
@@ -183,9 +136,6 @@ struct MainView: View {
                     appData.pkgs = appData.repos.flatMap { $0.tweaks }
                     if appData.repos.isEmpty {
                         selectedTab = 1
-                    }
-                    Task(priority: .background) {
-                        refreshRepos(true, appData)
                     }
                 }
         }.background(Color.black).edgesIgnoringSafeArea(.bottom)

@@ -21,6 +21,7 @@ enum jbType {
     case macos
     case tvOS_rootful
     case watchOS_rootful
+    case visionOS_rootful
     case jailed
     case unknown
 }
@@ -185,6 +186,8 @@ public class Jailbreak {
         jbarch = "appletvos-arm64"
 #elseif os(watchOS)
         jbarch = "watchos-arm"
+#elseif os(visionOS)
+        jbarch = "xros-arm64"
 #else
         if jbtype == .rootful {
             jbarch = "iphoneos-arm"
@@ -203,7 +206,7 @@ public class Jailbreak {
     static func type(_ appData: AppData? = nil) -> (jbType) {
         let filemgr = FileManager.default
         #if targetEnvironment(simulator)
-        return .watchOS_rootful
+        return .visionOS_rootful
         #elseif os(tvOS)
         if filemgr.fileExists(atPath: "/private/etc/apt") {
             return .tvOS_rootful
@@ -213,6 +216,12 @@ public class Jailbreak {
         #elseif os(watchOS)
         if filemgr.fileExists(atPath: "/private/etc/apt") {
             return .watchOS_rootful
+        } else {
+            return .jailed
+        }
+        #elseif os(visionOS)
+        if filemgr.fileExists(atPath: "/private/etc/apt") {
+            return .visionOS_rootful
         } else {
             return .jailed
         }

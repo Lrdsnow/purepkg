@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct PureKFDBinary {
+struct PurePKGBinary {
     static func main() {
         if (getuid() != 0) {
             PurePKGwatchOSApp.main();
