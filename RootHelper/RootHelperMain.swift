@@ -18,7 +18,7 @@ func RootHelperMain() -> Int32 {
             try RepoHandler.RootHelper_addRepo(CommandLine.arguments[2])
             return 0
         } catch {
-            fputs("error adding repo\n", stderr)
+            NSLog("error adding repo: \(error)")
             return -1
         }
     case "removeRepo":
@@ -26,7 +26,7 @@ func RootHelperMain() -> Int32 {
             try RepoHandler.RootHelper_removeRepo(URL(string: CommandLine.arguments[2])!)
             return 0
         } catch {
-            fputs("error adding repo\n", stderr)
+            NSLog("error removing repo: \(error)")
             return -1
         }
     case "saveRepoFiles":
@@ -34,12 +34,12 @@ func RootHelperMain() -> Int32 {
             try RepoHandler.RootHelper_saveRepoFiles(URL(fileURLWithPath: CommandLine.arguments[2]))
             return 0
         } catch {
-            fputs("error saving repo packages\n", stderr)
+            NSLog("error saving repo packages: \(error)")
             return -1
         }
         
     default:
-        fputs("unknown argument passed to rootHelper\n", stderr)
+        NSLog("unknown argument passed to rootHelper")
         return -1;
     }
 }

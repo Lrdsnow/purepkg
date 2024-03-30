@@ -34,7 +34,7 @@ public class RepoHandler {
             }
             
             if let fileContent = String(data: data, encoding: .utf8) {
-                if ((url.pathComponents.last ?? "").contains("Release")) {
+                if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
                     let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                     let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                     do {
@@ -69,10 +69,9 @@ public class RepoHandler {
     
     public static func RootHelper_saveRepoFiles(_ url: URL) throws {
         try? FileManager.default.createDirectory(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists", withIntermediateDirectories: true)
-        try? FileManager.default.removeItem(at: url)
         let data = try Data(contentsOf: url)
+        try? FileManager.default.removeItem(at: url)
         try data.write(to: URL(fileURLWithPath: "\(Jailbreak.path())/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
-        try FileManager.default.removeItem(at: url)
     }
     
     public static func get(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
@@ -89,7 +88,7 @@ public class RepoHandler {
             
             if let fileContent = String(data: data, encoding: .utf8) {
                 do {
-                    if (url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("InRelease") {
+                    if (url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release") {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         try data.write(to: tempFilePath)
