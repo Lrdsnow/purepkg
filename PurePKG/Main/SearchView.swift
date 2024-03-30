@@ -28,10 +28,13 @@ struct SearchView: View {
             VStack {
                 TextField("Search", text: $searchText)
                     .padding(7)
+                    #if !os(tvOS)
                     .padding(.horizontal, 25)
                     .background(Color.accentColor.opacity(0.05))
+                    #endif
                     .cornerRadius(8)
                     .autocorrectionDisabled()
+                    #if !os(tvOS)
                     .overlay(
                         HStack {
                             Image(systemName: "magnifyingglass")
@@ -51,6 +54,7 @@ struct SearchView: View {
                         }
                     )
                     .padding(.horizontal, 10)
+                    #endif
                 List {
                     ForEach(filteredPackages, id: \.id) { package in
                         TweakRowNavLinkWrapper(tweak: package).noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()

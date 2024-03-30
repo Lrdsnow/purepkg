@@ -7,7 +7,6 @@
 
 import SwiftUI
 import RealityKit
-import RealityKitContent
 
 struct tabBarIcons {
     var FeaturedIcon = Image("home_icon")

@@ -12,9 +12,6 @@ import AppKit
 import UIKit
 #endif
 import Combine
-#if os(macOS)
-import AppKit
-#endif
 
 @main
 struct PureKFDBinary {
@@ -51,10 +48,22 @@ struct purepkgApp: App {
             MainView()
                 .environmentObject(appData)
                 .accentColor(Color(UIColor(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "") ?? UIColor(hex: "#EBC2FF")!))
+                .onOpenURL { url in
+                    handleIncomingURL(url)
+                }
         }
         #if os(macOS)
         .windowStyle(.hiddenTitleBar)
         #endif
+    }
+    
+    private func handleIncomingURL(_ url: URL) {
+        print("App was opened via URL: \(url)")
+        if url.absoluteString.contains("purepkg://addrepo/") {
+            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
+            print("Adding Repo: \(repourl)")
+            RepoHandler.addRepo(repourl)
+        }
     }
 }
 

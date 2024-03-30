@@ -25,63 +25,65 @@ struct TvOSQueuedView: View {
         CustomNavigationView {
             VStack(alignment: .leading) {
                 if !showLog {
-                    if !appData.queued.install.isEmpty {
-                        Section(content: {
-                            ForEach(appData.queued.install, id: \.id) { package in
-                                VStack {
-                                    HStack {
-                                        TweakRow(tweak: package, focused: .constant(false))
-                                        Spacer()
-                                        if editing {
-                                            Button(action: {
-                                                appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
-                                                appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
-                                            }) {
-                                                Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
+                    List {
+                        if !appData.queued.install.isEmpty {
+                            Section(content: {
+                                ForEach(appData.queued.install, id: \.id) { package in
+                                    VStack {
+                                        HStack {
+                                            TweakRow(tweak: package, focused: .constant(false))
+                                            Spacer()
+                                            if editing {
+                                                Button(action: {
+                                                    appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
+                                                    appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                }) {
+                                                    Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
+                                                }
                                             }
-                                        }
-                                    }.padding(.trailing)
-                                    if installingQueue {
-                                        VStack(alignment: .leading) {
-                                            Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                            ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                .progressViewStyle(LinearProgressViewStyle())
-                                                .frame(height: 2)
-                                        }
-                                        .foregroundColor(.secondary).padding(.top, 5)
-                                    }
-                                }.padding(.horizontal)
-                            }
-                        }, header: {Text("Install").foregroundColor(.accentColor).padding(.leading).padding(.top)})
-                    }
-                    if !appData.queued.uninstall.isEmpty {
-                        Section(content: {
-                            ForEach(appData.queued.uninstall, id: \.id) { package in
-                                VStack {
-                                    HStack {
-                                        TweakRow(tweak: package, focused: .constant(false))
-                                        Spacer()
-                                        if editing {
-                                            Button(action: {
-                                                appData.queued.uninstall.remove(at: appData.queued.uninstall.firstIndex(where: { $0.id == package.id }) ?? -2)
-                                                appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
-                                            }) {
-                                                Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
+                                        }.padding(.trailing)
+                                        if installingQueue {
+                                            VStack(alignment: .leading) {
+                                                Text(appData.queued.status[package.id]?.message ?? "Queued...")
+                                                ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                    .progressViewStyle(LinearProgressViewStyle())
+                                                    .frame(height: 2)
                                             }
+                                            .foregroundColor(.secondary).padding(.top, 5)
                                         }
-                                    }.padding(.trailing)
-                                    if installingQueue {
-                                        VStack(alignment: .leading) {
-                                            Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                            ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                .progressViewStyle(LinearProgressViewStyle())
-                                                .frame(height: 2)
+                                    }.padding(.horizontal)
+                                }
+                            }, header: {Text("Install/Upgrade").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                        }
+                        if !appData.queued.uninstall.isEmpty {
+                            Section(content: {
+                                ForEach(appData.queued.uninstall, id: \.id) { package in
+                                    VStack {
+                                        HStack {
+                                            TweakRow(tweak: package, focused: .constant(false))
+                                            Spacer()
+                                            if editing {
+                                                Button(action: {
+                                                    appData.queued.uninstall.remove(at: appData.queued.uninstall.firstIndex(where: { $0.id == package.id }) ?? -2)
+                                                    appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                }) {
+                                                    Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
+                                                }
+                                            }
+                                        }.padding(.trailing)
+                                        if installingQueue {
+                                            VStack(alignment: .leading) {
+                                                Text(appData.queued.status[package.id]?.message ?? "Queued...")
+                                                ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                    .progressViewStyle(LinearProgressViewStyle())
+                                                    .frame(height: 2)
+                                            }
+                                            .foregroundColor(.secondary).padding(.top, 5)
                                         }
-                                        .foregroundColor(.secondary).padding(.top, 5)
-                                    }
-                                }.padding(.horizontal)
-                            }
-                        }, header: {Text("Uninstall").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                                    }.padding(.horizontal)
+                                }
+                            }, header: {Text("Uninstall").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                        }
                     }
                 } else {
                     Text(installLog).padding()

@@ -47,7 +47,9 @@ struct BrowseView: View {
                             RepoRowNavLinkWrapper(repo: repo).noListRowSeparator()
                         }
                     }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
+                    #if !os(tvOS) && !os(macOS)
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                    #endif
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
                 .refreshable {
                     appData.repos = []
@@ -497,7 +499,7 @@ struct TweakRow: View {
                     .font(.headline)
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-                Text("\(tweak.author) · \(tweak.version) · \(tweak.id)")
+                Text((tweak.installedVersion == "") ? "\(tweak.author) · \(tweak.version) · \(tweak.id)" : "\(tweak.author) · \(tweak.installedVersion) (\(tweak.version) available) · \(tweak.id)")
                     .font(.subheadline)
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)

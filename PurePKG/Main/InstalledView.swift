@@ -12,6 +12,7 @@ struct InstalledView: View {
     @EnvironmentObject var appData: AppData
     @State private var searchText = ""
     @State private var isAnimating = false
+    @State private var updatableTweaks: [Package] = []
     
     var filteredPackages: [Package] {
         if searchText.isEmpty {
@@ -29,10 +30,13 @@ struct InstalledView: View {
             VStack {
                 TextField("Search Installed Tweaks", text: $searchText)
                     .padding(7)
+                #if !os(tvOS)
                     .padding(.horizontal, 25)
                     .background(Color.accentColor.opacity(0.05))
+                #endif
                     .cornerRadius(8)
                     .autocorrectionDisabled()
+                #if !os(tvOS)
                     .overlay(
                         HStack {
                             Image(systemName: "magnifyingglass")
@@ -52,7 +56,31 @@ struct InstalledView: View {
                         }
                     )
                     .padding(.horizontal, 10)
+                #endif
                 List {
+                    if !updatableTweaks.isEmpty {
+                        Section(header: HStack {
+                            Text("Updates")
+                                .font(.headline)
+                            Spacer()
+                            Button(action: {
+                                for pkg in updatableTweaks {
+                                    if !appData.queued.all.contains(pkg.id) {
+                                        appData.queued.install.append(pkg)
+                                    }
+                                    appData.queued.all.append(pkg.id)
+                                }
+                            }, label: {
+                                Text("Upgrade all")
+                            })
+                        }) {
+                            ForEach(updatableTweaks, id: \.id) { package in
+                                TweakRowNavLinkWrapper(tweak: package).noListRowSeparator()
+                                .listRowBackground(Color.clear).noListRowSeparator()
+                            }
+                        }.springAnim()
+                    }
+                    
                     Section(header: HStack {
                         Text("Installed Tweaks")
                             .font(.headline)
@@ -74,16 +102,24 @@ struct InstalledView: View {
                         }
                     }) {
                         ForEach(filteredPackages, id: \.id) { package in
-                            TweakRowNavLinkWrapper(tweak: package).noListRowSeparator()
-                            .listRowBackground(Color.clear).noListRowSeparator()
+                            if (updatableTweaks.first { $0.id == package.id } == nil) {
+                                TweakRowNavLinkWrapper(tweak: package).noListRowSeparator()
+                                    .listRowBackground(Color.clear).noListRowSeparator()
+                            }
                         }
                     }.springAnim()
+                    
+                    #if !os(tvOS) && !os(macOS)
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                    #endif
                 }.animation(.spring(), value: filteredPackages.count)
             }
             .listStyle(.plain)
             .BGImage(appData)
             .largeNavBarTitle()
+            .onAppear() {
+                updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+            }
             #if !os(macOS)
             .navigationBarTitle("Installed")
             #endif

@@ -19,7 +19,12 @@ PurePKG is a customization focused ios package manager for those who want a true
 ## Getting Started
 
 1. **Compatibility:** Ensure your iOS device is Bootstrapped (via jailbreak or roothide) and is running iOS 15+.
-2. **Installation:** Download PurePKG from the [github releases](https://github.com/Lrdsnow/PurePKG/releases/latest) or add the repo https://lrdsnow.github.io/PurePKG.
+2. **Installation:** Download PurePKG from the [github releases](https://github.com/Lrdsnow/PurePKG/releases/latest) or add the jailbreak repo:
+- [PurePKG](purepkg://addrepo/https://lrdsnow.github.io/PurePKG)
+- [Cydia](cydia://url/https://cydia.saurik.com/api/share#?source=https://lrdsnow.github.io/PurePKG)
+- [Installer](installer://add/https://lrdsnow.github.io/PurePKG)
+- [Sileo](sileo://source/https://lrdsnow.github.io/PurePKG)
+- [Zebra](zbra://sources/add/https://lrdsnow.github.io/PurePKG)
 3. **Customize:** Explore the vast array of tweaks, personalize your iOS experience, and make your device truly yours.
 
 ## Credits

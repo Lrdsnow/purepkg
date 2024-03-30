@@ -214,6 +214,39 @@ extension Array where Element: Hashable {
     }
 }
 
+extension String {
+    func compareVersion(_ otherVersion: String) -> ComparisonResult {
+        let versionComponents = self.components(separatedBy: CharacterSet(charactersIn: ".-"))
+        let otherComponents = otherVersion.components(separatedBy: CharacterSet(charactersIn: ".-"))
+        
+        for (index, component) in versionComponents.enumerated() {
+            if index >= otherComponents.count {
+                return .orderedDescending
+            }
+            
+            if let numericComponent = Int(component),
+               let otherNumericComponent = Int(otherComponents[index]) {
+                if numericComponent < otherNumericComponent {
+                    return .orderedAscending
+                } else if numericComponent > otherNumericComponent {
+                    return .orderedDescending
+                }
+            } else {
+                let result = component.compare(otherComponents[index])
+                if result != .orderedSame {
+                    return result
+                }
+            }
+        }
+        
+        if versionComponents.count < otherComponents.count {
+            return .orderedAscending
+        }
+        
+        return .orderedSame
+    }
+}
+
 extension Color {
     init(hex: String, alpha: Double = 1.0) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)

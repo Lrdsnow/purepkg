@@ -222,7 +222,7 @@ public class RepoHandler {
                                     if (!validAndTrusted || !errorStr.isEmpty) {
                                         log("Error: Invalid signature at \(pkgsURL.appendingPathComponent("Release.gpg"))");
                                         signature_ok = false;
-                                        if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .watchOS_rootful || Jailbreak.type() == .visionOS_rootful {
+                                        if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .visionOS_rootful {
                                             if errorStr != "" {
                                                 Repo.error = errorStr
                                             } else {
@@ -263,7 +263,6 @@ public class RepoHandler {
                                         result[key.lowercased()] = value
                                     }
                                     var Tweak = Package()
-                                    print(lowercasedTweak)
                                     Tweak.arch = lowercasedTweak["architecture"] ?? ""
                                     if Tweak.arch == Jailbreak.arch() {
                                         Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
@@ -272,6 +271,7 @@ public class RepoHandler {
                                         Tweak.name = lowercasedTweak["name"] ?? lowercasedTweak["package"] ?? "Unknown Tweak"
                                         Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
                                         Tweak.version = lowercasedTweak["version"] ?? "0.0"
+                                        Tweak.versions.append(lowercasedTweak["version"] ?? "0.0")
                                         Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
                                         for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
                                             var tweakDep = DepPackage()
@@ -694,4 +694,23 @@ func refreshRepos(_ bg: Bool, _ appData: AppData) {
             }
         }
     }
+}
+
+func checkForUpdates(installed: [Package], all: [Package]) -> [Package] {
+    var updates: [Package] = []
+    for pkg in installed {
+        let repo_pkg = all.first { $0.id == pkg.id }
+        if let repo_pkg = repo_pkg {
+            if pkg.name == "PurePKG" {
+                print(pkg.version)
+                print(repo_pkg.version)
+            }
+            if pkg.version.compareVersion(repo_pkg.version) == .orderedAscending {
+                var update_pkg = repo_pkg
+                update_pkg.installedVersion = pkg.version
+                updates.append(update_pkg)
+            }
+        }
+    }
+    return updates
 }

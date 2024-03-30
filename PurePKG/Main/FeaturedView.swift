@@ -143,13 +143,10 @@ struct FeaturedView: View {
         
         while featured.count + otherFeatured.count < cleanPKGS.count && featured.count < 8 {
             let newpkg = cleanPKGS[Int(arc4random_uniform(UInt32(cleanPKGS.count)))]
-            print(newpkg.name)
             if !featured.contains(where: { $0.name == newpkg.name }) && !otherFeatured.contains(where: { $0.name == newpkg.name }) {
                 otherFeatured.append(newpkg)
             }
         }
-        
-        print(otherFeatured.count)
         
         generatedFeatured = true
     }

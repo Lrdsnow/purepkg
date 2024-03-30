@@ -206,7 +206,7 @@ public class Jailbreak {
     static func type(_ appData: AppData? = nil) -> (jbType) {
         let filemgr = FileManager.default
         #if targetEnvironment(simulator)
-        return .visionOS_rootful
+        return .tvOS_rootful
         #elseif os(tvOS)
         if filemgr.fileExists(atPath: "/private/etc/apt") {
             return .tvOS_rootful

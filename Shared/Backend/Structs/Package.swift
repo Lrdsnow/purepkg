@@ -18,6 +18,7 @@ struct Package: Encodable, Decodable {
     var section: String = "Tweaks" // Section
     var version: String = "" // Version
     var versions: [String] = [] // Versions
+    var installedVersion: String = "" // for Updates
     var depends: [DepPackage] = [] // Depends
     var depiction: URL? = nil
     var icon: URL? = nil
