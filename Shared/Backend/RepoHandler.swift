@@ -74,6 +74,10 @@ public class RepoHandler {
         try data.write(to: URL(fileURLWithPath: "\(Jailbreak.path())/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
     }
     
+    public static func RootHelper_removeAllRepoFiles() throws {
+        try? FileManager.default.removeItem(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists");
+    }
+    
     public static func get(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {
@@ -171,6 +175,7 @@ public class RepoHandler {
     }
     
     static func getRepos(_ urls: [URL?], _ distRepoComponents: [URL:String] = [:], completion: @escaping (Repo) -> Void) {
+        spawnRootHelper(args: [ "removeAllRepoFiles" ])
         for url in urls {
             if let url = url {
             
@@ -185,16 +190,12 @@ public class RepoHandler {
                         Repo.description = result["Description"] ?? "Description"
                         Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
                         Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
-                        var pkgsURL = url
-                        if let repoComponents = distRepoComponents[url] {
-                            pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
-                        }
                         
                         #if !os(watchOS)
                         if !UserDefaults.standard.bool(forKey: "ignoreSignature") {
-                            log("getting repo signature: \(pkgsURL.appendingPathComponent("Release.gpg"))")
+                            log("getting repo signature: \(url.appendingPathComponent("Release.gpg"))")
                             var signature_ok: Bool = false;
-                            self.get(pkgsURL.appendingPathComponent("Release.gpg")) { (result, error) in
+                            self.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
                                 if error != nil {
                                     switch Jailbreak.type() {
                                     case .macos:
@@ -211,36 +212,60 @@ public class RepoHandler {
                                 }
                                 
                                 if let result = result {
-                                    let savedReleasePath = self.getSavedRepoFilePath(pkgsURL.appendingPathComponent("Release"));
-                                    let savedReleaseGPGPath = self.getSavedRepoFilePath(pkgsURL.appendingPathComponent("Release.gpg"));
+                                    let savedReleasePath = self.getSavedRepoFilePath(url.appendingPathComponent("Release"));
+                                    let savedReleaseGPGPath = self.getSavedRepoFilePath(url.appendingPathComponent("Release.gpg"));
                                     log("verify \(savedReleasePath) with \(savedReleaseGPGPath)")
                                     
+                                    var validAndTrusted = false;
                                     var errorStr: String = "";
-                                    let validAndTrusted = APTWrapper.verifySignature(key: savedReleaseGPGPath, data: savedReleasePath, error: &errorStr);
+                                    if (error == nil) {
+                                        var counter = 0;
+                                        while (!FileManager.default.fileExists(atPath: savedReleaseGPGPath)) {
+                                            usleep(50000);
+                                            counter += 1;
+                                            if (counter > 50) { // 5 seconds
+                                                NSLog("\(savedReleaseGPGPath) wait timeout");
+                                                break;
+                                            }
+                                        }
+                                        
+                                        counter = 0;
+                                        while (!FileManager.default.fileExists(atPath: savedReleasePath)) {
+                                            usleep(50000);
+                                            counter += 1;
+                                            if (counter > 50) { // 5 seconds
+                                                NSLog("\(savedReleasePath) wait timeout");
+                                                break;
+                                            }
+                                        }
+
+                                    }
+                                    
+                                    validAndTrusted = APTWrapper.verifySignature(key: savedReleaseGPGPath, data: savedReleasePath, error: &errorStr);
                                     
                                     if (!validAndTrusted || !errorStr.isEmpty) {
-                                        log("Error: Invalid signature at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                        log("Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))");
                                         signature_ok = false;
                                         if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .visionOS_rootful {
                                             if errorStr != "" {
                                                 Repo.error = errorStr
                                             } else {
-                                                Repo.error = "Warning: Invalid signature at \(pkgsURL.appendingPathComponent("Release.gpg"))"
+                                                Repo.error = "Warning: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
                                             }
                                         } else {
                                             if errorStr != "" {
                                                 Repo.error = errorStr
                                             } else {
-                                                Repo.error = "Error: Invalid signature at \(pkgsURL.appendingPathComponent("Release.gpg"))"
+                                                Repo.error = "Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
                                             }
                                             completion(Repo);
                                             return
                                         }
                                     } else {
                                         signature_ok = true;
-                                        log("Good signature at \(pkgsURL.appendingPathComponent("Release.gpg"))");
+                                        log("Good signature at \(url.appendingPathComponent("Release.gpg"))");
                                         
-                                        self.get(pkgsURL.appendingPathComponent("InRelease")) { (result, error) in
+                                        self.get(url.appendingPathComponent("InRelease")) { (result, error) in
                                             if let error = error {
                                                 log("Error getting InRelease: \(error.localizedDescription)")
                                             }
@@ -250,6 +275,10 @@ public class RepoHandler {
                             }
                         }
                         #endif
+                        var pkgsURL = url
+                        if let repoComponents = distRepoComponents[url] {
+                            pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
+                        }
                         
                         log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
                         self.get(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
