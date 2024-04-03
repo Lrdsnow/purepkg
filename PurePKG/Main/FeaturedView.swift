@@ -20,39 +20,41 @@ struct FeaturedView: View {
             VStack {
                 List {
                     #if !os(tvOS) && !os(macOS)
-                    if featured.count >= 4 {
-                        VStack {
-                            HStack {
-                                CustomNavigationLink {TweakView(pkg: featured[0])} label: {
-                                    FeaturedAppRectangle(pkg: featured[0], flipped: false)
+                    if #available(iOS 15.0, *) {
+                        if featured.count >= 4 {
+                            VStack {
+                                HStack {
+                                    CustomNavigationLink {TweakView(pkg: featured[0])} label: {
+                                        FeaturedAppRectangle(pkg: featured[0], flipped: false)
+                                    }
+                                    .transition(.move(edge: .leading))
+                                    .springAnim()
+#if !os(macOS)
+                                    .padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+#endif
+                                    CustomNavigationLink {TweakView(pkg: featured[1])} label: {
+                                        FeaturedAppSquare(pkg: featured[1])
+                                    }.transition(.move(edge: .trailing)).springAnim()
                                 }
-                                .transition(.move(edge: .leading))
-                                .springAnim()
-                                #if !os(macOS)
-                                .padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
-                                #endif
-                                CustomNavigationLink {TweakView(pkg: featured[1])} label: {
-                                    FeaturedAppSquare(pkg: featured[1])
-                                }.transition(.move(edge: .trailing)).springAnim()
-                            }
-                            HStack {
-                                CustomNavigationLink {TweakView(pkg: featured[2])} label: {
-                                    FeaturedAppSquare(pkg: featured[2])
-                                }.transition(.move(edge: .leading)).springAnim()
-                                CustomNavigationLink {TweakView(pkg: featured[3])} label: {
-                                    FeaturedAppRectangle(pkg: featured[3], flipped: true)
+                                HStack {
+                                    CustomNavigationLink {TweakView(pkg: featured[2])} label: {
+                                        FeaturedAppSquare(pkg: featured[2])
+                                    }.transition(.move(edge: .leading)).springAnim()
+                                    CustomNavigationLink {TweakView(pkg: featured[3])} label: {
+                                        FeaturedAppRectangle(pkg: featured[3], flipped: true)
+                                    }
+                                    .transition(.move(edge: .trailing))
+                                    .springAnim()
+#if !os(macOS)
+                                    .padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
+#endif
                                 }
-                                .transition(.move(edge: .trailing))
-                                .springAnim()
-                                #if !os(macOS)
-                                .padding(.leading, UIDevice.current.userInterfaceIdiom == .pad ? 0.1 : 0)
-                                #endif
-                            }
-                        }.listRowBackground(Color.clear).noListRowSeparator()
+                            }.listRowBackground(Color.clear).noListRowSeparator()
+                        }
                     }
                     #endif
                     if otherFeatured.count >= 1 {
-                        Section("Need Ideas?") {
+                        SectionCompat("Need Ideas?") {
                             ForEach(otherFeatured, id: \.id) { tweak in
                                 TweakRowNavLinkWrapper(tweak: tweak).listRowBackground(Color.clear).noListRowSeparator()
                             }
@@ -88,21 +90,21 @@ struct FeaturedView: View {
                 }
             #else
                 .navigationBarItems(trailing: HStack {
-                    #if os(tvOS)
-                    Button(action: {
-                        generateFeatured()
-                    }) {
-                        Image("refresh_icon")
-                            .font(.system(size: 24))
-                            .frame(width: 44, height: 44)
+                    if #available(iOS 15.0, tvOS 99.9, macOS 99.9, *) {} else {
+                        Button(action: {
+                            generateFeatured()
+                        }) {
+                            Image("refresh_icon")
+                                .font(.system(size: 24))
+                                .frame(width: 44, height: 44)
+                        }
                     }
-                    #endif
                     gearButton
                 })
             #endif
         }
             .onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generateFeatured() } })
-            .refreshable { generateFeatured() }
+            .refreshable_compat { generateFeatured() }
         
     }
     
@@ -122,8 +124,11 @@ struct FeaturedView: View {
             } else {
                 while true {
                     let newpkg = cleanPKGS[Int(arc4random_uniform(UInt32(cleanPKGS.count)))]
-                    if !featured.contains(where: { $0.name == newpkg.name }) && !otherFeatured.contains(where: { $0.name == newpkg.name }) {
+                    if !featured.contains(where: { $0.name == newpkg.id }) && !otherFeatured.contains(where: { $0.name == newpkg.id }) {
                         featured.append(newpkg)
+                        break
+                    }
+                    if featured.count == 4 {
                         break
                     }
                     if featured.count + otherFeatured.count == cleanPKGS.count {
@@ -141,7 +146,7 @@ struct FeaturedView: View {
         }
         #endif
         
-        while featured.count + otherFeatured.count < cleanPKGS.count && featured.count < 8 {
+        while featured.count + otherFeatured.count < cleanPKGS.count && otherFeatured.count < 8 {
             let newpkg = cleanPKGS[Int(arc4random_uniform(UInt32(cleanPKGS.count)))]
             if !featured.contains(where: { $0.name == newpkg.name }) && !otherFeatured.contains(where: { $0.name == newpkg.name }) {
                 otherFeatured.append(newpkg)

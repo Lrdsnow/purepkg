@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import MarkdownUI
+
 #if canImport(WebKit) && !os(macOS)
 import WebKit
 
@@ -367,7 +368,11 @@ struct TweakDepictionView: View {
                 .padding(.bottom, subheader.useBottomMargin ? 8 : 0);Spacer()})
 
         case let markdown as DepictionMarkdownView:
-            return AnyView(Markdown(markdown.markdown))
+            if #available(iOS 15.0, tvOS 15.0, *) {
+                return AnyView(Markdown(markdown.markdown))
+            } else {
+                return AnyView(EmptyView())
+            }
 
         case let tableText as DepictionTableTextView:
             return AnyView(HStack {

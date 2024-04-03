@@ -1,4 +1,5 @@
 {
+  "originHash" : "801bf6f3393523e64168ca68d1acf65391e70029e22e87bea3da25455b60b197",
   "pins" : [
     {
       "identity" : "kingfisher",
@@ -19,12 +20,12 @@
       }
     },
     {
-      "identity" : "swift-markdown-ui",
+      "identity" : "swift-markdown-ui-compat",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
+      "location" : "https://github.com/Lrdsnow/swift-markdown-ui-compat.git",
       "state" : {
-        "revision" : "ae799d015a5374708f7b4c85f3294c05f2a564e2",
-        "version" : "2.3.0"
+        "branch" : "main",
+        "revision" : "bd232396241401101ef4dd5a9b9c2d8b66698f5a"
       }
     },
     {
@@ -37,5 +38,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

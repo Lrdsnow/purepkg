@@ -131,7 +131,7 @@ struct TvOSQueuedView: View {
                         Spacer()
                         Text(showLog ? "Close" : "Install Tweaks").padding()
                         Spacer()
-                    }).buttonStyle(.borderedProminent).tint(Color.accentColor.opacity(0.7))
+                    }).borderedPromButton().tintCompat(Color.accentColor.opacity(0.7))
                     Spacer()
                 }.padding().padding(.bottom, 30)
             }.listStyle(.plain).BGImage(appData).largeNavBarTitle()

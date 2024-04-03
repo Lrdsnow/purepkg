@@ -4,32 +4,32 @@ Hash: SHA512
 Architectures: xros-arm64 watchos-arm appletvos-arm64 darwin-amd64 darwin-arm64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e
 Codename: purepkg
 Components: main
-Date: Sat, 30 Mar 2024 07:01:33 +0000
+Date: Wed, 03 Apr 2024 05:50:15 +0000
 Description: PurePKG
 Label: PurePKG
 Origin: PurePKG
 Suite: stable
 Version: 1.0
 MD5Sum:
- c2cc0a42ffc325ffc6c043b655bb2513             7003 Packages
- 8fafdb20fe78c28fce78fbeaa9a68f4e             2201 Packages.gz
- fc3dadab28b394f3474d256f0ca6c663              276 Release
+ 0b584cf93d193b34d89ef523aff87b20             5561 Packages
+ 5adf1aa4806db376235173d43eecc54f             1831 Packages.gz
+ b1a7807325304849b149a872c5a4bc82              276 Release
 SHA1:
- 852cd9888e667268b36b37d2bef429e77a6e5285             7003 Packages
- 37fd2e6e081155e981c485c2d7e310aa9ae2662e             2201 Packages.gz
- bffb919843cdb7ec75becb1471af17618e6acb34              276 Release
+ b19fb0afb93daea8ea069af01386c4d323654ae6             5561 Packages
+ 31af11a87396a04d42990fc771c5c67b45c2c4b4             1831 Packages.gz
+ 57106fcac88f239b785e0e3be1b8b82123bcdebc              276 Release
 SHA256:
- 18dab2449d6fc8e53304fb2e90e33575204cd117ef3cbf3b5398127a5d5b9faa             7003 Packages
- 6c350f2fa5bda1a9711315a22b48efa07f35dc0eb6b14de324b7fe767ffbd79d             2201 Packages.gz
- 68587e03e8cc2fe10f04a075a30a167b354f6111aa4a6cf85796c180cb83eb43              276 Release
+ cce8d4326848fd2414335e4970dd2113ce45d819ade090c62e1f7933fb5d11f8             5561 Packages
+ 7997367e35e4bdac26735b3f88458e7e8445b7e719446834936cf749c16b4c03             1831 Packages.gz
+ f3408836817da67983e816d5542a86b6b512df475e61555259ef0cad98648935              276 Release
 SHA512:
- a271101e42794a13e02a93a8d4b6d05a0d25c0876cc176427a31396c68198c405b0eb03497aed6cd271c44493b09915f995c12c7716d3b3388685ce1240fe240             7003 Packages
- 490034638d3338e32140f6fcd73786b63a1e871163bd0f2fbec8131a86df9b08c00c3c11499b9d7c569d8900e507077d20f27b88fe811dc80d7d915a996d5668             2201 Packages.gz
- b2f94473ffc8e031003298273cb41bded816f3f89062277c7f86d03e092bdb7a746ea0fb8f487d070124332303e3e392a5e7a0bd9b111b2cee6842207fbaf251              276 Release
+ 40b364948227421778f5ba12df630684a8bef91b9bdba6e69226df8145ea7d8129f2cc65753c2c4834047920cda4170584b0a914b7e42ab3c4e837c0a4490970             5561 Packages
+ 1480a07ec243c0d5364aa72d230f51ed7295c502f5ae26dd8eeebbb62e74799cb45a989b20b9d4cc69fe526cd7874eba7e3054b250dc07a27b23ed7a60dcba97             1831 Packages.gz
+ b7d270a2392abe371daa151c38899d13558c0d9c4bd3e0eb2396cdec2a93bd258a30e4b834ffeddf20f4a9d78867256736dd745ebf46b3244b384e8a4dae2b0d              276 Release
 -----BEGIN PGP SIGNATURE-----
 
-iIsEARYKADMWIQQBMWcIEpH45YhabS7JZ9mKny64ZgUCZge4zxUcbHJkc25vdzEw
-MUBnbWFpbC5jb20ACgkQyWfZip8uuGbGRgD+JlttYTwcb+7l1LPGG6RQP5wnIdrN
-L4aqYeL0VaqYo3sA/26qT/SRG0QDhmda+ioY0tuA885JryNJmPfRB/4bd34A
-=XEiU
+iIsEARYKADMWIQQBMWcIEpH45YhabS7JZ9mKny64ZgUCZgzuGBUcbHJkc25vdzEw
+MUBnbWFpbC5jb20ACgkQyWfZip8uuGb5DAD+OiB9S7i0bL58kPalX7X7PxvBE1qC
+6mknWBH62JdHAnAA/iqx34/d7HxNTKYMX2E+tv3MAm0irfrSXPlm2KzWISQE
+=SyWN
 -----END PGP SIGNATURE-----

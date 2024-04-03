@@ -12,6 +12,7 @@ import Kingfisher
 struct TweakView: View {
     @EnvironmentObject var appData: AppData
     @State private var installed = false
+    @State private var installedPKG: Package? = nil
     @State private var queued = false
     @State private var banner: URL? = nil
     let pkg: Package
@@ -58,11 +59,20 @@ struct TweakView: View {
                             installPKG()
                         }, label: {
                             Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
-                        }).buttonStyle(.borderedProminent).opacity(0.7).springAnim().contextMenu(menuItems: {
+                        }).borderedPromButton().opacity(0.7).springAnim().contextMenu(menuItems: {
                             if !queued && !installed {
-                                ForEach(pkg.versions, id: \.self) { ver in
+                                ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                     Button(action: {installPKG(ver)}) {
                                         Text(ver)
+                                    }
+                                }
+                            }
+                            if installed {
+                                ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
+                                    if let installedPKG = installedPKG, installedPKG.version != ver {
+                                        Button(action: {installPKG(ver)}) {
+                                            Text("\(installedPKG.version.compareVersion(ver) == .orderedAscending ? "Upgrade to" : "Downgrade to") \(ver)")
+                                        }
                                     }
                                 }
                             }
@@ -82,7 +92,7 @@ struct TweakView: View {
             
             HStack {
                 Spacer()
-                Text("\(pkg.id) (\(pkg.version))").foregroundColor(Color(UIColor.secondaryLabel))
+                Text("\(pkg.id) (\(pkg.installedVersion == "" ? pkg.version : pkg.installedVersion))\(pkg.installedVersion == "" ? "" : " (\(pkg.version) available)")").foregroundColor(Color(UIColor.secondaryLabel))
                 Spacer()
             }.listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
             
@@ -94,6 +104,7 @@ struct TweakView: View {
         .onAppear() {
             queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
+            installedPKG = appData.installed_pkgs.first(where: { $0.id == pkg.id })
             print(pkg)
         }
     }

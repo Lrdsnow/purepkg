@@ -42,94 +42,94 @@ struct BrowseView: View {
             if !appData.repos.isEmpty {
                 List {
                     PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs), alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0).listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
-                    Section("Repositories") {
-                        ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.name) { repo in
+                    SectionCompat("Repositories") {
+                        ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.url) { repo in
                             RepoRowNavLinkWrapper(repo: repo).noListRowSeparator()
                         }
                     }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
-                    #if !os(tvOS) && !os(macOS)
+#if !os(tvOS) && !os(macOS)
                     Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
-                    #endif
+#endif
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
-                .refreshable {
-                    appData.repos = []
-                }.addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
-                .onChange(of: isAddingRepoURLAlertPresented) { newValue in
-                    if !newValue {
-                        Task {
-                            await addRepo()
+                    .refreshable_compat {
+                        refreshRepos(false, appData)
+                    }.addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
+                    .onChange(of: isAddingRepoURLAlertPresented) { newValue in
+                        if !newValue {
+                            Task {
+                                await addRepo()
+                            }
                         }
                     }
-                }
-                .largeNavBarTitle()
-                #if os(macOS)
-                .toolbar {
-                    ToolbarItem {
-                        Spacer()
+                    .largeNavBarTitle()
+#if os(macOS)
+                    .toolbar {
+                        ToolbarItem {
+                            Spacer()
+                        }
+                        ToolbarItemGroup(placement: .primaryAction) {
+                            HStack {
+                                Button(action: {
+                                    refreshRepos(false, appData)
+                                }) {
+                                    Image("refresh_icon")
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                }
+                                Button(action: {
+                                    let pasteboard = NSPasteboard.general
+                                    let clipboardString = pasteboard.string(forType: .string) ?? ""
+                                    if let repourl = URL(string: clipboardString) {
+                                        newRepoURL = repourl.absoluteString
+                                        Task {
+                                            await addRepo()
+                                        }
+                                    } else {
+                                        if #available(iOS 16, *) {
+                                            isAddingRepoURLAlert16Presented = true
+                                        } else {
+                                            isAddingRepoURLAlertPresented = true
+                                        }
+                                    }
+                                }) {
+                                    Image("plus_icon")
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                }
+                            }
+                        }
                     }
-                    ToolbarItemGroup(placement: .primaryAction) {
-                        HStack {
+#else
+                    .navigationBarItems(trailing:
+                                            HStack {
+                        if #available(iOS 15.0, tvOS 99.9, macOS 99.9, *) {} else {
                             Button(action: {
-                                appData.repos = []
+                                refreshRepos(false, appData)
                             }) {
+#if os(tvOS)
+                                Image("refresh_icon")
+#else
                                 Image("refresh_icon")
                                     .renderingMode(.template)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                            }
-                            Button(action: {
-                                let pasteboard = NSPasteboard.general
-                                let clipboardString = pasteboard.string(forType: .string) ?? ""
-                                if let repourl = URL(string: clipboardString) {
-                                    newRepoURL = repourl.absoluteString
-                                    Task {
-                                        await addRepo()
-                                    }
-                                } else {
-                                    if #available(iOS 16, *) {
-                                        isAddingRepoURLAlert16Presented = true
-                                    } else {
-                                        isAddingRepoURLAlertPresented = true
-                                    }
-                                }
-                            }) {
-                                Image("plus_icon")
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
+#endif
                             }
                         }
-                    }
-                }
-                #else
-                .navigationBarItems(trailing:
-                        HStack {
-                        #if os(macOS) || os(tvOS)
                         Button(action: {
-                            appData.repos = []
-                        }) {
-                            #if os(tvOS)
-                            Image("refresh_icon")
-                            #else
-                            Image("refresh_icon")
-                                .renderingMode(.template)
-                            #endif
-                        }
-                        #endif
-                        Button(action: {
-                            #if os(tvOS)
+#if os(tvOS)
                             if #available(tvOS 16, *) {
                                 isAddingRepoURLAlert16Presented = true
                             } else {
                                 isAddingRepoURLAlertPresented = true
                             }
-                            #else
-                            #if os(macOS)
+#else
+#if os(macOS)
                             let pasteboard = NSPasteboard.general
                             let clipboardString = pasteboard.string(forType: .string) ?? ""
-                            #else
+#else
                             let clipboardString = UIPasteboard.general.string ?? ""
-                            #endif
+#endif
                             if let repourl = URL(string: clipboardString) {
                                 newRepoURL = repourl.absoluteString
                                 Task {
@@ -142,29 +142,29 @@ struct BrowseView: View {
                                     isAddingRepoURLAlertPresented = true
                                 }
                             }
-                            #endif
+#endif
                         }) {
-                            #if os(tvOS)
+#if os(tvOS)
                             Image("plus_icon")
-                            #else
+#else
                             Image("plus_icon")
                                 .renderingMode(.template)
                                 .shadow(color: .accentColor, radius: 5)
-                            #endif
+#endif
                         }
                     }
                     )
-                #endif
+#endif
             } else {
                 VStack {
                     ZStack {
                         ProgressView()
                         Text("\n\n\nGetting Repos...").foregroundColorCustom(Color.accentColor)
-                    }.task() {
+                    }.onAppear() {
                         refreshRepos(false, appData)
                     }
                 }.BGImage(appData).navigationTitle("Browse")
-                .largeNavBarTitle()
+                    .largeNavBarTitle()
             }
         }
     }
@@ -185,7 +185,7 @@ struct BrowseView: View {
             
             if statuscode == 200 {
                 RepoHandler.addRepo(newRepoURL)
-                appData.repos = []
+                refreshRepos(false, appData)
             } else {
                 UIApplication.shared.alert(title: "Error", body: "Invalid Repo?", withButton: true)
             }
@@ -210,7 +210,7 @@ struct RepoView: View {
             .padding(.vertical, 5)
             .padding(.bottom, 10)
             .noListRowSeparator()
-            Section("Categories") {
+            SectionCompat("Categories") {
                 ForEach(Array(Set(repo.tweaks.map { $0.section })), id: \.self) { category in
                     let categoryTweaks = repo.tweaks.filter { $0.section == category }
                     PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: category, tweaks: categoryTweaks), alltweaks: -1, category: category, categoryTweaks: categoryTweaks.count).noListRowSeparator()
@@ -234,7 +234,7 @@ struct TweaksListView: View {
     
     var body: some View {
         List {
-            Section(tweaksLabel) {
+            SectionCompat(tweaksLabel) {
                 if !tweaks.isEmpty {
                     ForEach(tweaks, id: \.name) { tweak in
                         TweakRowNavLinkWrapper(tweak: tweak)
@@ -263,7 +263,6 @@ struct PlaceHolderRowNavLinkWrapper<Destination: View>: View {
     let alltweaks: Int
     let category: String
     let categoryTweaks: Int
-    @FocusState private var isFocused: Bool
     @State private var focused: Bool = false
     
     var body: some View {
@@ -276,7 +275,6 @@ struct PlaceHolderRowNavLinkWrapper<Destination: View>: View {
         }
         #if os(tvOS)
         .focusable(true) { isFocused in
-            self.isFocused = isFocused
             self.focused = isFocused
         }
         #endif
@@ -336,7 +334,6 @@ struct PlaceHolderRow: View {
 
 struct RepoRowNavLinkWrapper: View {
     let repo: Repo
-    @FocusState private var isFocused: Bool
     @State private var focused: Bool = false
     
     var body: some View {
@@ -350,7 +347,6 @@ struct RepoRowNavLinkWrapper: View {
         .noListRowSeparator()
         #if os(tvOS)
         .focusable(true) { isFocused in
-            self.isFocused = isFocused
             self.focused = isFocused
         }
         #endif
@@ -366,7 +362,7 @@ struct RepoRow: View {
         HStack {
             VStack(alignment: .center) {
                 Spacer()
-                KFImage(repo.url.appendingPathComponent("CydiaIcon.png"))
+                KFImage((URL(string: repo.url.absoluteString.replacingOccurrences(of: "refreshing/", with: "")) ?? URL(fileURLWithPath: "/")).appendingPathComponent("CydiaIcon.png"))
                     .resizable()
                     .onFailureImage(UIImage(named: "DisplayAppIcon"))
                     .scaledToFit()
@@ -390,13 +386,13 @@ struct RepoRow: View {
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
-                Text(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").removeSubstringIfExists("/dists/"))
+                Text(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").replacingOccurrences(of: "refreshing/", with: "").removeSubstringIfExists("/dists/"))
                     .font(.subheadline)
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
-                if let error = repo.error {
-                    Text(error)
+                if repo.error != nil {
+                    Text(repo.error ?? "")
                         .font(.footnote)
                         .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
@@ -420,21 +416,29 @@ struct RepoRow: View {
                 Image("copy_icon").renderingMode(.template)
             }
 #endif
-            Button(role: .destructive, action: {
-                RepoHandler.removeRepo(repo.url)
-                appData.repos = []
-            }) {
-                Text("Delete Repo")
-                Image("trash_icon").renderingMode(.template)
-            }.foregroundColor(.red)
-            
+            if #available(iOS 15.0, tvOS 15.0, *) {
+                Button(role: .destructive, action: {
+                    RepoHandler.removeRepo(repo.url)
+                    refreshRepos(false, appData)
+                }) {
+                    Text("Delete Repo")
+                    Image("trash_icon").renderingMode(.template)
+                }.foregroundColor(.red)
+            } else {
+                Button(action: {
+                    RepoHandler.removeRepo(repo.url)
+                    refreshRepos(false, appData)
+                }) {
+                    Text("Delete Repo")
+                    Image("trash_icon").renderingMode(.template)
+                }.foregroundColor(.red)
+            }
         })
     }
 }
 
 struct TweakRowNavLinkWrapper: View {
     let tweak: Package
-    @FocusState private var isFocused: Bool
     @State private var focused: Bool = false
     
     var body: some View {
@@ -448,7 +452,6 @@ struct TweakRowNavLinkWrapper: View {
         .noListRowSeparator()
         #if os(tvOS)
         .focusable(true) { isFocused in
-            self.isFocused = isFocused
             self.focused = isFocused
         }
         #endif

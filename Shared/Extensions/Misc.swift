@@ -247,6 +247,23 @@ extension String {
     }
 }
 
+extension String {
+    func isValidRepoFileFormat() -> Bool {
+        let lines = self.split(separator: "\n")
+        for line in lines.prefix(3) {
+            let components = line.split(separator: ":", maxSplits: 1)
+            if components.count == 2 {
+                let firstPart = components[0].trimmingCharacters(in: .whitespaces)
+                let secondPart = components[1].trimmingCharacters(in: .whitespaces)
+                if !firstPart.isEmpty && !secondPart.isEmpty {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+}
+
 extension Color {
     init(hex: String, alpha: Double = 1.0) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)

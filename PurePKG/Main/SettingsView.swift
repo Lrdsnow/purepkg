@@ -51,7 +51,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Jailbreak Type")
                     Spacer()
-                    Text(appData.jbdata.jbtype == .rootful ? "Rootful (iphoneos-arm)" : appData.jbdata.jbtype == .tvOS_rootful ? "Rootful (appletvos-arm64)" : appData.jbdata.jbtype == .rootless ? "Rootless (iphoneos-arm64)" : appData.jbdata.jbtype == .roothide ? "Roothide (iphoneos-arm64e)" : "Jailed")
+                    Text(appData.jbdata.jbtype == .rootful ? "Rootful (\(appData.jbdata.jbarch))" : appData.jbdata.jbtype == .tvOS_rootful ? "Rootful (\(appData.jbdata.jbarch))" : appData.jbdata.jbtype == .rootless ? "Rootless (\(appData.jbdata.jbarch))" : appData.jbdata.jbtype == .roothide ? "Roothide (\(appData.jbdata.jbarch))" : "Jailed")
                 }.listRowBG()
 #endif
 #if !os(macOS)
@@ -98,7 +98,7 @@ struct SettingsView: View {
                     UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
                     appData.test.toggle()
                 }.contextMenu(menuItems: {
-                    Button(role: .destructive, action: {
+                    Button(action: {
                         UserDefaults.standard.set("", forKey: "accentColor")
                         accent = Color(UIColor(hex: "#EBC2FF")!)
                         appData.test.toggle()

@@ -47,7 +47,7 @@ struct BrowseView: View {
                         }
                     }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
-                .refreshable {
+                .refreshable_compat {
                     appData.repos = []
                 }
                 .alert("Add Repo", isPresented: $addingRepo, actions: {

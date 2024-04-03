@@ -43,7 +43,7 @@ struct FeaturedView: View {
                 })
         }
             .onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generateFeatured() } })
-            .refreshable { generateFeatured() }
+            .refreshable_compat { generateFeatured() }
         
     }
     

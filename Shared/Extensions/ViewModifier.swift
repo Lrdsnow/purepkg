@@ -13,6 +13,28 @@ import AppKit
 import TextFieldAlert
 #endif
 
+struct SectionCompat<Content: View>: View {
+    let text: String
+    let content: Content
+
+    init(_ text: String, @ViewBuilder content: () -> Content) {
+        self.text = text
+        self.content = content()
+    }
+
+    var body: some View {
+        if #available(iOS 15, tvOS 15.0, *) {
+            Section(text) {
+                content
+            }
+        } else {
+            Section(header: Text(text)) {
+                content
+            }
+        }
+    }
+}
+
 #if os(macOS)
 struct VisualEffectView: NSViewRepresentable {
     let material: NSVisualEffectView.Material
@@ -65,6 +87,7 @@ struct VisualEffectView: UIViewRepresentable {
 }
 #endif
 
+@available(tvOS 15.0, iOS 15.0, *)
 struct CustomNavigationLink<D: View, L: View>: View {
   @ViewBuilder var destination: () -> D
   @ViewBuilder var label: () -> L
@@ -228,7 +251,11 @@ extension View {
         #if os(tvOS) || os (watchOS)
         self
         #else
-        self.listRowSeparator(.hidden)
+        if #available(iOS 15.0, *) {
+            self.listRowSeparator(.hidden)
+        } else {
+            self
+        }
         #endif
     }
     
@@ -280,5 +307,46 @@ extension View {
         self.foregroundColor(color)
         #endif
     }
+    
+    @ViewBuilder
+    func refreshable_compat(action: @escaping () -> Void) -> some View {
+        self.modifier(RefreshableCompatModifier(action: action))
+    }
+    
+    @ViewBuilder
+    func borderedPromButton() -> some View {
+        if #available(iOS 15.0, tvOS 15.0, *) {
+            self.buttonStyle(.borderedProminent)
+        } else {
+            if #available(iOS 15.0, *) {
+                self.buttonStyle(.bordered)
+            } else {
+                self
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func tintCompat(_ color: Color) -> some View {
+        if #available(tvOS 16.0, iOS 16.0, *) {
+            self.tint(color)
+        } else {
+            self
+        }
+    }
 }
 
+struct RefreshableCompatModifier: ViewModifier {
+    let action: () -> Void
+    
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 15.0, tvOS 15.0, *) {
+            content.refreshable {
+                action()
+            }
+        } else {
+            content
+        }
+    }
+}

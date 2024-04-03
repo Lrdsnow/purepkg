@@ -34,31 +34,35 @@ public class RepoHandler {
             }
             
             if let fileContent = String(data: data, encoding: .utf8) {
-                if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                    let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
-                    let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-                    do {
-                        try data.write(to: tempFilePath)
-                        spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
-                    } catch {
-                        
+                if fileContent.isValidRepoFileFormat() {
+                    if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
+                        let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                        do {
+                            try data.write(to: tempFilePath)
+                            spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
+                        } catch {
+                            
+                        }
                     }
-                }
-                
-                let lines = fileContent.components(separatedBy: .newlines)
-                
-                var dictionary: [String: String] = [:]
-                
-                for line in lines {
-                    let components = line.components(separatedBy: ":")
-                    if components.count == 2 {
-                        let key = components[0].trimmingCharacters(in: .whitespaces)
-                        let value = components[1].trimmingCharacters(in: .whitespaces)
-                        dictionary[key] = value
+                    
+                    let lines = fileContent.components(separatedBy: .newlines)
+                    
+                    var dictionary: [String: String] = [:]
+                    
+                    for line in lines {
+                        let components = line.components(separatedBy: ":")
+                        if components.count == 2 {
+                            let key = components[0].trimmingCharacters(in: .whitespaces)
+                            let value = components[1].trimmingCharacters(in: .whitespaces)
+                            dictionary[key] = value
+                        }
                     }
+                    
+                    completion(dictionary, nil)
+                } else {
+                    completion(nil, "Downloaded file was invalid")
                 }
-                
-                completion(dictionary, nil)
             } else {
                 completion(nil, "Failed to decode data")
             }
@@ -651,15 +655,13 @@ public class RepoHandler {
 }
 
 func refreshRepos(_ bg: Bool, _ appData: AppData) {
+    let oldRepos = appData.repos
     let repoCacheDir = URL.documents.appendingPathComponent("repoCache")
-    var temp_repos: [Repo] = []
-    var temp_pkgs: [Package] = []
-    if !bg {
-        if FileManager.default.fileExists(atPath: repoCacheDir.path) {
-            try? FileManager.default.removeItem(at: repoCacheDir)
-        }
-        try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
+    appData.repos = []
+    if FileManager.default.fileExists(atPath: repoCacheDir.path) {
+        try? FileManager.default.removeItem(at: repoCacheDir)
     }
+    try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
     DispatchQueue.main.async {
         if appData.jbdata.jbtype != .jailed {
             let repoData = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
@@ -669,53 +671,36 @@ func refreshRepos(_ bg: Bool, _ appData: AppData) {
             appData.repo_urls = [URL(string: "https://repo.chariz.com")!, URL(string: "https://luki120.github.io")!, URL(string: "https://sparkdev.me")!, URL(string: "https://havoc.app")!]
         }
         let repo_urls = appData.repo_urls
+        for repourl in repo_urls {
+            var tempRepo = Repo()
+            tempRepo.url = repourl.appendingPathComponent("refreshing/")
+            tempRepo.error = "Refreshing..."
+            if let oldRepo = oldRepos.first(where: { $0.url == repourl }) {
+                tempRepo.name = oldRepo.name
+            }
+            appData.repos.append(tempRepo)
+        }
         let dist_repo_components = appData.dist_repo_components
         DispatchQueue.global(qos: .background).async {
-            RepoHandler.getRepos(repo_urls, dist_repo_components) { Repo in
+            RepoHandler.getRepos(repo_urls, dist_repo_components) { repo in
                 DispatchQueue.main.async {
-                    if !bg {
-                        if !appData.repos.contains(where: { $0.url == Repo.url }) {
-                            appData.repos.append(Repo)
-                            appData.pkgs  = appData.repos.flatMap { $0.tweaks }
-                            let jsonEncoder = JSONEncoder()
+                    if let AppDataRepoIndex = appData.repos.firstIndex(where: { $0.url == repo.url.appendingPathComponent("refreshing/") }) {
+                        appData.repos[AppDataRepoIndex] = repo
+                        appData.pkgs  = appData.repos.flatMap { $0.tweaks }
+                        let jsonEncoder = JSONEncoder()
+                        do {
+                            let jsonData = try jsonEncoder.encode(repo)
                             do {
-                                let jsonData = try jsonEncoder.encode(Repo)
-                                do {
-                                    var cleanname = Repo.name.filter { $0.isLetter || $0.isNumber }.trimmingCharacters(in: .whitespacesAndNewlines)
-                                    if cleanname == "" {
-                                        cleanname = "\(UUID())"
-                                    }
-                                    try jsonData.write(to: repoCacheDir.appendingPathComponent("\(cleanname).json"))
-                                } catch {
-                                    log("Error saving repo data: \(error)")
+                                var cleanname = repo.name.filter { $0.isLetter || $0.isNumber }.trimmingCharacters(in: .whitespacesAndNewlines)
+                                if cleanname == "" {
+                                    cleanname = "\(UUID())"
                                 }
+                                try jsonData.write(to: repoCacheDir.appendingPathComponent("\(cleanname).json"))
                             } catch {
-                                log("Error encoding repo: \(error)")
+                                log("Error saving repo data: \(error)")
                             }
-                        }
-                    } else {
-                        if !temp_repos.contains(where: { $0.url == Repo.url }) {
-                            temp_repos.append(Repo)
-                            temp_pkgs  = temp_repos.flatMap { $0.tweaks }
-                            let jsonEncoder = JSONEncoder()
-                            do {
-                                let jsonData = try jsonEncoder.encode(Repo)
-                                do {
-                                    var cleanname = Repo.name.filter { $0.isLetter || $0.isNumber }.trimmingCharacters(in: .whitespacesAndNewlines)
-                                    if cleanname == "" {
-                                        cleanname = "\(UUID())"
-                                    }
-                                    try jsonData.write(to: repoCacheDir.appendingPathComponent("\(cleanname).json"))
-                                } catch {
-                                    log("Error saving repo data: \(error)")
-                                }
-                            } catch {
-                                log("Error encoding repo: \(error)")
-                            }
-                        }
-                        if repo_urls.removingDuplicates().count == temp_repos.count {
-                            appData.repos = temp_repos
-                            appData.pkgs = temp_pkgs
+                        } catch {
+                            log("Error encoding repo: \(error)")
                         }
                     }
                 }

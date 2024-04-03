@@ -26,7 +26,7 @@ struct BrowseView: View {
                         }
                     }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
                 }.clearListBG().navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
-                .refreshable {
+                .refreshable_compat {
                     appData.repos = []
                 }
                 .onChange(of: isAddingRepoURLAlertPresented) { newValue in

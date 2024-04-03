@@ -116,6 +116,8 @@ struct MainView: View {
             }
         }.onAppear() {
             appData.jbdata.jbtype = Jailbreak.type(appData)
+            appData.jbdata.jbarch = Jailbreak.arch(appData)
+            appData.jbdata.jbroot = Jailbreak.path(appData)
             appData.deviceInfo = getDeviceInfo()
             appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
             appData.repos = RepoHandler.getCachedRepos()
@@ -139,12 +141,17 @@ struct MainView: View {
             tabbar(selectedTab: $selectedTab)
                 .onAppear() {
                     appData.jbdata.jbtype = Jailbreak.type(appData)
+                    appData.jbdata.jbarch = Jailbreak.arch(appData)
+                    appData.jbdata.jbroot = Jailbreak.path(appData)
                     appData.deviceInfo = getDeviceInfo()
                     appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
                     appData.repos = RepoHandler.getCachedRepos()
                     appData.pkgs = appData.repos.flatMap { $0.tweaks }
                     if appData.repos.isEmpty {
                         selectedTab = 1
+                    }
+                    Task(priority: .background) {
+                        refreshRepos(true, appData)
                     }
                 }
         }.background(Color.black).edgesIgnoringSafeArea(.bottom)
@@ -307,7 +314,7 @@ struct MainView: View {
                                     if queueOpen {
                                         Spacer()
                                     }
-                                }).buttonStyle(.borderedProminent).tint(Color.accentColor.opacity(0.7))
+                                }).borderedPromButton().tintCompat(Color.accentColor.opacity(0.7))
                                 if !queueOpen {
                                     Spacer()
                                 }
