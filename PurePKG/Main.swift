@@ -12,6 +12,8 @@ import AppKit
 import UIKit
 #endif
 import Combine
+import UniformTypeIdentifiers
+
 
 @main
 struct PureKFDBinary {
@@ -27,6 +29,9 @@ struct PureKFDBinary {
 
 struct purepkgApp: App {
     @StateObject private var appData = AppData()
+    @State private var basicMode = false
+    @State private var showTweakView = false
+    @State private var tweakViewPKG: Package? = nil
     
     init() {
         #if os(macOS)
@@ -41,16 +46,28 @@ struct purepkgApp: App {
         UITableView.appearance().separatorColor = .clear
         UITabBar.appearance().isHidden = true
         #endif
+        if #available(iOS 15.0, macOS 99.9, tvOS 99.9, *) {} else { basicMode = true }
+        basicMode = UserDefaults.standard.bool(forKey: "simpleMode")
     }
     
     var body: some Scene {
         WindowGroup {
-            MainView()
+            MainView(basicMode: $basicMode)
                 .environmentObject(appData)
                 .accentColor(Color(UIColor(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "") ?? UIColor(hex: "#EBC2FF")!))
                 .onOpenURL { url in
                     handleIncomingURL(url)
                 }
+                .sheet(isPresented: $showTweakView, content: {
+                    if let tweakViewPKG = tweakViewPKG {
+                        TweakView(pkg: tweakViewPKG)
+                    } else {
+                        Text("Error").onAppear() {
+                            UIApplication.shared.alert(title: "Error", body: "Error Reading Imported File", withButton: true)
+                            showTweakView = false
+                        }
+                    }
+                })
         }
         #if os(macOS)
         .windowStyle(.hiddenTitleBar)
@@ -59,11 +76,20 @@ struct purepkgApp: App {
     
     private func handleIncomingURL(_ url: URL) {
         print("App was opened via URL: \(url)")
-        if url.absoluteString.contains("purepkg://addrepo/") {
+        if url.pathExtension == "deb" {
+            // ill finish this in the next update
+            print(url)
+        } else if url.absoluteString.contains("purepkg://addrepo/") {
             let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
             print("Adding Repo: \(repourl)")
             RepoHandler.addRepo(repourl)
         }
+    }
+}
+
+extension UTType {
+    static var test1: UTType {
+        UTType(exportedAs: "org.debian.deb-archive")
     }
 }
 
@@ -76,86 +102,91 @@ struct tabBarIcons {
 
 struct MainView: View {
     @EnvironmentObject var appData: AppData
-    @State private var icons = tabBarIcons()
+    @Binding var basicMode: Bool
     @State private var selectedTab = 0
     
     var body: some View {
-#if os(tvOS) || os(macOS)
-        TabView(selection: $selectedTab) {
-            FeaturedView().tag(0).tabItem {
-                HStack {
-                    Image("home_icon")
-                    Text("Featured")
-                }
-            }
-            BrowseView().tag(1).tabItem {
-                HStack {
-                    Image("browse_icon")
-                    Text("Browse")
-                }
-            }
-            InstalledView().tag(2).tabItem {
-                HStack {
-                    Image("installed_icon")
-                    Text("Installed")
-                }
-            }
-            SearchView().tag(3).tabItem {
-                HStack {
-                    Image("search_icon")
-                    Text("Search")
-                }
-            }
-            if !appData.queued.all.isEmpty {
-                TvOSQueuedView().tag(4).tabItem {
-                    HStack {
-                        Image("queue_icon")
-                        Text("Queued")
-                    }
-                }
-            }
-        }.onAppear() {
-            appData.jbdata.jbtype = Jailbreak.type(appData)
-            appData.jbdata.jbarch = Jailbreak.arch(appData)
-            appData.jbdata.jbroot = Jailbreak.path(appData)
-            appData.deviceInfo = getDeviceInfo()
-            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
-            appData.repos = RepoHandler.getCachedRepos()
-            appData.pkgs = appData.repos.flatMap { $0.tweaks }
-            if appData.repos.isEmpty {
-                selectedTab = 1
-            }
-            Task(priority: .background) {
-                refreshRepos(true, appData)
-            }
-        }
-#else
-        ZStack(alignment: .bottom) {
+        if basicMode {
             TabView(selection: $selectedTab) {
-                FeaturedView().tag(0)
-                BrowseView().tag(1)
-                InstalledView().tag(2)
-                SearchView().tag(3)
-            }.edgesIgnoringSafeArea(.bottom)
-                .frame(width: UIScreen.main.bounds.width)
-            tabbar(selectedTab: $selectedTab)
-                .onAppear() {
-                    appData.jbdata.jbtype = Jailbreak.type(appData)
-                    appData.jbdata.jbarch = Jailbreak.arch(appData)
-                    appData.jbdata.jbroot = Jailbreak.path(appData)
-                    appData.deviceInfo = getDeviceInfo()
-                    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
-                    appData.repos = RepoHandler.getCachedRepos()
-                    appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                    if appData.repos.isEmpty {
-                        selectedTab = 1
-                    }
-                    Task(priority: .background) {
-                        refreshRepos(true, appData)
+                FeaturedView().tag(0).tabItem {
+                    HStack {
+                        Image("home_icon")
+                        Text("Featured")
                     }
                 }
-        }.background(Color.black).edgesIgnoringSafeArea(.bottom)
-#endif
+                BrowseView().tag(1).tabItem {
+                    HStack {
+                        Image("browse_icon")
+                        Text("Browse")
+                    }
+                }
+                InstalledView().tag(2).tabItem {
+                    HStack {
+                        Image("installed_icon")
+                        Text("Installed")
+                    }
+                }
+                SearchView().tag(3).tabItem {
+                    HStack {
+                        Image("search_icon")
+                        Text("Search")
+                    }
+                }
+                if !appData.queued.all.isEmpty {
+                    TvOSQueuedView().tag(4).tabItem {
+                        HStack {
+                            Image("queue_icon")
+                            Text("Queued")
+                        }
+                    }
+                }
+            }.onAppear() {
+                appData.jbdata.jbtype = Jailbreak.type(appData)
+                appData.jbdata.jbarch = Jailbreak.arch(appData)
+                appData.jbdata.jbroot = Jailbreak.path(appData)
+                appData.deviceInfo = getDeviceInfo()
+                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+                appData.repos = RepoHandler.getCachedRepos()
+                appData.pkgs = appData.repos.flatMap { $0.tweaks }
+                if appData.repos.isEmpty {
+                    selectedTab = 1
+                }
+                Task(priority: .background) {
+                    refreshRepos(true, appData)
+                }
+            }
+        } else {
+            ZStack(alignment: .bottom) {
+                TabView(selection: $selectedTab) {
+                    FeaturedView().tag(0)
+                    BrowseView().tag(1)
+                    InstalledView().tag(2)
+                    SearchView().tag(3)
+                }
+#if os(iOS)
+                .edgesIgnoringSafeArea(.bottom)
+                    .frame(width: UIScreen.main.bounds.width)
+                #endif
+#if os(iOS)
+                tabbar(selectedTab: $selectedTab)
+                    .onAppear() {
+                        appData.jbdata.jbtype = Jailbreak.type(appData)
+                        appData.jbdata.jbarch = Jailbreak.arch(appData)
+                        appData.jbdata.jbroot = Jailbreak.path(appData)
+                        appData.deviceInfo = getDeviceInfo()
+                        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+                        appData.repos = RepoHandler.getCachedRepos()
+                        appData.pkgs = appData.repos.flatMap { $0.tweaks }
+                        if appData.repos.isEmpty {
+                            selectedTab = 1
+                        }
+                        Task(priority: .background) {
+                            refreshRepos(true, appData)
+                        }
+                    }
+                #endif
+            }.background(Color.black).edgesIgnoringSafeArea(.bottom)
+        }
     }
 
 #if !os(tvOS) && !os(macOS)

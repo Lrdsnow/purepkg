@@ -232,17 +232,21 @@ extension View {
             }.edgesIgnoringSafeArea(.all)
         )
         #else
-        self.background(
-            VStack {
-                Image("BG")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.top)
+        if UserDefaults.standard.bool(forKey: "simpleMode") {
+            self
+        } else {
+            self.background(
+                VStack {
+                    Image("BG")
+                        .resizable()
+                        .scaledToFill()
+                        .edgesIgnoringSafeArea(.top)
+                        .edgesIgnoringSafeArea(.bottom)
+                }.edgesIgnoringSafeArea(.top)
                     .edgesIgnoringSafeArea(.bottom)
-            }.edgesIgnoringSafeArea(.top)
-                .edgesIgnoringSafeArea(.bottom)
-                .frame(width: UIScreen.main.bounds.width)
-        )
+                    .frame(width: UIScreen.main.bounds.width)
+            )
+        }
         #endif
     }
     
@@ -295,7 +299,11 @@ extension View {
         #if os(tvOS)
         self
         #else
-        self.animation(.spring())
+        if UserDefaults.standard.bool(forKey: "simpleMode") {
+            self
+        } else {
+            self.animation(.spring())
+        }
         #endif
     }
     
@@ -304,7 +312,11 @@ extension View {
         #if os(macOS)
         self
         #else
-        self.foregroundColor(color)
+        if UserDefaults.standard.bool(forKey: "simpleMode") {
+            self
+        } else {
+            self.foregroundColor(color)
+        }
         #endif
     }
     

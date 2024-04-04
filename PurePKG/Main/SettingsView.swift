@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var showBGChanger = false
     @State private var jb: String? = nil
     @State private var VerifySignature: Bool = true
+    @State private var simpleMode: Bool = false
     
     var body: some View {
         List {
@@ -39,7 +40,7 @@ struct SettingsView: View {
                 HStack {
                     Text("\(osString()) Version")
                     Spacer()
-                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.minor)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
+                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
                 }.listRowBG()
 #if os(macOS)
                 HStack {
@@ -64,7 +65,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Tweak Count")
                     Spacer()
-                    Text("\(appData.installed_pkgs.filter { (pkg: Package) -> Bool in return pkg.section == "Tweaks"}.count)")
+                    Text("\(appData.installed_pkgs.count)")
                 }.listRowBG()
                 
                 HStack {
@@ -73,6 +74,16 @@ struct SettingsView: View {
                     })
                 }.listRowBG().onChange(of: VerifySignature) { _ in
                     UserDefaults.standard.set(!VerifySignature, forKey: "ignoreSignature")
+                }
+                
+                if #available(iOS 15.0, macOS 99.9, tvOS 99.9, *) {
+                    HStack {
+                        Toggle(isOn: $simpleMode, label: {
+                            Text("Basic UI Mode")
+                        })
+                    }.listRowBG().onChange(of: simpleMode) { _ in
+                        UserDefaults.standard.set(simpleMode, forKey: "simpleMode")
+                    }
                 }
 #if !os(macOS)
                 NavigationLink(destination: CreditsView()) {
@@ -120,6 +131,7 @@ struct SettingsView: View {
         .onAppear() {
             jb = Jailbreak.jailbreak()
             VerifySignature = !UserDefaults.standard.bool(forKey: "ignoreSignature")
+            simpleMode = UserDefaults.standard.bool(forKey: "simpleMode")
         }
         .listStyleInsetGrouped()
 #if !os(macOS) && !os(tvOS)

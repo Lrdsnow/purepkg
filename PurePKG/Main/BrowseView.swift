@@ -36,6 +36,8 @@ struct BrowseView: View {
     @State private var isAddingRepoURLAlertPresented = false
     @State private var isAddingRepoURLAlert16Presented = false
     @State private var newRepoURL = ""
+    @State private var newURLs: [URL] = []
+    @State private var showingBulkRepoConfirm: Bool = false
     
     var body: some View {
         CustomNavigationView {
@@ -53,7 +55,19 @@ struct BrowseView: View {
                 }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
                     .refreshable_compat {
                         refreshRepos(false, appData)
-                    }.addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
+                    }
+                    .addRepoAlert(browseview: self, adding16: $isAddingRepoURLAlert16Presented, adding: $isAddingRepoURLAlertPresented, newRepoURL: $newRepoURL)
+                    .alert(isPresented: $showingBulkRepoConfirm) {
+                        Alert(
+                            title: Text("Confirmation"),
+                            message: Text("Are you sure you'd like to add the repos:\n\(newURLs.map { $0.absoluteString }.joined(separator: "\n"))"),
+                            primaryButton: .default(Text("Yes")) {
+                                addBulkRepos(newURLs)
+                                newURLs = []
+                            },
+                            secondaryButton: .cancel(Text("No"))
+                        )
+                    }
                     .onChange(of: isAddingRepoURLAlertPresented) { newValue in
                         if !newValue {
                             Task {
@@ -80,10 +94,15 @@ struct BrowseView: View {
                                 Button(action: {
                                     let pasteboard = NSPasteboard.general
                                     let clipboardString = pasteboard.string(forType: .string) ?? ""
-                                    if let repourl = URL(string: clipboardString) {
-                                        newRepoURL = repourl.absoluteString
+                                    let urlCount = clipboardString.urlCount()
+                                    if urlCount > 1 {
+                                        let urls = clipboardString.extractURLs()
                                         Task {
-                                            await addRepo()
+                                            await addBulkRepos(urls)
+                                        }
+                                    } else if urlCount == 1, let repourl = URL(string: clipboardString) {
+                                        Task {
+                                            await addRepoByURL(repourl)
                                         }
                                     } else {
                                         if #available(iOS 16, *) {
@@ -124,16 +143,14 @@ struct BrowseView: View {
                                 isAddingRepoURLAlertPresented = true
                             }
 #else
-#if os(macOS)
-                            let pasteboard = NSPasteboard.general
-                            let clipboardString = pasteboard.string(forType: .string) ?? ""
-#else
                             let clipboardString = UIPasteboard.general.string ?? ""
-#endif
-                            if let repourl = URL(string: clipboardString) {
-                                newRepoURL = repourl.absoluteString
+                            let urlCount = clipboardString.urlCount()
+                            if urlCount > 1 {
+                                newURLs = clipboardString.extractURLs()
+                                showingBulkRepoConfirm = true
+                            } else if urlCount == 1, let repourl = URL(string: clipboardString) {
                                 Task {
-                                    await addRepo()
+                                    await addRepoByURL(repourl)
                                 }
                             } else {
                                 if #available(iOS 16, *) {
@@ -174,7 +191,10 @@ struct BrowseView: View {
             UIApplication.shared.alert(title: "Error", body: "Invalid Repo?", withButton: true)
             return
         }
-        
+        await addRepoByURL(url)
+    }
+    
+    func addRepoByURL(_ url: URL) async {
         let session = URLSession.shared
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
@@ -192,6 +212,13 @@ struct BrowseView: View {
         } catch {
             UIApplication.shared.alert(title: "Error", body: "Invalid Repo?", withButton: true)
         }
+    }
+    
+    func addBulkRepos(_ urls: [URL]) {
+        for url in urls {
+            RepoHandler.addRepo(url.absoluteString)
+        }
+        refreshRepos(false, appData)
     }
 }
 

@@ -434,54 +434,56 @@ public class RepoHandler {
         let arrayofdicts = self.get_local(statusPath)
         var tweaks: [Package] = []
         for tweak in arrayofdicts {
-            var Tweak = Package()
-            Tweak.id = tweak["Package"] ?? "uwu.lrdsnow.unknown"
-            Tweak.desc = tweak["Description"] ?? "Description"
-            Tweak.author = tweak["Author"] ?? tweak["Maintainer"] ?? "Unknown Author"
-            Tweak.arch = tweak["Architecture"] ?? ""
-            Tweak.name = tweak["Name"] ?? tweak["Package"] ?? "Unknown Tweak"
-            Tweak.section = tweak["Section"] ?? "Tweaks"
-            Tweak.version = tweak["Version"] ?? "0.0"
-            Tweak.installed_size = Int(tweak["Installed-Size"] ?? "0") ?? 0
-            if let depiction = tweak["Depiction"] {
-                Tweak.depiction = URL(string: depiction)
-            }
-            if let depiction = tweak["SileoDepiction"] {
-                Tweak.depiction = URL(string: depiction)
-            }
-            if let depiction = tweak["Sileodepiction"] {
-                Tweak.depiction = URL(string: depiction)
-            }
-            if let icon = tweak["Icon"] {
-                Tweak.icon = URL(string: icon)
-            }
-            for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
-                var tweakDep = DepPackage()
-                let components = dep.components(separatedBy: " ")
-                if components.count >= 1 {
-                    tweakDep.id = components[0]
+            if (tweak["Status"] ?? "").contains("installed") {
+                var Tweak = Package()
+                Tweak.id = tweak["Package"] ?? "uwu.lrdsnow.unknown"
+                Tweak.desc = tweak["Description"] ?? "Description"
+                Tweak.author = tweak["Author"] ?? tweak["Maintainer"] ?? "Unknown Author"
+                Tweak.arch = tweak["Architecture"] ?? ""
+                Tweak.name = tweak["Name"] ?? tweak["Package"] ?? "Unknown Tweak"
+                Tweak.section = tweak["Section"] ?? "Tweaks"
+                Tweak.version = tweak["Version"] ?? "0.0"
+                Tweak.installed_size = Int(tweak["Installed-Size"] ?? "0") ?? 0
+                if let depiction = tweak["Depiction"] {
+                    Tweak.depiction = URL(string: depiction)
                 }
-                if components.count >= 2 {
-                    var ver = components[1...].joined(separator: " ")
-                    ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                    let verComponents = ver.components(separatedBy: " ")
-                    if verComponents.count >= 2 {
-                        tweakDep.reqVer.req = true
-                        let compare = verComponents[0]
-                        let truVer = verComponents[1]
-                        tweakDep.reqVer.version = truVer
-                        if compare == ">=" {
-                            tweakDep.reqVer.minVer = true
+                if let depiction = tweak["SileoDepiction"] {
+                    Tweak.depiction = URL(string: depiction)
+                }
+                if let depiction = tweak["Sileodepiction"] {
+                    Tweak.depiction = URL(string: depiction)
+                }
+                if let icon = tweak["Icon"] {
+                    Tweak.icon = URL(string: icon)
+                }
+                for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
+                    var tweakDep = DepPackage()
+                    let components = dep.components(separatedBy: " ")
+                    if components.count >= 1 {
+                        tweakDep.id = components[0]
+                    }
+                    if components.count >= 2 {
+                        var ver = components[1...].joined(separator: " ")
+                        ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
+                        let verComponents = ver.components(separatedBy: " ")
+                        if verComponents.count >= 2 {
+                            tweakDep.reqVer.req = true
+                            let compare = verComponents[0]
+                            let truVer = verComponents[1]
+                            tweakDep.reqVer.version = truVer
+                            if compare == ">=" {
+                                tweakDep.reqVer.minVer = true
+                            }
                         }
                     }
+                    if tweakDep.id != "" {
+                        Tweak.depends.append(tweakDep)
+                    }
                 }
-                if tweakDep.id != "" {
-                    Tweak.depends.append(tweakDep)
+                Tweak.author = Tweak.author.removingBetweenAngleBrackets()
+                if !tweaks.contains(where: { $0.id == Tweak.id }) {
+                    tweaks.append(Tweak)
                 }
-            }
-            Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-            if !tweaks.contains(where: { $0.id == Tweak.id }) {
-                tweaks.append(Tweak)
             }
         }
         return tweaks
@@ -684,8 +686,10 @@ func refreshRepos(_ bg: Bool, _ appData: AppData) {
         DispatchQueue.global(qos: .background).async {
             RepoHandler.getRepos(repo_urls, dist_repo_components) { repo in
                 DispatchQueue.main.async {
+                    appData.repos = appData.repos.removingDuplicatesBySubValue { $0.url }
                     if let AppDataRepoIndex = appData.repos.firstIndex(where: { $0.url == repo.url.appendingPathComponent("refreshing/") }) {
                         appData.repos[AppDataRepoIndex] = repo
+                        appData.repos = appData.repos.removingDuplicatesBySubValue { $0.url }
                         appData.pkgs  = appData.repos.flatMap { $0.tweaks }
                         let jsonEncoder = JSONEncoder()
                         do {

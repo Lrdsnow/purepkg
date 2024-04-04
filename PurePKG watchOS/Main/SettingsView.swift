@@ -38,7 +38,7 @@ struct SettingsView: View {
                 HStack {
                     Text("watchOS Ver")
                     Spacer()
-                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.minor)")")
+                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")")
                 }.listRowBG()
                 HStack {
                     Text("Arch")
