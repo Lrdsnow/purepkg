@@ -41,14 +41,14 @@ jobs:
         id: pages
         uses: actions/configure-pages@v3
       - name: Build with Jekyll
-        run: cd /home/runner/work/PurePKG/PurePKG/docs && bundle install && bundle exec jekyll build
+        run: cd /home/runner/work/purepkg/purepkg/docs && bundle install && bundle exec jekyll build
         env:
           JEKYLL_ENV: production
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
             name: github-pages
-            path: /home/runner/work/PurePKG/PurePKG/docs/_site/
+            path: /home/runner/work/purepkg/purepkg/docs/_site/
 
   # Deployment job
   deploy:
