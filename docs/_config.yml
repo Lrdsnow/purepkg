@@ -22,8 +22,8 @@ title: PurePKG
 email: lrdsnow101@gmail.com
 description: >-
   PurePKG - The Purest Jailbreak Package Manager
-baseurl: "/PurePKG/"
-url: "/PurePKG/"
+baseurl: "/purepkg/"
+url: "/purepkg/"
 twitter_username: jekyllrb
 github_username:  jekyll
 
