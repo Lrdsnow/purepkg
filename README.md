@@ -12,6 +12,10 @@
   <strong><a href="https://twitter.com/Lrdsnow101">Twitter</a></strong>
 </p>
 
+## WARNING:
+
+- There are probably a lot of bugs at the moment, if you encounter one please create an issue on github for it.
+
 ## Overview
 
 PurePKG is a customization focused jailbreak package manager for those who want a truely modern jailbreak experience.
