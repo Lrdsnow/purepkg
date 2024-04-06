@@ -197,8 +197,10 @@ public class Jailbreak {
             jbarch = "iphoneos-arm64e"
         }
 #endif
-        if let appData = appData {
-            appData.jbdata.jbarch = jbarch
+        DispatchQueue.main.async {
+            if let appData = appData {
+                appData.jbdata.jbarch = jbarch
+            }
         }
         return jbarch
     }
@@ -243,8 +245,10 @@ public class Jailbreak {
         } else {
             jbtype = .jailed
         }
-        if let appData = appData {
-            appData.jbdata.jbtype = jbtype
+        DispatchQueue.main.async {
+            if let appData = appData {
+                appData.jbdata.jbtype = jbtype
+            }
         }
         return jbtype
         #endif
@@ -272,8 +276,10 @@ public class Jailbreak {
         } else {
             jbroot = URL.documents.path
         }
-        if let appData = appData {
-            appData.jbdata.jbroot = jbroot
+        DispatchQueue.main.async {
+            if let appData = appData {
+                appData.jbdata.jbroot = jbroot
+            }
         }
         #endif
         return jbroot

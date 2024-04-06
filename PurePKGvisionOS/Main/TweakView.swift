@@ -78,7 +78,7 @@ struct TweakView: View {
                 Spacer()
             }.listRowBackground(Color.clear).noListRowSeparator().noListRowSeparator()
             
-            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+            paddingBlock()
         }
         .BGImage(appData)
         .listStyle(.plain)

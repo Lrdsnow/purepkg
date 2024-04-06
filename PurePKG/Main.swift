@@ -29,9 +29,6 @@ struct PureKFDBinary {
 
 struct purepkgApp: App {
     @StateObject private var appData = AppData()
-    @State private var basicMode = false
-    @State private var showTweakView = false
-    @State private var tweakViewPKG: Package? = nil
     
     init() {
         #if os(macOS)
@@ -40,55 +37,26 @@ struct purepkgApp: App {
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
         UITableView.appearance().backgroundColor = .clear
-        UITabBar.appearance().unselectedItemTintColor = UIColor(Color.accentColor.opacity(0.4))
-        UITabBar.appearance().tintColor = UIColor(Color.accentColor)
         UITableView.appearance().separatorStyle = .none
         UITableView.appearance().separatorColor = .clear
-        UITabBar.appearance().isHidden = true
         #endif
-        if #available(iOS 15.0, macOS 99.9, tvOS 99.9, *) {} else { basicMode = true }
-        basicMode = UserDefaults.standard.bool(forKey: "simpleMode")
     }
     
     var body: some Scene {
         WindowGroup {
-            MainView(basicMode: $basicMode)
+            MainView()
                 .environmentObject(appData)
                 .accentColor(Color(UIColor(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "") ?? UIColor(hex: "#EBC2FF")!))
-                .onOpenURL { url in
-                    handleIncomingURL(url)
-                }
-                .sheet(isPresented: $showTweakView, content: {
-                    if let tweakViewPKG = tweakViewPKG {
-                        TweakView(pkg: tweakViewPKG)
-                    } else {
-                        Text("Error").onAppear() {
-                            UIApplication.shared.alert(title: "Error", body: "Error Reading Imported File", withButton: true)
-                            showTweakView = false
-                        }
-                    }
-                })
         }
         #if os(macOS)
         .windowStyle(.hiddenTitleBar)
         #endif
     }
-    
-    private func handleIncomingURL(_ url: URL) {
-        print("App was opened via URL: \(url)")
-        if url.pathExtension == "deb" {
-            // ill finish this in the next update
-            print(url)
-        } else if url.absoluteString.contains("purepkg://addrepo/") {
-            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
-            print("Adding Repo: \(repourl)")
-            RepoHandler.addRepo(repourl)
-        }
-    }
+
 }
 
 extension UTType {
-    static var test1: UTType {
+    static var deb: UTType {
         UTType(exportedAs: "org.debian.deb-archive")
     }
 }
@@ -102,45 +70,75 @@ struct tabBarIcons {
 
 struct MainView: View {
     @EnvironmentObject var appData: AppData
-    @Binding var basicMode: Bool
+    #if os(tvOS) || os(macOS)
+    @State private var basicMode = true
+    #else
+    @State private var basicMode = false
+    #endif
+    @State private var complexMode = false
     @State private var selectedTab = 0
+    @State private var tweakViewPKG: Package? = nil
+    @State private var showPopupTab = false
     
     var body: some View {
         if basicMode {
             TabView(selection: $selectedTab) {
-                FeaturedView().tag(0).tabItem {
+                FeaturedView(tweakViewPKG: $tweakViewPKG, showTab: $showPopupTab).tag(0).tabItem {
                     HStack {
                         Image("home_icon")
+                        #if os(iOS)
+                            .renderingMode(.template)
+                        #endif
                         Text("Featured")
                     }
                 }
                 BrowseView().tag(1).tabItem {
                     HStack {
                         Image("browse_icon")
+                        #if os(iOS)
+                            .renderingMode(.template)
+                        #endif
                         Text("Browse")
                     }
                 }
                 InstalledView().tag(2).tabItem {
                     HStack {
                         Image("installed_icon")
+                        #if os(iOS)
+                            .renderingMode(.template)
+                        #endif
                         Text("Installed")
                     }
                 }
                 SearchView().tag(3).tabItem {
                     HStack {
                         Image("search_icon")
+                        #if os(iOS)
+                            .renderingMode(.template)
+                        #endif
                         Text("Search")
                     }
                 }
                 if !appData.queued.all.isEmpty {
-                    TvOSQueuedView().tag(4).tabItem {
+                    QueuedView().tag(4).tabItem {
                         HStack {
                             Image("queue_icon")
+                            #if os(iOS)
+                                .renderingMode(.template)
+                            #endif
                             Text("Queued")
                         }
                     }
                 }
+                #if os(macOS)
+                if let tweakViewPKG = tweakViewPKG {
+                    TweakView(pkg: tweakViewPKG).tag(5).tabItem { Text("Local deb") }
+                }
+                #endif
+            }.onOpenURL { url in
+                handleIncomingURL(url)
             }.onAppear() {
+                appData.basicMode = basicMode
                 appData.jbdata.jbtype = Jailbreak.type(appData)
                 appData.jbdata.jbarch = Jailbreak.arch(appData)
                 appData.jbdata.jbroot = Jailbreak.path(appData)
@@ -148,28 +146,31 @@ struct MainView: View {
                 appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
                 appData.repos = RepoHandler.getCachedRepos()
                 appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                if appData.repos.isEmpty {
-                    selectedTab = 1
-                }
-                Task(priority: .background) {
-                    refreshRepos(true, appData)
+                if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+                    Task(priority: .background) {
+                        refreshRepos(true, appData)
+                    }
                 }
             }
-        } else {
+        }
+        if complexMode {
             ZStack(alignment: .bottom) {
                 TabView(selection: $selectedTab) {
-                    FeaturedView().tag(0)
+                    FeaturedView(tweakViewPKG: $tweakViewPKG, showTab: $showPopupTab).tag(0)
                     BrowseView().tag(1)
                     InstalledView().tag(2)
                     SearchView().tag(3)
+                }.onOpenURL { url in
+                    handleIncomingURL(url)
                 }
 #if os(iOS)
                 .edgesIgnoringSafeArea(.bottom)
-                    .frame(width: UIScreen.main.bounds.width)
-                #endif
+                .frame(width: UIScreen.main.bounds.width)
+#endif
 #if os(iOS)
                 tabbar(selectedTab: $selectedTab)
                     .onAppear() {
+                        appData.basicMode = basicMode
                         appData.jbdata.jbtype = Jailbreak.type(appData)
                         appData.jbdata.jbarch = Jailbreak.arch(appData)
                         appData.jbdata.jbroot = Jailbreak.path(appData)
@@ -177,15 +178,55 @@ struct MainView: View {
                         appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
                         appData.repos = RepoHandler.getCachedRepos()
                         appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                        if appData.repos.isEmpty {
-                            selectedTab = 1
-                        }
-                        Task(priority: .background) {
-                            refreshRepos(true, appData)
+                        if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+                            Task(priority: .background) {
+                                refreshRepos(true, appData)
+                            }
                         }
                     }
-                #endif
+#endif
             }.background(Color.black).edgesIgnoringSafeArea(.bottom)
+        }
+        if !complexMode && !basicMode {
+            VStack {
+                Text("PurePKG").onAppear() {
+                    var tempBasicMode = false
+                    if #available(iOS 15.0, *) {} else { tempBasicMode = true }
+                    tempBasicMode = UserDefaults.standard.bool(forKey: "simpleMode")
+                    #if os(iOS)
+                    if !tempBasicMode {
+                        UITabBar.appearance().isHidden = true
+                        UITabBar.appearance().unselectedItemTintColor = UIColor(Color.accentColor.opacity(0.4))
+                        UITabBar.appearance().tintColor = UIColor(Color.accentColor)
+                    }
+                    #endif
+                    basicMode = tempBasicMode
+                    complexMode = !tempBasicMode
+                }
+            }
+        }
+    }
+    
+    private func handleIncomingURL(_ url: URL) {
+        print("App was opened via URL: \(url)")
+        if url.pathExtension == "deb" {
+            let info = APTWrapper.spawn(command: "\(Jailbreak.path())/\(Jailbreak.type() == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
+            if info.0 == 0 {
+                let dict = RepoHandler.genDict(info.1)
+                var tweak = RepoHandler.createPackageStruct(dict)
+                tweak.debPath = url.path
+                tweakViewPKG = tweak
+                showPopupTab = true
+                #if os(macOS)
+                selectedTab = 5
+                #endif
+            } else {
+                UIApplication.shared.alert(title: "Error", body: "There was an error reading the imported file", withButton: true)
+            }
+        } else if url.absoluteString.contains("purepkg://addrepo/") {
+            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
+            print("Adding Repo: \(repourl)")
+            RepoHandler.addRepo(repourl)
         }
     }
 
@@ -341,7 +382,7 @@ struct MainView: View {
                                     if queueOpen {
                                         Spacer()
                                     }
-                                    Text(showLog ? "Close" : "Install Tweaks").padding()
+                                    Text(showLog ? "Close" : "Perform Actions").padding()
                                     if queueOpen {
                                         Spacer()
                                     }

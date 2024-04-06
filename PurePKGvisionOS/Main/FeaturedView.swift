@@ -26,7 +26,7 @@ struct FeaturedView: View {
                             }
                         }.springAnim()
                     }
-                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                    paddingBlock()
                 }.listStyle(.plain).clearListBG()
             }.BGImage(appData).navigationTitle("Featured")
                 .navigationBarItems(trailing: HStack {

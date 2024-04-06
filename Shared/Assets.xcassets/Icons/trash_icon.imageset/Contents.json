@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "delete-forever0.png",
+      "filename" : "delete-forever0.png.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "delete-forever1.png",
+      "filename" : "delete-forever1.png.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "delete-forever2.png",
+      "filename" : "delete-forever2.png.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

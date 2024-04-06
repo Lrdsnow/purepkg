@@ -92,7 +92,7 @@ struct RepoView: View {
                     PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: repo.name, tweaksLabel: category, tweaks: categoryTweaks), alltweaks: -1, category: category, categoryTweaks: categoryTweaks.count).noListRowSeparator()
                 }
             }.listRowBackground(Color.clear).noListRowSeparator()
-            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+            paddingBlock()
         }
         .clearListBG()
         .navigationTitle(repo.name)
@@ -124,7 +124,7 @@ struct TweaksListView: View {
                     })
                 }
             }.listRowBackground(Color.clear).noListRowSeparator()
-            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+            paddingBlock()
         }.clearListBG()
             .navigationTitle(pageLabel)
             .listStyle(.plain)

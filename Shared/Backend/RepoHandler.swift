@@ -34,7 +34,7 @@ public class RepoHandler {
             }
             
             if let fileContent = String(data: data, encoding: .utf8) {
-                if fileContent.isValidRepoFileFormat() {
+                if fileContent.isValidRepoFileFormat() || (url.pathComponents.last ?? "").contains(".gpg") {
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
@@ -108,20 +108,7 @@ public class RepoHandler {
                     var arrayOfDictionaries: [[String: String]] = []
                     
                     for paragraph in paragraphs {
-                        let lines = paragraph.components(separatedBy: .newlines)
-                        
-                        var dictionary: [String: String] = [:]
-                        
-                        for line in lines {
-                            let components = line.components(separatedBy: ":")
-                            if components.count >= 2 {
-                                let key = components[0].trimmingCharacters(in: .whitespaces)
-                                var temp_components = components
-                                temp_components.removeFirst()
-                                let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
-                                dictionary[key] = value
-                            }
-                        }
+                        let dictionary = genDict(paragraph)
                         
                         if !dictionary.isEmpty {
                             arrayOfDictionaries.append(dictionary)
@@ -435,52 +422,7 @@ public class RepoHandler {
         var tweaks: [Package] = []
         for tweak in arrayofdicts {
             if (tweak["Status"] ?? "").contains("installed") {
-                var Tweak = Package()
-                Tweak.id = tweak["Package"] ?? "uwu.lrdsnow.unknown"
-                Tweak.desc = tweak["Description"] ?? "Description"
-                Tweak.author = tweak["Author"] ?? tweak["Maintainer"] ?? "Unknown Author"
-                Tweak.arch = tweak["Architecture"] ?? ""
-                Tweak.name = tweak["Name"] ?? tweak["Package"] ?? "Unknown Tweak"
-                Tweak.section = tweak["Section"] ?? "Tweaks"
-                Tweak.version = tweak["Version"] ?? "0.0"
-                Tweak.installed_size = Int(tweak["Installed-Size"] ?? "0") ?? 0
-                if let depiction = tweak["Depiction"] {
-                    Tweak.depiction = URL(string: depiction)
-                }
-                if let depiction = tweak["SileoDepiction"] {
-                    Tweak.depiction = URL(string: depiction)
-                }
-                if let depiction = tweak["Sileodepiction"] {
-                    Tweak.depiction = URL(string: depiction)
-                }
-                if let icon = tweak["Icon"] {
-                    Tweak.icon = URL(string: icon)
-                }
-                for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
-                    var tweakDep = DepPackage()
-                    let components = dep.components(separatedBy: " ")
-                    if components.count >= 1 {
-                        tweakDep.id = components[0]
-                    }
-                    if components.count >= 2 {
-                        var ver = components[1...].joined(separator: " ")
-                        ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                        let verComponents = ver.components(separatedBy: " ")
-                        if verComponents.count >= 2 {
-                            tweakDep.reqVer.req = true
-                            let compare = verComponents[0]
-                            let truVer = verComponents[1]
-                            tweakDep.reqVer.version = truVer
-                            if compare == ">=" {
-                                tweakDep.reqVer.minVer = true
-                            }
-                        }
-                    }
-                    if tweakDep.id != "" {
-                        Tweak.depends.append(tweakDep)
-                    }
-                }
-                Tweak.author = Tweak.author.removingBetweenAngleBrackets()
+                let Tweak = createPackageStruct(tweak)
                 if !tweaks.contains(where: { $0.id == Tweak.id }) {
                     tweaks.append(Tweak)
                 }
@@ -653,6 +595,75 @@ public class RepoHandler {
         }
         
         return resultDeps
+    }
+    
+    static func createPackageStruct(_ tweak: [String:String]) -> Package {
+        var Tweak = Package()
+        Tweak.id = tweak["Package"] ?? "uwu.lrdsnow.unknown"
+        Tweak.desc = tweak["Description"] ?? "Description"
+        Tweak.author = tweak["Author"] ?? tweak["Maintainer"] ?? "Unknown Author"
+        Tweak.arch = tweak["Architecture"] ?? ""
+        Tweak.name = tweak["Name"] ?? tweak["Package"] ?? "Unknown Tweak"
+        Tweak.section = tweak["Section"] ?? "Tweaks"
+        Tweak.version = tweak["Version"] ?? "0.0"
+        Tweak.installed_size = Int(tweak["Installed-Size"] ?? "0") ?? 0
+        if let depiction = tweak["Depiction"] {
+            Tweak.depiction = URL(string: depiction)
+        }
+        if let depiction = tweak["SileoDepiction"] {
+            Tweak.depiction = URL(string: depiction)
+        }
+        if let depiction = tweak["Sileodepiction"] {
+            Tweak.depiction = URL(string: depiction)
+        }
+        if let icon = tweak["Icon"] {
+            Tweak.icon = URL(string: icon)
+        }
+        for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
+            var tweakDep = DepPackage()
+            let components = dep.components(separatedBy: " ")
+            if components.count >= 1 {
+                tweakDep.id = components[0]
+            }
+            if components.count >= 2 {
+                var ver = components[1...].joined(separator: " ")
+                ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
+                let verComponents = ver.components(separatedBy: " ")
+                if verComponents.count >= 2 {
+                    tweakDep.reqVer.req = true
+                    let compare = verComponents[0]
+                    let truVer = verComponents[1]
+                    tweakDep.reqVer.version = truVer
+                    if compare == ">=" {
+                        tweakDep.reqVer.minVer = true
+                    }
+                }
+            }
+            if tweakDep.id != "" {
+                Tweak.depends.append(tweakDep)
+            }
+        }
+        Tweak.author = Tweak.author.removingBetweenAngleBrackets()
+        return Tweak
+    }
+    
+    static func genDict(_ paragraph: String) -> [String:String] {
+        let lines = paragraph.components(separatedBy: .newlines)
+        
+        var dictionary: [String: String] = [:]
+        
+        for line in lines {
+            let components = line.components(separatedBy: ":")
+            if components.count >= 2 {
+                let key = components[0].trimmingCharacters(in: .whitespaces)
+                var temp_components = components
+                temp_components.removeFirst()
+                let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
+                dictionary[key] = value
+            }
+        }
+        
+        return dictionary
     }
 }
 

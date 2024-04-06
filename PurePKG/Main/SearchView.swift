@@ -60,7 +60,7 @@ struct SearchView: View {
                         TweakRowNavLinkWrapper(tweak: package).noListRowSeparator().listRowBackground(Color.clear).noListRowSeparator()
                     }
                     #if !os(tvOS) && !os(macOS)
-                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                    paddingBlock()
                     #endif
                 }.animation(.spring(), value: filteredPackages.count)
             }

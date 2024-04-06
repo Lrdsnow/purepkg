@@ -99,7 +99,7 @@ class APTWrapper {
         return (true, rawProgress, statusReadable, packageName)
     }
     
-    @discardableResult private static func spawn(command: String, args: [String], root: Bool = false) -> (Int, String, String) {
+    @discardableResult public static func spawn(command: String, args: [String], root: Bool = false) -> (Int, String, String) {
         var pipestdout: [Int32] = [0, 0]
         var pipestderr: [Int32] = [0, 0]
 
@@ -129,7 +129,7 @@ class APTWrapper {
 
         var pid: pid_t = 0
 
-        #if targetEnvironment(macCatalyst)
+        #if os(macOS)
         let env = [ "PATH=/opt/procursus/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin" ]
         let proenv: [UnsafeMutablePointer<CChar>?] = env.map { $0.withCString(strdup) }
         defer { for case let pro? in proenv { free(pro) } }
@@ -168,7 +168,7 @@ class APTWrapper {
 
         let mutex = DispatchSemaphore(value: 0)
 
-        let readQueue = DispatchQueue(label: "org.coolstar.sileo.command",
+        let readQueue = DispatchQueue(label: "uwu.lrdsnow.purepkg.command",
                                       qos: .userInitiated,
                                       attributes: .concurrent,
                                       autoreleaseFrequency: .inherit,
@@ -318,8 +318,8 @@ class APTWrapper {
                          "-oDpkg::Options::=--force-confnew"]
         for package in installs {
             var packagesStr = package.id + "=" + package.version
-            if package.id.contains("/") {
-                packagesStr = package.debPath ?? package.id
+            if let path = package.debPath, path.starts(with: "/") {
+                packagesStr = path
             }
             arguments.append(packagesStr)
         }

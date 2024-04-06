@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var showBGChanger = false
     @State private var jb: String? = nil
     @State private var VerifySignature: Bool = true
+    @State private var RefreshOnStart: Bool = true
     @State private var simpleMode: Bool = false
     
     var body: some View {
@@ -76,7 +77,16 @@ struct SettingsView: View {
                     UserDefaults.standard.set(!VerifySignature, forKey: "ignoreSignature")
                 }
                 
-                if #available(iOS 15.0, macOS 99.9, tvOS 99.9, *) {
+                HStack {
+                    Toggle(isOn: $RefreshOnStart, label: {
+                        Text("Refresh Repos on Start")
+                    })
+                }.listRowBG().onChange(of: RefreshOnStart) { _ in
+                    UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
+                }
+                
+                #if os(iOS)
+                if #available(iOS 15.0, *) {
                     HStack {
                         Toggle(isOn: $simpleMode, label: {
                             Text("Basic UI Mode")
@@ -85,6 +95,8 @@ struct SettingsView: View {
                         UserDefaults.standard.set(simpleMode, forKey: "simpleMode")
                     }
                 }
+                #endif
+                
 #if !os(macOS)
                 NavigationLink(destination: CreditsView()) {
                     Text("Credits")
@@ -114,16 +126,16 @@ struct SettingsView: View {
                         accent = Color(UIColor(hex: "#EBC2FF")!)
                         appData.test.toggle()
                     }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
-                })
-                NavigationLink(destination: IconsView()) {
-                    Text("Change Icon")
-                }.listRowBG()
-                NavigationLink(destination: InAppIconsView()) {
-                    Text("Change InApp Icons")
-                }.listRowBG()
-                Button(action: {showBGChanger.toggle()}, label: {Text("Change Background")}).listRowBG()
+                }).listRowBG()
+//                NavigationLink(destination: IconsView()) {
+//                    Text("Change Icon")
+//                }.listRowBG()
+//                NavigationLink(destination: InAppIconsView()) {
+//                    Text("Change InApp Icons")
+//                }.listRowBG()
+//                Button(action: {showBGChanger.toggle()}, label: {Text("Change Background")}).listRowBG()
             }
-            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+            paddingBlock()
 #endif
         }
         .clearListBG()

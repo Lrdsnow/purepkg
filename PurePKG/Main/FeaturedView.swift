@@ -14,6 +14,8 @@ struct FeaturedView: View {
     @State private var featured: [Package] = []
     @State private var otherFeatured: [Package] = []
     @State private var generatedFeatured = false
+    @Binding var tweakViewPKG: Package?
+    @Binding var showTab: Bool
     
     var body: some View {
         CustomNavigationView {
@@ -60,9 +62,14 @@ struct FeaturedView: View {
                             }
                         }.springAnim()
                     }
-                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                    paddingBlock()
                 }.listStyle(.plain).clearListBG()
-            }.BGImage(appData).navigationTitle("Featured")
+                #if !os(macOS)
+                if let tweakViewPKG = tweakViewPKG {
+                    NavigationLink(destination: TweakView(pkg: tweakViewPKG).navigationTitle("Local deb"), isActive: $showTab, label: {Text("local deb")})
+                }
+                #endif
+            }.BGImage(appData).navigationTitle("Featured").onChange(of: showTab, perform: { newValue in if !newValue { tweakViewPKG = nil }})
             #if os(macOS)
                 .toolbar {
                     ToolbarItem {

@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "plus0.png",
+      "filename" : "plus0.png.heic",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "plus1.png",
+      "filename" : "plus1.png.heic",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "plus2.png",
+      "filename" : "plus2.png.heic",
       "idiom" : "universal",
       "scale" : "3x"
     }

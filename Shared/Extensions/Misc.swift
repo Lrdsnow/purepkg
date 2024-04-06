@@ -327,18 +327,30 @@ extension String {
 
 extension String {
     func isValidRepoFileFormat() -> Bool {
-        let lines = self.split(separator: "\n")
-        for line in lines.prefix(3) {
-            let components = line.split(separator: ":", maxSplits: 1)
-            if components.count == 2 {
-                let firstPart = components[0].trimmingCharacters(in: .whitespaces)
-                let secondPart = components[1].trimmingCharacters(in: .whitespaces)
-                if !firstPart.isEmpty && !secondPart.isEmpty {
-                    return true
+        if !self.contains("!DOCTYPE") {
+            let lines = self.split(separator: "\n")
+            for line in lines.prefix(4) {
+                let components = line.split(separator: ":", maxSplits: 1)
+                if components.count == 2 {
+                    let firstPart = components[0].trimmingCharacters(in: .whitespaces)
+                    let secondPart = components[1].trimmingCharacters(in: .whitespaces)
+                    if !firstPart.isEmpty && !secondPart.isEmpty {
+                        return true
+                    }
                 }
             }
         }
         return false
+    }
+}
+
+struct paddingBlock: View {
+    @EnvironmentObject var appData: AppData
+    
+    var body: some View {
+        if !appData.basicMode {
+            Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+        }
     }
 }
 

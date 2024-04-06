@@ -110,7 +110,7 @@ struct InstalledView: View {
                     }.springAnim()
                     
                     #if !os(tvOS) && !os(macOS)
-                    Text("").padding(.bottom,  50).listRowBackground(Color.clear).noListRowSeparator()
+                    paddingBlock()
                     #endif
                 }.animation(.spring(), value: filteredPackages.count)
             }
