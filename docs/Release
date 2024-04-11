@@ -1,25 +1,25 @@
 Architectures: xros-arm64 watchos-arm appletvos-arm64 darwin-amd64 darwin-arm64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e
 Codename: purepkg
 Components: main
-Date: Sat, 06 Apr 2024 08:55:35 +0000
+Date: Thu, 11 Apr 2024 09:20:46 +0000
 Description: PurePKG
 Label: PurePKG
 Origin: PurePKG
 Suite: stable
 Version: 1.0
 MD5Sum:
- 4e22625d0517fd67e559df3701e7b35f             4570 Packages
- 68350a53d2cbd15c5d4ad9314873e5ea             1492 Packages.gz
- 461c34ec0ba6b568e4cc5a5602d83b88              276 Release
+ 2865940519801a6210ba2477bb2904b0             4570 Packages
+ 23b4a3bf5ec917f75ea5ca842bba4964             1493 Packages.gz
+ 6c7b4c9bd6f55a766d97a6e7255a0c50              276 Release
 SHA1:
- d4fdbac9304243a6f1d9aa3a20530bf9bd27f6f6             4570 Packages
- 8a016b25d7c557b44c6475b542ea9f53919392b0             1492 Packages.gz
- 1551cd93ed793addd02c23b7fc847e57632fa225              276 Release
+ 4a228bf8f102d8546fe3ddf3cfb1c15ca0cc5036             4570 Packages
+ bdb02c6d883ce13842ed26e648a90ed7d15d9a4c             1493 Packages.gz
+ 5d9cb671545199151cda74ba278525b3fc34d073              276 Release
 SHA256:
- 990af771d373f79b5682739a9e315db8926144ed4eb3617f575fcfc8eb9f81e8             4570 Packages
- 8a9c8ee977496a2d71b3fd5f9c8c68284d1885d4192533c09f5f46a75906cd7b             1492 Packages.gz
- 442133fb716efbb57ce5e603a5964921418ad62e120c17b1a8eadd8294cb1d8e              276 Release
+ 34ab5db0aeb3330958d09f0d63d38bad0c83a268d3d05ff951832fa70f4aef81             4570 Packages
+ ed2ec79327eb23f3ab670833d9a02ad97ab527f539acce14f3ea53abc3a6f281             1493 Packages.gz
+ 7daec9ef5bc7b9c332db05fd2658c1380b83c66173aac14a8c0cd0d6a3eb81be              276 Release
 SHA512:
- 3a8961e838f8b9396ce2c3c8f1481dde16afd4c005f1becb41bf6172eda2fc95abe9f8bd7c021f04c7cc9af8b50dd19f9918a021bec980f22a851234efebd268             4570 Packages
- 04d7f9228ae771f3c05b4464cedcab83cae888f787858b026ef9486fe97b88125de39c81fb87921b4a18e9217fc8a65b851a5f1d883f42fba9c356ee7ec3987b             1492 Packages.gz
- 1f8cf70735e758af1247230adc1419b4262726e9c2a34bb55241d2ac8b4a76749fdc74a5a2fd6a6f3c67986f97cc5a913ee30bc33465fb85133824b82b617d71              276 Release
+ 9b149fdba996f839afa94a76a31b28b2a1502f53a341dd014122cff4b01fa3aebf927f0dc4482cf76a6f658ae12f1c9f1214c45f7162b16a23d7bd701be11dad             4570 Packages
+ 3c8f93128de23241127a915338c213ffd03815efecaf97654c146cb39cf5d6cb9ace454f513c43f7297305a08573840157bbd4df6f68d46bb4ab21556c497ce3             1493 Packages.gz
+ e5e48db6e0ca23131563d8ec5ab84dbc7409531aeeda22927d4ed6b5f8c1a6c63d1a4701d4dbeb59bcf7fda5abca8d6a6fa805357f51ff123765258781718abc              276 Release
