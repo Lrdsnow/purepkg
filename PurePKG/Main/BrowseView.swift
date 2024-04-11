@@ -45,7 +45,7 @@ struct BrowseView: View {
                 List {
                     PlaceHolderRowNavLinkWrapper(destination: TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs), alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0).listRowBackground(Color.clear).noListRowSeparator().padding(.vertical, 5).padding(.bottom, 10).noListRowSeparator()
                     SectionCompat("Repositories") {
-                        ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.url) { repo in
+                        ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.id) { repo in
                             RepoRowNavLinkWrapper(repo: repo).noListRowSeparator()
                         }
                     }.listRowBackground(Color.clear).noListRowSeparator().springAnim()
@@ -413,7 +413,7 @@ struct RepoRow: View {
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8) : Color.accentColor)
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                     .lineLimit(1)
-                Text(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").replacingOccurrences(of: "refreshing/", with: "").removeSubstringIfExists("/dists/"))
+                Text("\(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").replacingOccurrences(of: "refreshing/", with: "").removeSubstringIfExists("/dists/"))\(repo.component != "main" ? " (\(repo.component))" : "")")
                     .font(.subheadline)
                     .foregroundColorCustom(focused ? Color.accentColor.darker(0.8).opacity(0.7) : Color.accentColor.opacity(0.7))
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)

@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "test.heic",
+      "filename" : "test.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "test1.heic",
+      "filename" : "test1.png",
       "idiom" : "tv",
       "scale" : "2x"
     }

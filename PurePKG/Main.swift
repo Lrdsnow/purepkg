@@ -190,8 +190,7 @@ struct MainView: View {
         if !complexMode && !basicMode {
             VStack {
                 Text("PurePKG").onAppear() {
-                    var tempBasicMode = false
-                    if #available(iOS 15.0, *) {} else { tempBasicMode = true }
+                    var tempBasicMode = true
                     tempBasicMode = UserDefaults.standard.bool(forKey: "simpleMode")
                     #if os(iOS)
                     if !tempBasicMode {
@@ -209,7 +208,11 @@ struct MainView: View {
     
     private func handleIncomingURL(_ url: URL) {
         print("App was opened via URL: \(url)")
-        if url.pathExtension == "deb" {
+        if url.absoluteString.contains("purepkg://addrepo/") {
+            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
+            print("Adding Repo: \(repourl)")
+            RepoHandler.addRepo(repourl)
+        } else if url.pathExtension == "deb" {
             let info = APTWrapper.spawn(command: "\(Jailbreak.path())/\(Jailbreak.type() == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
             if info.0 == 0 {
                 let dict = RepoHandler.genDict(info.1)
@@ -223,10 +226,6 @@ struct MainView: View {
             } else {
                 UIApplication.shared.alert(title: "Error", body: "There was an error reading the imported file", withButton: true)
             }
-        } else if url.absoluteString.contains("purepkg://addrepo/") {
-            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
-            print("Adding Repo: \(repourl)")
-            RepoHandler.addRepo(repourl)
         }
     }
 

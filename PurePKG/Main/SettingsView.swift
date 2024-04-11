@@ -74,7 +74,7 @@ struct SettingsView: View {
                         Text("Verify GPG Signature")
                     })
                 }.listRowBG().onChange(of: VerifySignature) { _ in
-                    UserDefaults.standard.set(!VerifySignature, forKey: "ignoreSignature")
+                    UserDefaults.standard.set(VerifySignature, forKey: "checkSignature")
                 }
                 
                 HStack {
@@ -142,7 +142,7 @@ struct SettingsView: View {
         .BGImage(appData)
         .onAppear() {
             jb = Jailbreak.jailbreak()
-            VerifySignature = !UserDefaults.standard.bool(forKey: "ignoreSignature")
+            VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
             simpleMode = UserDefaults.standard.bool(forKey: "simpleMode")
         }
         .listStyleInsetGrouped()

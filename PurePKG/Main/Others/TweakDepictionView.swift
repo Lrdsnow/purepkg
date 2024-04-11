@@ -131,6 +131,8 @@ struct DepictionSpacerView: DepictionView {
     var id: String { UUID().uuidString }
 }
 
+public var isFetchingData = false
+
 struct TweakDepictionView: View {
     let pkg: Package
     @Binding var banner: URL?
@@ -182,14 +184,28 @@ struct TweakDepictionView: View {
             }
         }
         .onAppear() {
-            fetchJSONData(from: pkg.depiction?.absoluteString ?? "")
+            if !loaded {
+                fetchJSONData(from: pkg.depiction?.absoluteString ?? "")
+            }
         }
         .noListRowSeparator()
     }
-
+    
     private func fetchJSONData(from url: String) {
+        guard !isFetchingData else {
+            return
+        }
+
+        isFetchingData = true
+        
+        let startTime = CFAbsoluteTimeGetCurrent()
+        
         if let url = URL(string: url) {
             URLSession.shared.dataTask(with: url) { data, response, error in
+                defer {
+                    isFetchingData = false
+                }
+                
                 guard let data = data, error == nil else {
                     log("Error fetching JSON data: \(error?.localizedDescription ?? "Unknown error")")
                     loaded = true
@@ -200,6 +216,9 @@ struct TweakDepictionView: View {
                     DispatchQueue.main.async {
                         self.json = jsonString
                         let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                        let endTime = CFAbsoluteTimeGetCurrent()
+                        let elapsedTime = endTime - startTime
+                        log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
                         if let dict = dict {
                             if let bannerImage = dict["headerImage"] as? String {
                                 self.banner = URL(string: bannerImage) ?? URL(fileURLWithPath: "/") // lol
@@ -214,6 +233,7 @@ struct TweakDepictionView: View {
             .resume()
         } else {
             loaded = true
+            isFetchingData = false
         }
     }
 

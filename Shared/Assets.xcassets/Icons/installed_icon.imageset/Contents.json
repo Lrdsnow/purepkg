@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "installed0.png.heic",
+      "filename" : "installed0.png.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "installed1.png.heic",
+      "filename" : "installed1.png.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "installed2.png.heic",
+      "filename" : "installed2.png.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

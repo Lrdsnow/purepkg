@@ -7,6 +7,7 @@
 
 import Foundation
 
+@discardableResult
 func spawnRootHelper(args: [String]) -> (Int, String, String) {
     #if targetEnvironment(simulator)
     return (0, "", "")

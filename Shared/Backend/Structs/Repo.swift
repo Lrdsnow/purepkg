@@ -8,6 +8,7 @@
 import Foundation
 
 struct Repo: Encodable, Decodable, Hashable, Equatable {
+    let id = UUID()
     var name: String = "Unknown Repo"
     var label: String = ""
     var description: String = "Description"
@@ -15,6 +16,7 @@ struct Repo: Encodable, Decodable, Hashable, Equatable {
     var archs: [String] = []
     var url: URL = URL(fileURLWithPath: "/") // lol
     var tweaks: [Package] = []
+    var component: String = "main"
     var error: String? = nil
     
     // hashable stuff
@@ -38,4 +40,11 @@ struct Repo: Encodable, Decodable, Hashable, Equatable {
             lhs.url == rhs.url &&
             lhs.error == rhs.error
     }
+}
+
+struct RepoSource {
+    var url: URL = URL(fileURLWithPath: "/")
+    var suites: String? = nil
+    var components: String = "main"
+    var signedby: URL? = nil
 }

@@ -84,8 +84,18 @@ struct InstalledView: View {
                     Section(header: HStack {
                         Text("Installed Tweaks")
                             .font(.headline)
+                        #if os(tvOS)
+                        Spacer()
+//                        Button(action: {
+//                            
+//                        }, label: {
+//                            Text("Install local deb")
+//                        })
+                        #endif
                         if #available(tvOS 17.0, iOS 14.0, macCatalyst 14.0, *) {
+                            #if !os(tvOS)
                             Spacer()
+                            #endif
                             Menu("Sort By") {
                                 Button(action: {
                                     self.appData.installed_pkgs.sort(by: { $0.installed_size < $1.installed_size })

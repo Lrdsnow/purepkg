@@ -105,7 +105,7 @@
 		656FFF092B505E1700CEFF91 /* Jailbreak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jailbreak.swift; sourceTree = "<group>"; };
 		6572EF942B5BBBAC004FCD2B /* PurePKG.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PurePKG.entitlements; sourceTree = "<group>"; };
 		657B46992B4DD9ED00AFC1F6 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		657B469E2B4DD9EE00AFC1F6 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
+		657B469E2B4DD9EE00AFC1F6 /* Main.swift */ = {isa = PBXFileReference; indentWidth = 3; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6587E5302BB52E7B00A13E62 /* AppKitCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKitCompat.swift; sourceTree = "<group>"; };
 		658ADF112B5A232E0099AF32 /* APTWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APTWrapper.swift; sourceTree = "<group>"; };
@@ -507,7 +507,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ ${BUILT_PRODUCTS_DIR} != *\"simulator\"* ]]; then\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\ncp Icon.png ${BUILT_PRODUCTS_DIR}/PurePKG.app/Icon.png\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/PurePKG.app/Info.plist\ncd ${BUILT_PRODUCTS_DIR}/Build\nmkdir Payload\ncp -r ../PurePKG.app ./Payload/PurePKG.app\nzip -r PurePKGDemo_watchOS.ipa Payload\nrm -r Payload\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\ncp PurePKGDemo_watchOS.ipa ../../../Build/PurePKGDemo_watchOS.ipa\n# ldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/PurePKG.app/PurePKG\n# VERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\n# gen_control() {\n# local arch=$1\n# echo \"Package: uwu.lrdsnow.purepkg\n# Version: ${VERSION}\n# Architecture: ${arch}\n# Section: Package Manager\n# Maintainer: Lrdsnow\n# Author: Lrdsnow\n# Depends: firmware (>= 8.0)\n# Name: PurePKG\n# Description: The purest package manager ever!\n# Support: https://discord.gg/purepkg\n# SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\n# Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n# }\n# gen_postinst() {\n# echo '#!/bin/sh\n\n# if [ \"$1\" = \"configure\" ]; then\n#     uicache -p /Applications/PurePKG.app\n# fi'\n# }\n# gen_deb() {\n#     local arch=$1\n#     local path=$2\n#     mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n#     cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n#     mkdir DEBIAN\n#     mkdir -p \"${path}\"\n#     cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n#     gen_postinst > DEBIAN/postinst\n#     chmod 755 DEBIAN/postinst\n#     gen_control $arch \"15\" > DEBIAN/control\n#     cd ..\n#     dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n#     rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n# }\n\n# gen_deb watchos-arm Applications\n\n# if [ ! -d \"../../../Build\" ]; then\n#     mkdir -p ../../../Build\n# fi\n# for deb_file in ./*.deb; do\n#     filename=$(basename \"$deb_file\")\n#     version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n#     new_filename=\"${filename//_$version/}\"\n#     cp \"$deb_file\" \"../../../Build/$new_filename\"\n# done\nfi\n\n";
+			shellScript = "if [[ ${BUILT_PRODUCTS_DIR} != *\"simulator\"* ]]; then\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\ncp Icon.png ${BUILT_PRODUCTS_DIR}/PurePKG.app/Icon.png\n#plutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/PurePKG.app/Info.plist\ncd ${BUILT_PRODUCTS_DIR}/Build\nmkdir Payload\ncp -r ../PurePKG.app ./Payload/PurePKG.app\nzip -r PurePKGDemo_watchOS.ipa Payload\nrm -r Payload\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\ncp PurePKGDemo_watchOS.ipa ../../../Build/PurePKGDemo_watchOS.ipa\n# ldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/PurePKG.app/PurePKG\n# VERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../PurePKG.app/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\n# gen_control() {\n# local arch=$1\n# echo \"Package: uwu.lrdsnow.purepkg\n# Version: ${VERSION}\n# Architecture: ${arch}\n# Section: Package Manager\n# Maintainer: Lrdsnow\n# Author: Lrdsnow\n# Depends: firmware (>= 8.0)\n# Name: PurePKG\n# Description: The purest package manager ever!\n# Support: https://discord.gg/purepkg\n# SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\n# Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n# }\n# gen_postinst() {\n# echo '#!/bin/sh\n\n# if [ \"$1\" = \"configure\" ]; then\n#     uicache -p /Applications/PurePKG.app\n# fi'\n# }\n# gen_deb() {\n#     local arch=$1\n#     local path=$2\n#     mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n#     cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n#     mkdir DEBIAN\n#     mkdir -p \"${path}\"\n#     cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n#     gen_postinst > DEBIAN/postinst\n#     chmod 755 DEBIAN/postinst\n#     gen_control $arch \"15\" > DEBIAN/control\n#     cd ..\n#     dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n#     rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n# }\n\n# gen_deb watchos-arm Applications\n\n# if [ ! -d \"../../../Build\" ]; then\n#     mkdir -p ../../../Build\n# fi\n# for deb_file in ./*.deb; do\n#     filename=$(basename \"$deb_file\")\n#     version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n#     new_filename=\"${filename//_$version/}\"\n#     cp \"$deb_file\" \"../../../Build/$new_filename\"\n# done\nfi\n\n";
 		};
 		658A9D042B5099A700BA97D1 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -625,7 +625,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 6Q625HQD73;
+				DEVELOPMENT_TEAM = 8PHCD4D6H9;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -635,7 +635,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.PurePKG.watchkitapp;
 				PRODUCT_NAME = PurePKG;
 				SDKROOT = watchos;
@@ -656,7 +656,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 6Q625HQD73;
+				DEVELOPMENT_TEAM = 8PHCD4D6H9;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -666,7 +666,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.PurePKG.watchkitapp;
 				PRODUCT_NAME = PurePKG;
 				SDKROOT = watchos;
@@ -697,7 +697,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.PurePKG.visionOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = xros;
@@ -728,7 +728,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.PurePKG.visionOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = xros;

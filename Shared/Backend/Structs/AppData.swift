@@ -27,8 +27,7 @@ struct PKGQueue {
 }
 
 class AppData: ObservableObject {
-    @Published var repo_urls: [URL] = []
-    @Published var dist_repo_components: [URL:String] = [:]
+    @Published var repoSources: [RepoSource] = []
     @Published var repos: [Repo] = []
     @Published var pkgs: [Package] = []
     @Published var installed_pkgs: [Package] = []

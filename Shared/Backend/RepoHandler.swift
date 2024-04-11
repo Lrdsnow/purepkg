@@ -14,6 +14,8 @@ import UIKit
 
 public class RepoHandler {
     public static func get_dict(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
+        let startTime = CFAbsoluteTimeGetCurrent()
+        
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 completion(nil, error)
@@ -59,6 +61,9 @@ public class RepoHandler {
                         }
                     }
                     
+                    let endTime = CFAbsoluteTimeGetCurrent()
+                    let elapsedTime = endTime - startTime
+                    log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
                     completion(dictionary, nil)
                 } else {
                     completion(nil, "Downloaded file was invalid")
@@ -83,6 +88,8 @@ public class RepoHandler {
     }
     
     public static func get(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
+        let startTime = CFAbsoluteTimeGetCurrent()
+        
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 completion(nil, error)
@@ -115,6 +122,9 @@ public class RepoHandler {
                         }
                     }
                     
+                    let endTime = CFAbsoluteTimeGetCurrent()
+                    let elapsedTime = endTime - startTime
+                    log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
                     completion(arrayOfDictionaries, nil)
                 } catch {
                     completion(nil, "Failed to save/parse data: \(error.localizedDescription)")
@@ -165,202 +175,218 @@ public class RepoHandler {
         return []
     }
     
-    static func getRepos(_ urls: [URL?], _ distRepoComponents: [URL:String] = [:], completion: @escaping (Repo) -> Void) {
+    static func getRepos(_ repoSources: [RepoSource], completion: @escaping (Repo) -> Void) {
         spawnRootHelper(args: [ "removeAllRepoFiles" ])
-        for url in urls {
-            if let url = url {
-            
-                log("getting repo: \(url.absoluteString)")
-                self.get_dict(url.appendingPathComponent("Release")) { (result, error) in
-                    if let result = result {
-                        log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
-                        var Repo = Repo()
-                        Repo.url = url
-                        Repo.name = result["Origin"] ?? "Unknown Repo"
-                        Repo.label = result["Label"] ?? ""
-                        Repo.description = result["Description"] ?? "Description"
-                        Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
-                        Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
-                        
-                        #if !os(watchOS)
-                        if !UserDefaults.standard.bool(forKey: "ignoreSignature") {
-                            log("getting repo signature: \(url.appendingPathComponent("Release.gpg"))")
-                            var signature_ok: Bool = false;
-                            self.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
-                                if error != nil {
-                                    switch Jailbreak.type() {
-                                    case .macos:
-                                        log("Error: No signature found for \(url.absoluteString)")
-                                        Repo.error = "Error: No signature found for \(url.absoluteString)"
-                                        completion(Repo);
-                                        return
-                                    case .tvOS_rootful, .rootful, .rootless, .roothide:
-                                        log("Warning: No signature found for \(url.absoluteString)")
-                                        Repo.error = "Warning: No signature found for \(url.absoluteString)"
-                                    default:
-                                        log("Warning: No signature found for \(url.absoluteString)")
+        for repoSource in repoSources {
+            let url = repoSource.url
+            log("getting repo: \(url.absoluteString)")
+            let startTime = CFAbsoluteTimeGetCurrent()
+            self.get_dict(url.appendingPathComponent("Release")) { (result, error) in
+                if let result = result {
+                    log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
+                    var Repo = Repo()
+                    Repo.url = url
+                    Repo.name = result["Origin"] ?? "Unknown Repo"
+                    Repo.label = result["Label"] ?? ""
+                    Repo.description = result["Description"] ?? "Description"
+                    Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
+                    Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
+                    Repo.component = repoSource.components
+                    
+#if !os(watchOS) && !targetEnvironment(simulator)
+                    if UserDefaults.standard.bool(forKey: "checkSignature") {
+                        log("getting repo signature: \(url.appendingPathComponent("Release.gpg"))")
+                        var signature_ok: Bool = false;
+                        self.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
+                            if error != nil {
+                                switch Jailbreak.type() {
+                                case .macos:
+                                    log("Error: No signature found for \(url.absoluteString)")
+                                    Repo.error = "Error: No signature found for \(url.absoluteString)"
+                                    completion(Repo);
+                                    return
+                                case .tvOS_rootful, .rootful, .rootless, .roothide:
+                                    log("Warning: No signature found for \(url.absoluteString)")
+                                    Repo.error = "Warning: No signature found for \(url.absoluteString)"
+                                default:
+                                    log("Warning: No signature found for \(url.absoluteString)")
+                                }
+                            }
+                            
+                            if let result = result {
+                                let savedReleasePath = self.getSavedRepoFilePath(url.appendingPathComponent("Release"));
+                                var savedReleaseGPGPath = self.getSavedRepoFilePath(url.appendingPathComponent("Release.gpg"));
+                                if let signedBy = repoSource.signedby {
+                                    savedReleaseGPGPath = signedBy.path
+                                }
+                                log("verify \(savedReleasePath) with \(savedReleaseGPGPath)")
+                                
+                                var validAndTrusted = false;
+                                var errorStr: String = "";
+                                if (error == nil) {
+                                    var counter = 0;
+                                    while (!FileManager.default.fileExists(atPath: savedReleaseGPGPath)) {
+                                        usleep(50000);
+                                        counter += 1;
+                                        if (counter > 50) { // 5 seconds
+                                            NSLog("\(savedReleaseGPGPath) wait timeout");
+                                            break;
+                                        }
                                     }
+                                    
+                                    counter = 0;
+                                    while (!FileManager.default.fileExists(atPath: savedReleasePath)) {
+                                        usleep(50000);
+                                        counter += 1;
+                                        if (counter > 50) { // 5 seconds
+                                            NSLog("\(savedReleasePath) wait timeout");
+                                            break;
+                                        }
+                                    }
+                                    
                                 }
                                 
-                                if let result = result {
-                                    let savedReleasePath = self.getSavedRepoFilePath(url.appendingPathComponent("Release"));
-                                    let savedReleaseGPGPath = self.getSavedRepoFilePath(url.appendingPathComponent("Release.gpg"));
-                                    log("verify \(savedReleasePath) with \(savedReleaseGPGPath)")
-                                    
-                                    var validAndTrusted = false;
-                                    var errorStr: String = "";
-                                    if (error == nil) {
-                                        var counter = 0;
-                                        while (!FileManager.default.fileExists(atPath: savedReleaseGPGPath)) {
-                                            usleep(50000);
-                                            counter += 1;
-                                            if (counter > 50) { // 5 seconds
-                                                NSLog("\(savedReleaseGPGPath) wait timeout");
-                                                break;
-                                            }
-                                        }
-                                        
-                                        counter = 0;
-                                        while (!FileManager.default.fileExists(atPath: savedReleasePath)) {
-                                            usleep(50000);
-                                            counter += 1;
-                                            if (counter > 50) { // 5 seconds
-                                                NSLog("\(savedReleasePath) wait timeout");
-                                                break;
-                                            }
-                                        }
-
-                                    }
-                                    
-                                    validAndTrusted = APTWrapper.verifySignature(key: savedReleaseGPGPath, data: savedReleasePath, error: &errorStr);
-                                    
-                                    if (!validAndTrusted || !errorStr.isEmpty) {
-                                        log("Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))");
-                                        signature_ok = false;
-                                        if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .visionOS_rootful {
-                                            if errorStr != "" {
-                                                Repo.error = errorStr
-                                            } else {
-                                                Repo.error = "Warning: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
-                                            }
+                                validAndTrusted = APTWrapper.verifySignature(key: savedReleaseGPGPath, data: savedReleasePath, error: &errorStr);
+                                
+                                if (!validAndTrusted || !errorStr.isEmpty) {
+                                    log("Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))");
+                                    signature_ok = false;
+                                    if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .visionOS_rootful {
+                                        if errorStr != "" {
+                                            Repo.error = errorStr
                                         } else {
-                                            if errorStr != "" {
-                                                Repo.error = errorStr
-                                            } else {
-                                                Repo.error = "Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
-                                            }
-                                            completion(Repo);
-                                            return
+                                            Repo.error = "Warning: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
                                         }
                                     } else {
-                                        signature_ok = true;
-                                        log("Good signature at \(url.appendingPathComponent("Release.gpg"))");
-                                        
-                                        self.get(url.appendingPathComponent("InRelease")) { (result, error) in
-                                            if let error = error {
-                                                log("Error getting InRelease: \(error.localizedDescription)")
-                                            }
+                                        if errorStr != "" {
+                                            Repo.error = errorStr
+                                        } else {
+                                            Repo.error = "Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
+                                        }
+                                        let endTime = CFAbsoluteTimeGetCurrent()
+                                        let elapsedTime = endTime - startTime
+                                        log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
+                                        completion(Repo);
+                                        return
+                                    }
+                                } else {
+                                    signature_ok = true;
+                                    log("Good signature at \(url.appendingPathComponent("Release.gpg"))");
+                                    
+                                    self.get(url.appendingPathComponent("InRelease")) { (result, error) in
+                                        if let error = error {
+                                            log("Error getting InRelease: \(error.localizedDescription)")
                                         }
                                     }
                                 }
                             }
                         }
-                        #endif
-                        var pkgsURL = url
-                        if let repoComponents = distRepoComponents[url] {
-                            pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
-                        }
-                        
-                        log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
-                        self.get(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
-                            if let result = result {
-                                log("got repo tweaks! \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
-                                var tweaks: [Package] = []
-                                for tweak in result {
-                                    let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
-                                        let (key, value) = element
-                                        result[key.lowercased()] = value
-                                    }
-                                    var Tweak = Package()
-                                    Tweak.arch = lowercasedTweak["architecture"] ?? ""
-                                    if Tweak.arch == Jailbreak.arch() {
-                                        Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
-                                        Tweak.desc = lowercasedTweak["description"] ?? "Description"
-                                        Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
-                                        Tweak.name = lowercasedTweak["name"] ?? lowercasedTweak["package"] ?? "Unknown Tweak"
-                                        Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
-                                        Tweak.version = lowercasedTweak["version"] ?? "0.0"
-                                        Tweak.versions.append(lowercasedTweak["version"] ?? "0.0")
-                                        Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
-                                        for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
-                                            var tweakDep = DepPackage()
-                                            let components = dep.components(separatedBy: " ")
-                                            if components.count >= 1 {
-                                                tweakDep.id = components[0]
-                                            }
-                                            if components.count >= 2 {
-                                                var ver = components[1...].joined(separator: " ")
-                                                ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                                                let verComponents = ver.components(separatedBy: " ")
-                                                if verComponents.count >= 2 {
-                                                    tweakDep.reqVer.req = true
-                                                    let compare = verComponents[0]
-                                                    let truVer = verComponents[1]
-                                                    tweakDep.reqVer.version = truVer
-                                                    if compare == ">=" {
-                                                        tweakDep.reqVer.minVer = true
-                                                    }
+                    }
+#endif
+                    var pkgsURL = url
+                    if repoSource.suites != nil {
+                        let repoComponents = repoSource.components
+                        pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
+                    }
+                    
+                    log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
+                    self.get(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
+                        if let result = result {
+                            log("got repo tweaks! \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
+                            var tweaks: [Package] = []
+                            for tweak in result {
+                                let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
+                                    let (key, value) = element
+                                    result[key.lowercased()] = value
+                                }
+                                var Tweak = Package()
+                                Tweak.arch = lowercasedTweak["architecture"] ?? ""
+                                if Tweak.arch == Jailbreak.arch() {
+                                    Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
+                                    Tweak.desc = lowercasedTweak["description"] ?? "Description"
+                                    Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
+                                    Tweak.name = lowercasedTweak["name"] ?? lowercasedTweak["package"] ?? "Unknown Tweak"
+                                    Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
+                                    Tweak.version = lowercasedTweak["version"] ?? "0.0"
+                                    Tweak.versions.append(lowercasedTweak["version"] ?? "0.0")
+                                    Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
+                                    for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map({ String($0) }) {
+                                        var tweakDep = DepPackage()
+                                        let components = dep.components(separatedBy: " ")
+                                        if components.count >= 1 {
+                                            tweakDep.id = components[0]
+                                        }
+                                        if components.count >= 2 {
+                                            var ver = components[1...].joined(separator: " ")
+                                            ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
+                                            let verComponents = ver.components(separatedBy: " ")
+                                            if verComponents.count >= 2 {
+                                                tweakDep.reqVer.req = true
+                                                let compare = verComponents[0]
+                                                let truVer = verComponents[1]
+                                                tweakDep.reqVer.version = truVer
+                                                if compare == ">=" {
+                                                    tweakDep.reqVer.minVer = true
                                                 }
                                             }
-                                            if tweakDep.id != "" {
-                                                Tweak.depends.append(tweakDep)
-                                            }
                                         }
-                                        if let depiction = lowercasedTweak["depiction"] {
-                                            Tweak.depiction = URL(string: depiction)
-                                        }
-                                        if let depiction = lowercasedTweak["sileodepiction"] {
-                                            Tweak.depiction = URL(string: depiction)
-                                        }
-                                        if let icon = lowercasedTweak["icon"] {
-                                            Tweak.icon = URL(string: icon)
-                                        }
-                                        Tweak.repo = Repo
-                                        Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-                                        if let index = tweaks.firstIndex(where: { $0.id == Tweak.id }) {
-                                            var existingTweak = tweaks[index]
-                                            existingTweak.versions += [Tweak.version]
-                                            tweaks[index] = existingTweak
-                                            if Tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
-                                                Tweak.versions = existingTweak.versions
-                                                tweaks[index] = Tweak
-                                            }
-                                        } else {
-                                            tweaks.append(Tweak)
+                                        if tweakDep.id != "" {
+                                            Tweak.depends.append(tweakDep)
                                         }
                                     }
+                                    if let depiction = lowercasedTweak["depiction"] {
+                                        Tweak.depiction = URL(string: depiction)
+                                    }
+                                    if let depiction = lowercasedTweak["sileodepiction"] {
+                                        Tweak.depiction = URL(string: depiction)
+                                    }
+                                    if let icon = lowercasedTweak["icon"] {
+                                        Tweak.icon = URL(string: icon)
+                                    }
+                                    Tweak.repo = Repo
+                                    Tweak.author = Tweak.author.removingBetweenAngleBrackets()
+                                    if let index = tweaks.firstIndex(where: { $0.id == Tweak.id }) {
+                                        var existingTweak = tweaks[index]
+                                        existingTweak.versions += [Tweak.version]
+                                        tweaks[index] = existingTweak
+                                        if Tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
+                                            Tweak.versions = existingTweak.versions
+                                            tweaks[index] = Tweak
+                                        }
+                                    } else {
+                                        tweaks.append(Tweak)
+                                    }
                                 }
-                                Repo.tweaks = tweaks
-                                completion(Repo)
-                            } else if let error = error {
-                                log("Error getting repo tweaks: \(error.localizedDescription)")
-                                Repo.error = "Error getting repo tweaks: \(error.localizedDescription)"
-                                completion(Repo)
                             }
+                            Repo.tweaks = tweaks
+                            let endTime = CFAbsoluteTimeGetCurrent()
+                            let elapsedTime = endTime - startTime
+                            log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
+                            completion(Repo)
+                        } else if let error = error {
+                            log("Error getting repo tweaks: \(error.localizedDescription)")
+                            Repo.error = "Error getting repo tweaks: \(error.localizedDescription)"
+                            let endTime = CFAbsoluteTimeGetCurrent()
+                            let elapsedTime = endTime - startTime
+                            log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
+                            completion(Repo)
                         }
-                    } else if let error = error {
-                        log("Error getting repo: \(error.localizedDescription)")
-                        var repo = Repo()
-                        repo.url = url
-                        repo.error = "Error getting repo: \(error.localizedDescription)"
-                        completion(repo)
                     }
+                } else if let error = error {
+                    log("Error getting repo: \(error.localizedDescription)")
+                    var repo = Repo()
+                    repo.url = url
+                    repo.error = "Error getting repo: \(error.localizedDescription)"
+                    let endTime = CFAbsoluteTimeGetCurrent()
+                    let elapsedTime = endTime - startTime
+                    log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
+                    completion(repo)
                 }
             }
         }
     }
     
-    static func getAptSources(_ directoryPath: String) -> ([URL], [URL:String]) {
+    static func getAptSources(_ directoryPath: String) -> [RepoSource] {
         do {
             log("Repo Sources Directory: \(directoryPath)")
             let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
@@ -369,8 +395,7 @@ public class RepoHandler {
             
             log("source Files: \(sourceFiles)")
             
-            var parsedURLs: [URL] = []
-            var distRepoComponents: [URL:String] = [:]
+            var repos: [RepoSource] = []
             
             for sourceFile in sourceFiles {
                 let fileURL = URL(fileURLWithPath: directoryPath).appendingPathComponent(sourceFile)
@@ -378,9 +403,10 @@ public class RepoHandler {
                 let arrayOfDictionaries = self.get_local(fileURL.path)
                 
                 for sourceDict in arrayOfDictionaries {
+                    var repo = RepoSource()
                     var suites = "./"
                     if let dict_suites = sourceDict["Suites"] {
-                        suites = dict_suites
+                        suites = dict_suites.trimmingCharacters(in: .whitespacesAndNewlines)
                     }
                     if let urlString = sourceDict["URIs"], let url = URL(string: urlString) {
                         var finalURL = url
@@ -388,32 +414,49 @@ public class RepoHandler {
                             finalURL = url.appendingPathComponent("dists")
                         }
                         finalURL = finalURL.appendingPathComponent(suites)
-                        parsedURLs.append(finalURL)
+                        repo.url = finalURL
+                        if let signedBy = sourceDict["Signed-by"] {
+                            repo.signedby = URL(fileURLWithPath: signedBy)
+                        }
                         if suites != "./" {
+                            repo.suites = suites
                             if let components = sourceDict["Components"] {
-                                distRepoComponents[finalURL] = components
+                                print(components)
+                                let componentsArray = components.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").map { String($0) }
+                                print(componentsArray)
+                                if componentsArray.count >= 2 {
+                                    for component in componentsArray {
+                                        repo.components = component
+                                        repos.append(repo)
+                                    }
+                                } else {
+                                    repo.components = components
+                                    repos.append(repo)
+                                }
                             }
+                        } else {
+                            repos.append(repo)
                         }
                     }
                 }
             }
             
-            log("sources: \(parsedURLs)")
-            var tempParsedURLs: [URL] = []
-            var distURLs: [URL] = []
-            for url in parsedURLs {
-                if url.absoluteString.contains("/dists/") {
-                    distURLs.append(url)
+            var tempParsedSources: [RepoSource] = []
+            var distSources: [RepoSource] = []
+
+            for source in repos {
+                if source.url.absoluteString.contains("/dists/") {
+                    distSources.append(source)
                 } else {
-                    tempParsedURLs.append(url)
+                    tempParsedSources.append(source)
                 }
             }
-            parsedURLs = tempParsedURLs + distURLs
-            
-            return (parsedURLs, distRepoComponents)
+
+            repos = tempParsedSources + distSources
+            return repos
         } catch {
             log("Error reading directory: \(error.localizedDescription)")
-            return ([], [:])
+            return []
         }
     }
     
@@ -489,7 +532,7 @@ public class RepoHandler {
         for sourceFile in sourceFiles {
             let fileURL = URL(fileURLWithPath: directoryPath).appendingPathComponent(sourceFile)
             
-            if var fileContent = try? String(contentsOf: fileURL, encoding: .utf8) {
+            if let fileContent = try? String(contentsOf: fileURL, encoding: .utf8) {
                 let paragraphs = fileContent.components(separatedBy: "\n\n")
                 
                 var modifiedContent = ""
@@ -503,7 +546,7 @@ public class RepoHandler {
                         let components = line.components(separatedBy: ":")
                         
                         if components.count >= 2 {
-                            let key = components[0].trimmingCharacters(in: .whitespaces)
+                            //let key = components[0].trimmingCharacters(in: .whitespaces)
                             var temp_components = components
                             temp_components.removeFirst()
                             let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
@@ -619,7 +662,7 @@ public class RepoHandler {
         if let icon = tweak["Icon"] {
             Tweak.icon = URL(string: icon)
         }
-        for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map { String($0) } {
+        for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map({ String($0) }) {
             var tweakDep = DepPackage()
             let components = dep.components(separatedBy: " ")
             if components.count >= 1 {
@@ -667,7 +710,24 @@ public class RepoHandler {
     }
 }
 
+func fixDuplicateRepos(_ repos: [Repo]) -> [Repo] {
+    var tempRepos: [Repo] = []
+    
+    for repo in repos {
+        if !tempRepos.map({ $0.url }).contains(repo.url) {
+            tempRepos.append(repo)
+        } else {
+            if !tempRepos.filter({ $0.url == repo.url }).map({ $0.component }).contains(repo.component) {
+                tempRepos.append(repo)
+            }
+        }
+    }
+    
+    return tempRepos
+}
+
 func refreshRepos(_ bg: Bool, _ appData: AppData) {
+    let startTime = CFAbsoluteTimeGetCurrent()
     let oldRepos = appData.repos
     let repoCacheDir = URL.documents.appendingPathComponent("repoCache")
     appData.repos = []
@@ -677,32 +737,39 @@ func refreshRepos(_ bg: Bool, _ appData: AppData) {
     try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
     DispatchQueue.main.async {
         if appData.jbdata.jbtype != .jailed {
-            let repoData = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
-            appData.repo_urls = repoData.0
-            appData.dist_repo_components = repoData.1
+            appData.repoSources = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
         } else {
-            appData.repo_urls = [URL(string: "https://repo.chariz.com")!, URL(string: "https://luki120.github.io")!, URL(string: "https://sparkdev.me")!, URL(string: "https://havoc.app")!]
+            appData.repoSources = [
+                RepoSource(url: URL(string: "https://lrdsnow.github.io/purepkg/./")!),
+                RepoSource(url: URL(string: "https://repo.chariz.com/./")!),
+                RepoSource(url: URL(string: "https://luki120.github.io/./")!),
+                RepoSource(url: URL(string: "https://sparkdev.me/./")!),
+                RepoSource(url: URL(string: "https://havoc.app/./")!)
+            ]
         }
-        let repo_urls = appData.repo_urls
-        for repourl in repo_urls {
+        let repoSources = appData.repoSources
+        for repo in repoSources {
             var tempRepo = Repo()
-            tempRepo.url = repourl.appendingPathComponent("refreshing/")
+            tempRepo.url = repo.url.appendingPathComponent("refreshing/")
+            tempRepo.component = repo.components
             tempRepo.error = "Refreshing..."
-            if let oldRepo = oldRepos.first(where: { $0.url == repourl }) {
+            if let oldRepo = oldRepos.first(where: { $0.url == repo.url }) {
                 tempRepo.name = oldRepo.name
             }
             appData.repos.append(tempRepo)
         }
-        let dist_repo_components = appData.dist_repo_components
         DispatchQueue.global(qos: .background).async {
-            RepoHandler.getRepos(repo_urls, dist_repo_components) { repo in
+            RepoHandler.getRepos(repoSources) { repo in
                 DispatchQueue.main.async {
-                    appData.repos = appData.repos.removingDuplicatesBySubValue { $0.url }
-                    if let AppDataRepoIndex = appData.repos.firstIndex(where: { $0.url == repo.url.appendingPathComponent("refreshing/") }) {
+                    appData.repos = fixDuplicateRepos(appData.repos)
+                    if let AppDataRepoIndex = appData.repos.firstIndex(where: { $0.url == repo.url.appendingPathComponent("refreshing/") && $0.component == repo.component }) {
                         appData.repos[AppDataRepoIndex] = repo
-                        appData.repos = appData.repos.removingDuplicatesBySubValue { $0.url }
+                        appData.repos = fixDuplicateRepos(appData.repos)
                         appData.pkgs  = appData.repos.flatMap { $0.tweaks }
                         let jsonEncoder = JSONEncoder()
+                        let endTime = CFAbsoluteTimeGetCurrent()
+                        let elapsedTime = endTime - startTime
+                        log("Got \(appData.repos.filter { $0.error != "Refreshing..." }.count) repos in \(elapsedTime) seconds")
                         do {
                             let jsonData = try jsonEncoder.encode(repo)
                             do {
