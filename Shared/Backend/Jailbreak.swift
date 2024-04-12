@@ -73,10 +73,10 @@ func getMacOSArchitecture() -> String? {
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let output = String(data: data, encoding: .utf8)
     
-    if let rawArch = output?.trimmingCharacters(in: .whitespacesAndNewlines) {
+    if let rawArch = output?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         if rawArch.contains("x86") {
             return "amd64"
-        } else if rawArch.contains("arm") {
+        } else if rawArch.contains("arm") || rawArch.contains("aarch") {
             return "arm64"
         }
     }
@@ -126,7 +126,7 @@ func getDeviceInfo() -> DeviceInfo {
         let minor = versionComponents[1]
         let patch = versionComponents.count >= 3 ? versionComponents[2] : 0
         
-        // Check for beta and get model and <A12 check
+        // get model
         let systemAttributes = NSDictionary(contentsOfFile: "/System/Library/CoreServices/SystemVersion.plist")
         let build_number = systemAttributes?["ProductBuildVersion"] as? String ?? "0"
         let beta = build_number.count > 6
@@ -191,7 +191,7 @@ public class Jailbreak {
 #else
         if jbtype == .rootful {
             jbarch = "iphoneos-arm"
-        } else if jbtype == .rootless {
+        } else if jbtype == .rootless || jbtype == .jailed {
             jbarch = "iphoneos-arm64"
         } else if jbtype == .roothide {
             jbarch = "iphoneos-arm64e"
@@ -208,7 +208,7 @@ public class Jailbreak {
     static func type(_ appData: AppData? = nil) -> (jbType) {
         let filemgr = FileManager.default
         #if targetEnvironment(simulator)
-        return .rootless
+        return .jailed
         #elseif os(tvOS)
         if filemgr.fileExists(atPath: "/private/etc/apt") {
             return .tvOS_rootful
@@ -288,7 +288,6 @@ public class Jailbreak {
     static func jailbreak() -> String? {
         let jburls: [(String, URL)] = [
             // iOS 15+ (semi-)Jailbreaks only
-            ("Serotonin", URL(fileURLWithPath: "/var/mobile/Serotonin.jp2")),
             ("Palera1n (Nightly)", URL(fileURLWithPath: "/cores/binpack/.installed_overlay")),
             ("Palera1n", URL(fileURLWithPath: "/cores/jbloader")),
             ("Palera1n (Legacy)", URL(fileURLWithPath: "/jbin/post.sh")),
@@ -299,7 +298,8 @@ public class Jailbreak {
             ("PureVirus", URL(fileURLWithPath: "/var/jb/.installed_purevirus")),
             ("Dopamine", URL(fileURLWithPath: "/var/jb/.installed_dopamine")),
             ("Fugu15 Rootful", URL(fileURLWithPath: "/.Fugu15")),
-            ("Cherimoya", URL(fileURLWithPath: "/var/jb/.installed_cherimoya"))
+            ("Cherimoya", URL(fileURLWithPath: "/var/jb/.installed_cherimoya")),
+            ("Serotonin", URL(fileURLWithPath: "/var/mobile/Serotonin.jp2"))
         ]
         for (name, url) in jburls {
             log("\(url.path)")

@@ -2,3 +2,5 @@
 build
 .DS_Store
 PurePKG.xcodeproj/project.xcworkspace/xcuserdata
+PurePKG.xcodeproj/xcuserdata
+PurePKG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm

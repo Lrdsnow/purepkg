@@ -37,6 +37,14 @@ func RootHelperMain() -> Int32 {
             NSLog("error saving repo metadata file: \(error)")
             return -1
         }
+    case "clearRepoFiles":
+        do {
+            try RepoHandler.RootHelper_clearRepoFiles(CommandLine.arguments[2])
+            return 0
+        } catch {
+            NSLog("error clearing repo files: \(error)")
+            return -1
+        }
     case "removeAllRepoFiles":
         do {
             try RepoHandler.RootHelper_removeAllRepoFiles();

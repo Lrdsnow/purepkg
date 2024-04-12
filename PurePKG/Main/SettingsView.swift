@@ -43,25 +43,26 @@ struct SettingsView: View {
                     Spacer()
                     Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
                 }.listRowBG()
-#if os(macOS)
-                HStack {
-                    Text("Architecture")
-                    Spacer()
-                    Text("darwin-\(getMacOSArchitecture() ?? "unknown")")
-                }
-#else
+#if !os(macOS)
                 HStack {
                     Text("Jailbreak Type")
                     Spacer()
-                    Text(appData.jbdata.jbtype == .rootful ? "Rootful (\(appData.jbdata.jbarch))" : appData.jbdata.jbtype == .tvOS_rootful ? "Rootful (\(appData.jbdata.jbarch))" : appData.jbdata.jbtype == .rootless ? "Rootless (\(appData.jbdata.jbarch))" : appData.jbdata.jbtype == .roothide ? "Roothide (\(appData.jbdata.jbarch))" : "Jailed")
+                    Text((appData.jbdata.jbtype == .rootful || appData.jbdata.jbtype == .tvOS_rootful) ? "Rootful" : appData.jbdata.jbtype == .rootless ? "Rootless" : appData.jbdata.jbtype == .roothide ? "Roothide" : "Jailed")
                 }.listRowBG()
 #endif
-#if !os(macOS)
                 HStack {
-                    Text("Jailbreak")
+                    Text("Architecture")
                     Spacer()
-                    Text(jb ?? "Unknown")
+                    Text("\(appData.jbdata.jbarch)")
                 }.listRowBG()
+#if !os(macOS)
+                if let jb = jb {
+                    HStack {
+                        Text("Jailbreak")
+                        Spacer()
+                        Text(jb)
+                    }.listRowBG()
+                }
 #endif
                 HStack {
                     Text("Tweak Count")

@@ -400,7 +400,7 @@ struct MainView: View {
                 
                 HStack {
                     ForEach(0..<4) { index in
-                        Button(action: { if !appData.repos.isEmpty { selectedTab = index } }) {
+                        Button(action: { selectedTab = index }) {
                             HStack {
                                 tabItemImages[tabItems[index]]?
                                     .renderingMode(.template)

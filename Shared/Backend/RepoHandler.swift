@@ -37,6 +37,7 @@ public class RepoHandler {
             
             if let fileContent = String(data: data, encoding: .utf8) {
                 if fileContent.isValidRepoFileFormat() || (url.pathComponents.last ?? "").contains(".gpg") {
+                    #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
@@ -47,6 +48,7 @@ public class RepoHandler {
                             
                         }
                     }
+                    #endif
                     
                     let lines = fileContent.components(separatedBy: .newlines)
                     
@@ -76,6 +78,19 @@ public class RepoHandler {
         task.resume()
     }
     
+    public static func RootHelper_clearRepoFiles(_ url: String) throws {
+        let urlString = url.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_")
+        let fileManager = FileManager.default
+        let directoryPath = "\(Jailbreak.path())/var/lib/apt/purepkglists"
+        let fileURLs = try fileManager.contentsOfDirectory(atPath: directoryPath)
+        
+        for fileURL in fileURLs {
+            if fileURL.contains(urlString) {
+                try fileManager.removeItem(atPath: "\(directoryPath)/\(fileURL)")
+            }
+        }
+    }
+    
     public static func RootHelper_saveRepoFiles(_ url: URL) throws {
         try? FileManager.default.createDirectory(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists", withIntermediateDirectories: true)
         let data = try Data(contentsOf: url)
@@ -103,12 +118,18 @@ public class RepoHandler {
             
             if let fileContent = String(data: data, encoding: .utf8) {
                 do {
-                    if (url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release") {
+                    #if !os(macOS)
+                    if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-                        try data.write(to: tempFilePath)
-                        spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
+                        do {
+                            try data.write(to: tempFilePath)
+                            spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
+                        } catch {
+                            
+                        }
                     }
+                    #endif
                     
                     let paragraphs = fileContent.components(separatedBy: "\n\n")
                     
@@ -726,8 +747,21 @@ func fixDuplicateRepos(_ repos: [Repo]) -> [Repo] {
     return tempRepos
 }
 
+public var refreshingRepos = false
+
 func refreshRepos(_ bg: Bool, _ appData: AppData) {
+    guard !refreshingRepos else {
+        return
+    }
+
+    refreshingRepos = true
+    
     let startTime = CFAbsoluteTimeGetCurrent()
+    #if os(macOS)
+    Task(priority: .background) {
+        APTWrapper.spawn(command: "\(Jailbreak.path())/bin/apt-get", args: ["apt-get", "update"])
+    }
+    #endif
     let oldRepos = appData.repos
     let repoCacheDir = URL.documents.appendingPathComponent("repoCache")
     appData.repos = []
@@ -763,13 +797,23 @@ func refreshRepos(_ bg: Bool, _ appData: AppData) {
                 DispatchQueue.main.async {
                     appData.repos = fixDuplicateRepos(appData.repos)
                     if let AppDataRepoIndex = appData.repos.firstIndex(where: { $0.url == repo.url.appendingPathComponent("refreshing/") && $0.component == repo.component }) {
-                        appData.repos[AppDataRepoIndex] = repo
+                        var tempRepo = repo
+                        if repo.tweaks.isEmpty {
+                            spawnRootHelper(args: ["clearRepoFiles", repo.url.absoluteString])
+                            if repo.error == nil || repo.error == "" {
+                                tempRepo.error = "An unknown error occured getting repo packages"
+                            }
+                        }
+                        appData.repos[AppDataRepoIndex] = tempRepo
                         appData.repos = fixDuplicateRepos(appData.repos)
                         appData.pkgs  = appData.repos.flatMap { $0.tweaks }
                         let jsonEncoder = JSONEncoder()
                         let endTime = CFAbsoluteTimeGetCurrent()
                         let elapsedTime = endTime - startTime
                         log("Got \(appData.repos.filter { $0.error != "Refreshing..." }.count) repos in \(elapsedTime) seconds")
+                        if (appData.repos.filter { $0.error != "Refreshing..." }.count + 2) >= appData.repos.count { // the +2 is just headroom for dead repos and bugs 
+                            refreshingRepos = false
+                        }
                         do {
                             let jsonData = try jsonEncoder.encode(repo)
                             do {
