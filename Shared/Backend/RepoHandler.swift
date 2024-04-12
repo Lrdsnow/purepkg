@@ -481,12 +481,15 @@ public class RepoHandler {
         }
     }
     
-    static func getInstalledTweaks(_ statusPath: String) -> [Package] {
-        let arrayofdicts = self.get_local(statusPath)
+    static func getInstalledTweaks(_ dpkgPath: String) -> [Package] {
+        let arrayofdicts = self.get_local(dpkgPath+"/status")
         var tweaks: [Package] = []
         for tweak in arrayofdicts {
             if (tweak["Status"] ?? "").contains("installed") {
-                let Tweak = createPackageStruct(tweak)
+                var Tweak = createPackageStruct(tweak)
+                let packageInstallPath = URL(string: dpkgPath)!.appendingPathComponent("info/\(Tweak.id).list")
+                let attr = try? FileManager.default.attributesOfItem(atPath: packageInstallPath.path)
+                Tweak.installDate = attr?[FileAttributeKey.modificationDate] as? Date
                 if !tweaks.contains(where: { $0.id == Tweak.id }) {
                     tweaks.append(Tweak)
                 }

@@ -98,6 +98,11 @@ struct InstalledView: View {
                             #endif
                             Menu("Sort By") {
                                 Button(action: {
+                                    self.appData.installed_pkgs.sort(by: { ($0.installDate ?? Date()) < ($1.installDate ?? Date()) })
+                                }) {
+                                    Text("Install Date")
+                                }
+                                Button(action: {
                                     self.appData.installed_pkgs.sort(by: { $0.installed_size < $1.installed_size })
                                 }) {
                                     Text("Install Size")

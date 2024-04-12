@@ -57,7 +57,7 @@ struct MainView: View {
         }.onAppear() {
             appData.jbdata.jbtype = Jailbreak.type(appData)
             appData.deviceInfo = getDeviceInfo()
-            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
             appData.repos = RepoHandler.getCachedRepos()
             appData.pkgs = appData.repos.flatMap { $0.tweaks }
             if appData.repos.isEmpty {

@@ -143,7 +143,7 @@ struct MainView: View {
                 appData.jbdata.jbarch = Jailbreak.arch(appData)
                 appData.jbdata.jbroot = Jailbreak.path(appData)
                 appData.deviceInfo = getDeviceInfo()
-                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
                 appData.repos = RepoHandler.getCachedRepos()
                 appData.pkgs = appData.repos.flatMap { $0.tweaks }
                 if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
@@ -175,7 +175,7 @@ struct MainView: View {
                         appData.jbdata.jbarch = Jailbreak.arch(appData)
                         appData.jbdata.jbroot = Jailbreak.path(appData)
                         appData.deviceInfo = getDeviceInfo()
-                        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status")
+                        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
                         appData.repos = RepoHandler.getCachedRepos()
                         appData.pkgs = appData.repos.flatMap { $0.tweaks }
                         if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
@@ -367,7 +367,7 @@ struct MainView: View {
                                                 }
                                             },
                                             outputCallback: { output, _ in installLog += "\(output)" },
-                                            completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status"); showLog = true })
+                                            completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); showLog = true })
                                         }
                                     } else {
                                         installingQueue = false

@@ -107,7 +107,7 @@ struct QueuedView: View {
                                 }
                             },
                             outputCallback: { output, _ in installLog += "\(output)" },
-                            completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg/status"); showLog = true })
+                            completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); showLog = true })
                             #endif
                         } else {
                             installingQueue = false

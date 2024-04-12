@@ -20,6 +20,7 @@ struct Package: Encodable, Decodable {
     var versions: [String] = [] // Versions
     var installedVersion: String = "" // for Updates
     var depends: [DepPackage] = [] // Depends
+    var installDate: Date? = nil
     var depiction: URL? = nil
     var icon: URL? = nil
     var debPath: String? = nil
