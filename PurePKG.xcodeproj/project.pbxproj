@@ -69,7 +69,7 @@
 		65B8203D2B4F29BB0032D504 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203C2B4F29BB0032D504 /* Package.swift */; };
 		65B8203F2B4F2A3E0032D504 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B8203E2B4F2A3E0032D504 /* Misc.swift */; };
 		65B820412B4F382A0032D504 /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B820402B4F382A0032D504 /* AppData.swift */; };
-		65E0FB032BBD1924007CADCA /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 65E0FB022BBD1924007CADCA /* MarkdownUI */; };
+		65E0FB032BBD1924007CADCA /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 65E0FB022BBD1924007CADCA /* MarkdownUI */; };
 		65E0FB042BBD210B007CADCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };
 		65E0FB062BBD2120007CADCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };
 		65E0FB072BBD2120007CADCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 657B46A02B4DD9F000AFC1F6 /* Assets.xcassets */; };

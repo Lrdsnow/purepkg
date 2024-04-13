@@ -17,6 +17,8 @@ struct SettingsView: View {
     @State private var RefreshOnStart: Bool = true
     @State private var simpleMode: Bool = false
     @State private var circleIcons: Bool = false
+    @State private var hideFeatured: Bool = false
+    @State private var lazyLoadRows: Bool = false
     @State private var uiSettingsExpanded: Bool = false
     
     var body: some View {
@@ -108,6 +110,20 @@ struct SettingsView: View {
                     }.listRowBG().onChange(of: circleIcons) { _ in
                         UserDefaults.standard.set(circleIcons, forKey: "circleIcons")
                     }
+                    HStack {
+                        Toggle(isOn: $hideFeatured, label: {
+                            Text("Hide Featured")
+                        }).tintCompat(.accentColor)
+                    }.listRowBG().onChange(of: hideFeatured) { _ in
+                        UserDefaults.standard.set(hideFeatured, forKey: "hideFeatured")
+                    }
+                    HStack {
+                        Toggle(isOn: $lazyLoadRows, label: {
+                            Text("Lazy Load Rows")
+                        }).tintCompat(.accentColor)
+                    }.listRowBG().onChange(of: lazyLoadRows) { _ in
+                        UserDefaults.standard.set(lazyLoadRows, forKey: "lazyLoadRows")
+                    }
                     ColorPicker("Accent color", selection: $accent).listRowBG().onChange(of: accent) { newValue in
                         UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
                         appData.test.toggle()
@@ -156,6 +172,8 @@ struct SettingsView: View {
             VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
             simpleMode = UserDefaults.standard.bool(forKey: "simpleMode")
             circleIcons = UserDefaults.standard.bool(forKey: "circleIcons")
+            hideFeatured = UserDefaults.standard.bool(forKey: "hideFeatured")
+            lazyLoadRows = UserDefaults.standard.bool(forKey: "lazyLoadRows")
         }
         .listStyleInsetGrouped()
 #if !os(macOS) && !os(tvOS)

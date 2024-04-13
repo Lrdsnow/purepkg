@@ -38,7 +38,9 @@ struct TweakView: View {
                     HStack(alignment: .center) {
                         KFImage(pkg.icon)
                             .resizable()
-                            .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                            .onFailureImage(UIImage(named: "DisplayAppIcon")!.downscaled(to: CGSize(width: 80, height: 80)))
+                            .cacheOriginalImage()
+                            .downsampling(size: CGSize(width: 80, height: 80))
                             .scaledToFit()
                             .frame(width: 80, height: 80)
                             .cornerRadius(15)

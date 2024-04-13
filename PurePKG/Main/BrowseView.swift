@@ -9,28 +9,6 @@ import Foundation
 import SwiftUI
 import Kingfisher
 
-struct CustomNavigationView<Content: View>: View {
-    let content: Content
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-    
-    var body: some View {
-#if os(macOS)
-        NavigationStack {
-            content
-        }
-#else
-        NavigationView {
-            content
-        }.navigationViewStyle(.stack)
-#endif
-    }
-}
-
-
-
 struct BrowseView: View {
     @EnvironmentObject var appData: AppData
     @State private var isAddingRepoURLAlertPresented = false
@@ -52,7 +30,7 @@ struct BrowseView: View {
 #if !os(tvOS) && !os(macOS)
                     paddingBlock()
 #endif
-                }.clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
+                }.id(UUID()).clearListBG().BGImage(appData).navigationTitle("Browse").animation(.spring(), value: appData.repos.count).listStyle(.plain)
                     .refreshable_compat {
                         refreshRepos(false, appData)
                     }
@@ -245,6 +223,7 @@ struct RepoView: View {
             }.listRowBackground(Color.clear).noListRowSeparator()
             paddingBlock()
         }
+        .id(UUID())
         .clearListBG()
         .BGImage(appData)
         .navigationTitle(repo.name)
@@ -277,7 +256,7 @@ struct TweaksListView: View {
                 }
             }.listRowBackground(Color.clear).noListRowSeparator()
             paddingBlock()
-        }.clearListBG()
+        }.id(UUID()).clearListBG()
             .BGImage(appData)
             .navigationTitle(pageLabel)
             .listStyle(.plain)
@@ -386,12 +365,14 @@ struct RepoRow: View {
     @Binding var focused: Bool
     
     var body: some View {
-        HStack {
+        CustomHStack {
             VStack(alignment: .center) {
                 Spacer()
                 KFImage((URL(string: repo.url.absoluteString.replacingOccurrences(of: "refreshing/", with: "")) ?? URL(fileURLWithPath: "/")).appendingPathComponent("CydiaIcon.png"))
                     .resizable()
-                    .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                    .onFailureImage(UIImage(named: "DisplayAppIcon")!.downscaled(to: CGSize(width: 70, height: 70)))
+                    .cacheOriginalImage()
+                    .downsampling(size: CGSize(width: 70, height: 70))
                     .scaledToFit()
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)
@@ -491,13 +472,15 @@ struct TweakRow: View {
     @Binding var focused: Bool
     
     var body: some View {
-        HStack {
+        CustomHStack {
             ZStack(alignment: .bottomTrailing) {
                 VStack(alignment: .center) {
                     Spacer()
                     KFImage(tweak.icon)
                         .resizable()
-                        .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                        .onFailureImage(UIImage(named: "DisplayAppIcon")!.downscaled(to: CGSize(width: 70, height: 70)))
+                        .cacheOriginalImage()
+                        .downsampling(size: CGSize(width: 70, height: 70))
                         .scaledToFit()
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)

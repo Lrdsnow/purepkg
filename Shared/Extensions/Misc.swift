@@ -219,6 +219,55 @@ extension Array where Element: Hashable {
     }
 }
 
+extension UIImage {
+    func downscaled(to size: CGSize) -> UIImage? {
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+}
+
+struct CustomNavigationView<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+#if os(macOS)
+        NavigationStack {
+            content
+        }
+#else
+        NavigationView {
+            content
+        }.navigationViewStyle(.stack)
+#endif
+    }
+}
+
+struct CustomHStack<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+        if UserDefaults.standard.bool(forKey: "lazyLoadRows") {
+            LazyHStack {
+                content
+            }
+        } else {
+            HStack {
+                content
+            }
+        }
+    }
+}
+
+
 extension String {
     func urlCount() -> Int {
         do {

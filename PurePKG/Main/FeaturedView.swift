@@ -21,9 +21,9 @@ struct FeaturedView: View {
         CustomNavigationView {
             VStack {
                 List {
-                    #if !os(tvOS) && !os(macOS)
+#if !os(tvOS) && !os(macOS)
                     if #available(iOS 15.0, *) {
-                        if featured.count >= 4 {
+                        if featured.count >= 4 && !UserDefaults.standard.bool(forKey: "hideFeatured")  {
                             VStack {
                                 HStack {
                                     CustomNavigationLink {TweakView(pkg: featured[0])} label: {
@@ -54,7 +54,7 @@ struct FeaturedView: View {
                             }.listRowBackground(Color.clear).noListRowSeparator()
                         }
                     }
-                    #endif
+#endif
                     if otherFeatured.count >= 1 {
                         SectionCompat("Need Ideas?") {
                             ForEach(otherFeatured, id: \.id) { tweak in
@@ -64,13 +64,13 @@ struct FeaturedView: View {
                     }
                     paddingBlock()
                 }.listStyle(.plain).clearListBG()
-                #if !os(macOS)
+#if !os(macOS)
                 if let tweakViewPKG = tweakViewPKG {
                     NavigationLink(destination: TweakView(pkg: tweakViewPKG).navigationTitle("Local deb"), isActive: $showTab, label: {Text("local deb")})
                 }
-                #endif
+#endif
             }.BGImage(appData).navigationTitle("Featured").onChange(of: showTab, perform: { newValue in if !newValue { tweakViewPKG = nil }})
-            #if os(macOS)
+#if os(macOS)
                 .toolbar {
                     ToolbarItem {
                         Spacer()
@@ -95,7 +95,7 @@ struct FeaturedView: View {
                         }
                     }
                 }
-            #else
+#else
                 .navigationBarItems(trailing: HStack {
                     if #available(iOS 15.0, tvOS 99.9, macOS 99.9, *) {} else {
                         Button(action: {
@@ -108,10 +108,10 @@ struct FeaturedView: View {
                     }
                     gearButton
                 })
-            #endif
+#endif
         }
-            .onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generateFeatured() } })
-            .refreshable_compat { generateFeatured() }
+        .onChange(of: appData.pkgs.count, perform: { _ in if !generatedFeatured { generateFeatured() } })
+        .refreshable_compat { generateFeatured() }
         
     }
     
@@ -124,7 +124,7 @@ struct FeaturedView: View {
             return
         }
         
-        #if !os(tvOS) && !os(macOS)
+#if !os(tvOS) && !os(macOS)
         let addToFeatured = { (id: String) in
             if let index = cleanPKGS.firstIndex(where: { $0.id == id }) {
                 featured.append(cleanPKGS[index])
@@ -151,7 +151,7 @@ struct FeaturedView: View {
             addToFeatured("com.mtac.lynxtwo")
             addToFeatured("com.spark.aion")
         }
-        #endif
+#endif
         
         while featured.count + otherFeatured.count < cleanPKGS.count && otherFeatured.count < 8 {
             let newpkg = cleanPKGS[Int(arc4random_uniform(UInt32(cleanPKGS.count)))]
@@ -165,17 +165,17 @@ struct FeaturedView: View {
     
     private var gearButton: some View {
         NavigationLink(destination: SettingsView()) {
-            #if os(tvOS)
+#if os(tvOS)
             Image("gear_icon")
                 .font(.system(size: 24))
                 .frame(width: 44, height: 44)
-            #else
+#else
             Image("gear_icon")
                 .renderingMode(.template)
                 .font(.system(size: 24))
                 .frame(width: 44, height: 44)
                 .shadow(color: .accentColor, radius: 5)
-            #endif
+#endif
         }
     }
 }
@@ -208,7 +208,9 @@ struct FeaturedAppRectangle: View {
             
             KFImage(pkg.icon)
                 .resizable()
-                .onFailureImage(UIImage(named: "DisplayAppIcon"))
+                .onFailureImage(UIImage(named: "DisplayAppIcon")!.downscaled(to: CGSize(width: scale, height: scale)))
+                .cacheOriginalImage()
+                .downsampling(size: CGSize(width: scale, height: scale))
                 .scaledToFit()
                 .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 .aspectRatio(contentMode: .fit)
@@ -252,7 +254,9 @@ struct FeaturedAppSquare: View {
     var body: some View {
         KFImage(pkg.icon)
             .resizable()
-            .onFailureImage(UIImage(named: "DisplayAppIcon"))
+            .onFailureImage(UIImage(named: "DisplayAppIcon")!.downscaled(to: CGSize(width: scale, height: scale)))
+            .cacheOriginalImage()
+            .downsampling(size: CGSize(width: scale, height: scale))
             .scaledToFit()
             .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
             .aspectRatio(contentMode: .fit)
