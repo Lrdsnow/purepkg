@@ -329,8 +329,8 @@ extension String {
     }
     
     func compareVersion(_ otherVersion: String) -> ComparisonResult {
-        let versionComponents = self.replacingOccurrences(of: "k", with: "").components(separatedBy: CharacterSet(charactersIn: ".-"))
-        let otherComponents = otherVersion.replacingOccurrences(of: "k", with: "").components(separatedBy: CharacterSet(charactersIn: ".-"))
+        let versionComponents = self.replacingOccurrences(of: "k", with: "").replacingOccurrences(of: "~", with: "").components(separatedBy: CharacterSet(charactersIn: ".-"))
+        let otherComponents = otherVersion.replacingOccurrences(of: "k", with: "").replacingOccurrences(of: "~", with: "").components(separatedBy: CharacterSet(charactersIn: ".-"))
         
         // Function to compare numeric components
         func compareNumericComponent(_ component: String, with otherComponent: String) -> ComparisonResult {
