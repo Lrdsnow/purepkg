@@ -9,28 +9,6 @@ import Foundation
 import SwiftUI
 import Kingfisher
 
-struct CustomNavigationView<Content: View>: View {
-    let content: Content
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-    
-    var body: some View {
-#if os(macOS)
-        NavigationStack {
-            content
-        }
-#else
-        NavigationView {
-            content
-        }.navigationViewStyle(.stack)
-#endif
-    }
-}
-
-
-
 struct BrowseView: View {
     @EnvironmentObject var appData: AppData
     @State private var newRepoURL = ""

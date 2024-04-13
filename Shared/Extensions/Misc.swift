@@ -221,9 +221,13 @@ extension Array where Element: Hashable {
 
 extension UIImage {
     func downscaled(to size: CGSize) -> UIImage? {
+        #if os(tvOS) || os(iOS)
         return UIGraphicsImageRenderer(size: size).image { _ in
             self.draw(in: CGRect(origin: .zero, size: size))
         }
+        #else
+        return self
+        #endif
     }
 }
 
