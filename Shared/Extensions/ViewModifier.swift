@@ -227,21 +227,10 @@ extension View {
     
     @ViewBuilder
     func BGImage(_ appData: AppData) -> some View {
-        #if os(macOS) || os(visionOS)
+        #if os(macOS) || os(visionOS) || os(watchOS)
         self
-        #elseif os(tvOS)
-        self.background(Color(hex:"#2d003d").frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height).edgesIgnoringSafeArea(.all))
-        #elseif os(watchOS)
-        self.background(
-            VStack {
-                Image("BG")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.all)
-            }.edgesIgnoringSafeArea(.all)
-        )
         #else
-        if UserDefaults.standard.bool(forKey: "simpleMode") {
+        if UserDefaults.standard.bool(forKey: "simpleMode") || UserDefaults.standard.bool(forKey: "disableBackground") {
             self
         } else {
             self.background(
@@ -305,15 +294,11 @@ extension View {
     
     @ViewBuilder
     func springAnim() -> some View {
-        #if os(tvOS)
-        self
-        #else
-        if UserDefaults.standard.bool(forKey: "simpleMode") {
+        if UserDefaults.standard.bool(forKey: "simpleMode") || UserDefaults.standard.bool(forKey: "disableAnimations") {
             self
         } else {
             self.animation(.spring())
         }
-        #endif
     }
     
     @ViewBuilder

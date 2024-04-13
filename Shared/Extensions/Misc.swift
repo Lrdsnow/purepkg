@@ -271,6 +271,31 @@ struct CustomHStack<Content: View>: View {
     }
 }
 
+struct DescriptionSection<Content: View>: View {
+    let content: Content
+    let desc: String
+    
+    init(desc: String, @ViewBuilder content: () -> Content) {
+        self.desc = desc
+        self.content = content()
+    }
+    
+    var body: some View {
+        #if os(iOS)
+            Section(content: {
+                content
+            }, footer: {
+                Text(desc)
+            })
+        #else
+            Section(content: {
+                content
+            }, footer: {
+                Text(desc).font(.footnote).foregroundColor(.gray).padding(.leading, -15).padding(.top, -15)
+            })
+        #endif
+    }
+}
 
 extension String {
     func urlCount() -> Int {

@@ -16,9 +16,6 @@ struct SettingsView: View {
     @State private var VerifySignature: Bool = true
     @State private var RefreshOnStart: Bool = true
     @State private var simpleMode: Bool = false
-    @State private var circleIcons: Bool = false
-    @State private var hideFeatured: Bool = false
-    @State private var lazyLoadRows: Bool = false
     @State private var uiSettingsExpanded: Bool = false
     
     var body: some View {
@@ -103,27 +100,6 @@ struct SettingsView: View {
                         }
                     }
 #endif
-                    HStack {
-                        Toggle(isOn: $circleIcons, label: {
-                            Text("Circle Icons")
-                        }).tintCompat(.accentColor)
-                    }.listRowBG().onChange(of: circleIcons) { _ in
-                        UserDefaults.standard.set(circleIcons, forKey: "circleIcons")
-                    }
-                    HStack {
-                        Toggle(isOn: $hideFeatured, label: {
-                            Text("Hide Featured")
-                        }).tintCompat(.accentColor)
-                    }.listRowBG().onChange(of: hideFeatured) { _ in
-                        UserDefaults.standard.set(hideFeatured, forKey: "hideFeatured")
-                    }
-                    HStack {
-                        Toggle(isOn: $lazyLoadRows, label: {
-                            Text("Lazy Load Rows")
-                        }).tintCompat(.accentColor)
-                    }.listRowBG().onChange(of: lazyLoadRows) { _ in
-                        UserDefaults.standard.set(lazyLoadRows, forKey: "lazyLoadRows")
-                    }
                     ColorPicker("Accent color", selection: $accent).listRowBG().onChange(of: accent) { newValue in
                         UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
                         appData.test.toggle()
@@ -134,6 +110,9 @@ struct SettingsView: View {
                             appData.test.toggle()
                         }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
                     })
+                    NavigationLink(destination: AdvancedUISettingsView()) {
+                        Text("Advanced UI Settings")
+                    }.listRowBG()
                     //                NavigationLink(destination: IconsView()) {
                     //                    Text("Change Icon")
                     //                }.listRowBG()
@@ -141,6 +120,10 @@ struct SettingsView: View {
                     //                    Text("Change InApp Icons")
                     //                }.listRowBG()
                     //                Button(action: {showBGChanger.toggle()}, label: {Text("Change Background")}).listRowBG()
+                }.listRowBG()
+#elseif os(tvOS)
+                NavigationLink(destination: AdvancedUISettingsView()) {
+                    Text("UI Settings")
                 }.listRowBG()
 #endif
 #if !os(macOS)
@@ -171,9 +154,6 @@ struct SettingsView: View {
             jb = Jailbreak.jailbreak()
             VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
             simpleMode = UserDefaults.standard.bool(forKey: "simpleMode")
-            circleIcons = UserDefaults.standard.bool(forKey: "circleIcons")
-            hideFeatured = UserDefaults.standard.bool(forKey: "hideFeatured")
-            lazyLoadRows = UserDefaults.standard.bool(forKey: "lazyLoadRows")
         }
         .listStyleInsetGrouped()
 #if !os(macOS) && !os(tvOS)
@@ -250,6 +230,88 @@ struct CreditView: View {
     }
 }
 #else
+
+struct AdvancedUISettingsView: View {
+    @EnvironmentObject var appData: AppData
+    @State private var lazyLoadRows: Bool = false
+    @State private var circleIcons: Bool = false
+    @State private var hideFeatured: Bool = false
+    @State private var usePlainNavBar: Bool = false
+    @State private var disableAnimations: Bool = false
+    @State private var disableBackground: Bool = false
+    
+    var body: some View {
+        List {
+            DescriptionSection(desc: "Increases Performance - Breaks row alignment sometimes") {
+                HStack {
+                    Toggle(isOn: $lazyLoadRows, label: {
+                        Text("Lazy Load Rows")
+                    }).tintCompat(.accentColor)
+                }.listRowBG().onChange(of: lazyLoadRows) { _ in
+                    UserDefaults.standard.set(lazyLoadRows, forKey: "lazyLoadRows")
+                }
+            }
+#if os(iOS)
+            DescriptionSection(desc: "Increases Performance - Hides upper part in the featured page") {
+                HStack {
+                    Toggle(isOn: $hideFeatured, label: {
+                        Text("Hide Featured")
+                    }).tintCompat(.accentColor)
+                }.listRowBG().onChange(of: hideFeatured) { _ in
+                    UserDefaults.standard.set(hideFeatured, forKey: "hideFeatured")
+                }
+            }
+#endif
+            DescriptionSection(desc: "Makes icons circle") {
+                HStack {
+                    Toggle(isOn: $circleIcons, label: {
+                        Text("Circle Icons")
+                    }).tintCompat(.accentColor)
+                }.listRowBG().onChange(of: circleIcons) { _ in
+                    UserDefaults.standard.set(circleIcons, forKey: "circleIcons")
+                }
+            }
+#if os(iOS)
+            DescriptionSection(desc: "Increases Performance - Uses basic tabbar even when basic mode is not enabled") {
+                HStack {
+                    Toggle(isOn: $usePlainNavBar, label: {
+                        Text("Basic Tabbar")
+                    }).tintCompat(.accentColor)
+                }.listRowBG().onChange(of: usePlainNavBar) { _ in
+                    UserDefaults.standard.set(usePlainNavBar, forKey: "usePlainNavBar")
+                }
+            }
+#endif
+            DescriptionSection(desc: "Increases Performance - Disables animations") {
+                HStack {
+                    Toggle(isOn: $disableAnimations, label: {
+                        Text("Disable Animations")
+                    }).tintCompat(.accentColor)
+                }.listRowBG().onChange(of: disableAnimations) { _ in
+                    UserDefaults.standard.set(disableAnimations, forKey: "disableAnimations")
+                }
+            }
+            
+            DescriptionSection(desc: "Increases Performance - Disables background") {
+                HStack {
+                    Toggle(isOn: $disableBackground, label: {
+                        Text("Disable Background")
+                    }).tintCompat(.accentColor)
+                }.listRowBG().onChange(of: disableBackground) { _ in
+                    UserDefaults.standard.set(disableBackground, forKey: "disableBackground")
+                }
+            }
+        }.padding(.vertical).BGImage(appData).navigationTitle("UI Settings").onAppear() {
+            lazyLoadRows = UserDefaults.standard.bool(forKey: "lazyLoadRows")
+            circleIcons = UserDefaults.standard.bool(forKey: "circleIcons")
+            hideFeatured = UserDefaults.standard.bool(forKey: "hideFeatured")
+            usePlainNavBar = UserDefaults.standard.bool(forKey: "usePlainNavBar")
+            disableAnimations = UserDefaults.standard.bool(forKey: "disableAnimations")
+            disableBackground = UserDefaults.standard.bool(forKey: "disableBackground")
+        }
+    }
+}
+
 struct CreditsView: View {
     @EnvironmentObject var appData: AppData
     

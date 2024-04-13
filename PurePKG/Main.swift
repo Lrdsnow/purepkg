@@ -192,6 +192,7 @@ struct MainView: View {
                 Text("PurePKG").onAppear() {
                     var tempBasicMode = true
                     tempBasicMode = UserDefaults.standard.bool(forKey: "simpleMode")
+                    tempBasicMode = UserDefaults.standard.bool(forKey: "usePlainNavBar")
                     #if os(iOS)
                     if !tempBasicMode {
                         UITabBar.appearance().isHidden = true
