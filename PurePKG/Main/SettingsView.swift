@@ -301,7 +301,7 @@ struct AdvancedUISettingsView: View {
                     UserDefaults.standard.set(disableBackground, forKey: "disableBackground")
                 }
             }
-        }.padding(.vertical).BGImage(appData).navigationTitle("UI Settings").onAppear() {
+        }.clearListBG().padding(.vertical).BGImage(appData).navigationTitle("UI Settings").onAppear() {
             lazyLoadRows = UserDefaults.standard.bool(forKey: "lazyLoadRows")
             circleIcons = UserDefaults.standard.bool(forKey: "circleIcons")
             hideFeatured = UserDefaults.standard.bool(forKey: "hideFeatured")
