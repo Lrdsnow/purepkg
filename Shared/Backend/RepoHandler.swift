@@ -214,6 +214,14 @@ public class RepoHandler {
                     Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
                     Repo.component = repoSource.components
                     
+                    let currentArch = Jailbreak.arch()
+                    if !Repo.archs.contains(currentArch) {
+                        Repo.error = "Unsupported architecture '\(currentArch)'"
+                        spawnRootHelper(args: ["clearRepoFiles", url.absoluteString])
+                        completion(Repo)
+                        return
+                    }
+                    
 #if !os(watchOS) && !targetEnvironment(simulator)
                     if UserDefaults.standard.bool(forKey: "checkSignature") {
                         log("getting repo signature: \(url.appendingPathComponent("Release.gpg"))")

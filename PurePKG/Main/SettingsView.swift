@@ -16,13 +16,15 @@ struct SettingsView: View {
     @State private var VerifySignature: Bool = true
     @State private var RefreshOnStart: Bool = true
     @State private var simpleMode: Bool = false
+    @State private var circleIcons: Bool = false
+    @State private var uiSettingsExpanded: Bool = false
     
     var body: some View {
         List {
             Section {
                 VStack(alignment: .leading) {
                     HStack(alignment: .center) {
-                        Image("DisplayAppIcon").resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                        Image("DisplayAppIcon").resizable().scaledToFit().frame(width: 90, height: 90).customRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         Text("PurePKG").font(.system(size: 40, weight: .bold, design: .rounded))
                     }
                 }.padding(.leading, 5)
@@ -73,7 +75,7 @@ struct SettingsView: View {
                 HStack {
                     Toggle(isOn: $VerifySignature, label: {
                         Text("Verify GPG Signature")
-                    })
+                    }).tintCompat(.accentColor)
                 }.listRowBG().onChange(of: VerifySignature) { _ in
                     UserDefaults.standard.set(VerifySignature, forKey: "checkSignature")
                 }
@@ -81,23 +83,50 @@ struct SettingsView: View {
                 HStack {
                     Toggle(isOn: $RefreshOnStart, label: {
                         Text("Refresh Repos on Start")
-                    })
+                    }).tintCompat(.accentColor)
                 }.listRowBG().onChange(of: RefreshOnStart) { _ in
                     UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
                 }
                 
-                #if os(iOS)
-                if #available(iOS 15.0, *) {
-                    HStack {
-                        Toggle(isOn: $simpleMode, label: {
-                            Text("Basic UI Mode")
-                        })
-                    }.listRowBG().onChange(of: simpleMode) { _ in
-                        UserDefaults.standard.set(simpleMode, forKey: "simpleMode")
+#if !os(macOS) && !os(tvOS)
+                DisclosureGroup("UI Settings", isExpanded: $uiSettingsExpanded) {
+#if os(iOS)
+                    if #available(iOS 15.0, *) {
+                        HStack {
+                            Toggle(isOn: $simpleMode, label: {
+                                Text("Basic UI Mode")
+                            }).tintCompat(.accentColor)
+                        }.listRowBG().onChange(of: simpleMode) { _ in
+                            UserDefaults.standard.set(simpleMode, forKey: "simpleMode")
+                        }
                     }
-                }
-                #endif
-                
+#endif
+                    HStack {
+                        Toggle(isOn: $circleIcons, label: {
+                            Text("Circle Icons")
+                        }).tintCompat(.accentColor)
+                    }.listRowBG().onChange(of: circleIcons) { _ in
+                        UserDefaults.standard.set(circleIcons, forKey: "circleIcons")
+                    }
+                    ColorPicker("Accent color", selection: $accent).listRowBG().onChange(of: accent) { newValue in
+                        UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
+                        appData.test.toggle()
+                    }.contextMenu(menuItems: {
+                        Button(action: {
+                            UserDefaults.standard.set("", forKey: "accentColor")
+                            accent = Color(UIColor(hex: "#EBC2FF")!)
+                            appData.test.toggle()
+                        }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
+                    })
+                    //                NavigationLink(destination: IconsView()) {
+                    //                    Text("Change Icon")
+                    //                }.listRowBG()
+                    //                NavigationLink(destination: InAppIconsView()) {
+                    //                    Text("Change InApp Icons")
+                    //                }.listRowBG()
+                    //                Button(action: {showBGChanger.toggle()}, label: {Text("Change Background")}).listRowBG()
+                }.listRowBG()
+#endif
 #if !os(macOS)
                 NavigationLink(destination: CreditsView()) {
                     Text("Credits")
@@ -117,25 +146,6 @@ struct SettingsView: View {
                 }
             }
 #elseif !os(tvOS)
-            Section {
-                ColorPicker("Accent color", selection: $accent).listRowBG().onChange(of: accent) { newValue in
-                    UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
-                    appData.test.toggle()
-                }.contextMenu(menuItems: {
-                    Button(action: {
-                        UserDefaults.standard.set("", forKey: "accentColor")
-                        accent = Color(UIColor(hex: "#EBC2FF")!)
-                        appData.test.toggle()
-                    }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
-                }).listRowBG()
-//                NavigationLink(destination: IconsView()) {
-//                    Text("Change Icon")
-//                }.listRowBG()
-//                NavigationLink(destination: InAppIconsView()) {
-//                    Text("Change InApp Icons")
-//                }.listRowBG()
-//                Button(action: {showBGChanger.toggle()}, label: {Text("Change Background")}).listRowBG()
-            }
             paddingBlock()
 #endif
         }
@@ -145,6 +155,7 @@ struct SettingsView: View {
             jb = Jailbreak.jailbreak()
             VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
             simpleMode = UserDefaults.standard.bool(forKey: "simpleMode")
+            circleIcons = UserDefaults.standard.bool(forKey: "circleIcons")
         }
         .listStyleInsetGrouped()
 #if !os(macOS) && !os(tvOS)

@@ -185,7 +185,7 @@ extension View {
         #elseif os(watchOS)
         self.listRowBackground(Color.accentColor.opacity(0.05).cornerRadius(8))
         #else
-        self.listRowBackground(Color.accentColor.opacity(0.05))
+        self.listRowBackground(Color.accentColor.opacity(0.05)).noListRowSeparator()
         #endif
     }
     @ViewBuilder
@@ -215,6 +215,15 @@ extension View {
         self.background(VisualEffectView2().ignoresSafeArea(.all))
     }
     #endif
+    
+    @ViewBuilder
+    func customRadius(_ radius: Double) -> some View {
+        if UserDefaults.standard.bool(forKey: "circleIcons") {
+            self.cornerRadius(200)
+        } else {
+            self.cornerRadius(radius)
+        }
+    }
     
     @ViewBuilder
     func BGImage(_ appData: AppData) -> some View {
@@ -278,7 +287,7 @@ extension View {
         self
         #else
         if #available(macOS 14.0, *) {
-            self.background(Color(.systemFill).opacity(0.5).cornerRadius(20))
+            self.background(Color(.systemFill).opacity(0.5).customRadius(20))
         } else {
             self
         }

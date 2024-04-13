@@ -324,10 +324,10 @@ struct PlaceHolderRow: View {
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)
                     .frame(width: 70, height: 70)
-                    .cornerRadius(15)
+                    .customRadius(15)
 #else
                     .frame(width: 50, height: 50)
-                    .cornerRadius(11)
+                    .customRadius(11)
 #endif
                 Spacer()
             }
@@ -396,10 +396,10 @@ struct RepoRow: View {
                     .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)
                     .frame(width: 70, height: 70)
-                    .cornerRadius(15)
+                    .customRadius(15)
 #else
                     .frame(width: 50, height: 50)
-                    .cornerRadius(11)
+                    .customRadius(11)
 #endif
                 Spacer()
             }
@@ -502,10 +502,10 @@ struct TweakRow: View {
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)
                         .frame(width: 70, height: 70)
-                        .cornerRadius(15)
+                        .customRadius(15)
 #else
                         .frame(width: 50, height: 50)
-                        .cornerRadius(11)
+                        .customRadius(11)
 #endif
                     Spacer()
                 }

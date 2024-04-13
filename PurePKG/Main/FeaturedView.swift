@@ -184,7 +184,7 @@ struct FeaturedView: View {
 struct FeaturedAppRectangle: View {
     let pkg: Package
     let flipped: Bool
-    let scale = UIScreen.main.bounds.height/7.717
+    @State private var scale = UIScreen.main.bounds.height/7.717
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
@@ -213,7 +213,7 @@ struct FeaturedAppRectangle: View {
                 .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                 .aspectRatio(contentMode: .fit)
                 .frame(width: scale, height: scale)
-                .cornerRadius(20)
+                .customRadius(20)
             
             if !flipped {
                 VStack(alignment: .center) {
@@ -233,16 +233,21 @@ struct FeaturedAppRectangle: View {
                 }
             }
         }
-        .cornerRadius(20)
+        .customRadius(20)
         .shadow(radius: 5)
         .frame(height: scale)
         .SystemFillRoundedBG()
+        .onAppear() {
+            if UserDefaults.standard.bool(forKey: "circleIcons") {
+                self.scale = UIScreen.main.bounds.height/15
+            }
+        }
     }
 }
 
 struct FeaturedAppSquare: View {
     let pkg: Package
-    let scale = UIScreen.main.bounds.height/7.717
+    @State private var scale = UIScreen.main.bounds.height/7.717
     
     var body: some View {
         KFImage(pkg.icon)
@@ -252,7 +257,12 @@ struct FeaturedAppSquare: View {
             .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
             .aspectRatio(contentMode: .fit)
             .frame(width: scale, height: scale)
-            .cornerRadius(20)
+            .customRadius(20)
+            .onAppear() {
+                if UserDefaults.standard.bool(forKey: "circleIcons") {
+                    self.scale = UIScreen.main.bounds.height/15
+                }
+            }
     }
 }
 #endif

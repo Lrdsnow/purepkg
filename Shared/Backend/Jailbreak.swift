@@ -208,7 +208,7 @@ public class Jailbreak {
     static func type(_ appData: AppData? = nil) -> (jbType) {
         let filemgr = FileManager.default
         #if targetEnvironment(simulator)
-        return .jailed
+        return .rootless
         #elseif os(tvOS)
         if filemgr.fileExists(atPath: "/private/etc/apt") {
             return .tvOS_rootful
@@ -336,6 +336,10 @@ public class Jailbreak {
             }
         }
          */
+        #if targetEnvironment(simulator)
+        return true
+        #else
         return self.arch(appData) == pkgarch
+        #endif
     }
 }
