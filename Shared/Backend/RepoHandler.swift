@@ -482,6 +482,7 @@ public class RepoHandler {
             }
 
             repos = tempParsedSources + distSources
+            print(distSources)
             return repos
         } catch {
             log("Error reading directory: \(error.localizedDescription)")
@@ -785,12 +786,21 @@ func refreshRepos(_ bg: Bool, _ appData: AppData) {
             appData.repoSources = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
         } else {
             appData.repoSources = [
-                RepoSource(url: URL(string: "https://lrdsnow.github.io/purepkg/./")!),
+                RepoSource(url: URL(string: "https://lrdsnow.github.io/purepkg/./")!)
+            ]
+            #if os(iOS)
+            appData.repoSources.append(contentsOf: [
                 RepoSource(url: URL(string: "https://repo.chariz.com/./")!),
                 RepoSource(url: URL(string: "https://luki120.github.io/./")!),
                 RepoSource(url: URL(string: "https://sparkdev.me/./")!),
-                RepoSource(url: URL(string: "https://havoc.app/./")!)
-            ]
+                RepoSource(url: URL(string: "https://havoc.app/./")!),
+                RepoSource(url: URL(string: "https://apt.procurs.us/dists/iphoneos-arm64-rootless/1800")!, suites: "iphoneos-arm64-rootless/1800", components: "main")
+            ])
+            #elseif os(tvOS)
+            appData.repoSources.append(contentsOf: [
+                RepoSource(url: URL(string: "https://strap.palera.in/appletvos-arm64/1800")!, suites: "appletvos-arm64/1800", components: "main")
+            ])
+            #endif
         }
         let repoSources = appData.repoSources
         for repo in repoSources {
