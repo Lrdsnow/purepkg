@@ -100,16 +100,9 @@
 			sourceTree = "<group>";
 		};
 		65DC66B82BCCEC5300EBFE82 /* SubViews */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SubViews;
-			sourceTree = "<group>";
-		};
 		65DC66BB2BCCEC5300EBFE82 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				65DC66B82BCCEC5300EBFE82 /* SubViews */,
 				65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */,
 				65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */,
 			);
@@ -419,6 +412,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
@@ -453,6 +448,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;

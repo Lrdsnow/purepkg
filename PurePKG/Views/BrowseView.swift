@@ -171,3 +171,57 @@ struct RepoRow: View {
         })
     }
 }
+
+struct RepoView: View {
+    @State var repo: Repo
+    @EnvironmentObject var appData: AppData
+
+    var body: some View {
+        List {
+            NavigationLink(destination: {
+                TweaksListView(pageLabel: repo.name, tweaksLabel: "All Tweaks", tweaks: repo.tweaks)
+            }, label: {
+                PlaceHolderRow(alltweaks: repo.tweaks.count, category: "", categoryTweaks: 0)
+            })
+            .listRowBackground(Color.clear)
+            SectionC("Categories") {
+                ForEach(Array(Set(repo.tweaks.map { $0.section })), id: \.self) { category in
+                    let categoryTweaks = repo.tweaks.filter { $0.section == category }
+                    NavigationLink(destination: {
+                        TweaksListView(pageLabel: repo.name, tweaksLabel: category, tweaks: categoryTweaks)
+                    }, label: {
+                        PlaceHolderRow(alltweaks: -1, category: category, categoryTweaks: categoryTweaks.count)
+                    })
+                }
+            }.listRowBackground(Color.clear).listRowSeparatorC(false)
+        }
+        .navigationBarTitleC(repo.name)
+    }
+}
+
+struct TweaksListView: View {
+    let pageLabel: String
+    let tweaksLabel: String
+    let tweaks: [Package]
+    @EnvironmentObject var appData: AppData
+    
+    var body: some View {
+        List {
+            SectionC(tweaksLabel) {
+                if !tweaks.isEmpty {
+                    ForEach(tweaks, id: \.name) { tweak in
+                    
+                    }
+                } else {
+                    Button(action: {}, label: {
+                        HStack {
+                            Spacer()
+                            Text("No Tweaks Found")
+                            Spacer()
+                        }
+                    })
+                }
+            }.listRowBackground(Color.clear).listRowSeparatorC(false)
+        }.navigationBarTitleC(pageLabel)
+    }
+}
