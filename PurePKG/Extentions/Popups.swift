@@ -6,6 +6,7 @@
 //
 
 import Foundation
+#if !os(macOS)
 import UIKit
 
 func showPopup(_ title: String, _ message: String) {
@@ -45,3 +46,37 @@ func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardTy
         topViewController.present(alertController, animated: true, completion: nil)
     }
 }
+#else
+import AppKit
+
+func showPopup(_ title: String, _ message: String) {
+    let alertController = NSAlert()
+    alertController.messageText = title
+    alertController.informativeText = message
+    alertController.alertStyle = .informational
+    alertController.addButton(withTitle: "OK")
+    alertController.runModal()
+}
+
+func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardType: NSAlert.Style, completion: @escaping (String?) -> Void) {
+    let alertController = NSAlert()
+    alertController.messageText = title
+    
+    let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+    textField.placeholderString = placeholderText
+    textField.isEditable = true
+    textField.stringValue = ""
+    alertController.accessoryView = textField
+    
+    alertController.addButton(withTitle: "Cancel")
+    alertController.addButton(withTitle: "OK")
+    
+    let response = alertController.runModal()
+    
+    if response == .alertFirstButtonReturn {
+        completion(nil)
+    } else if response == .alertSecondButtonReturn {
+        completion(textField.stringValue)
+    }
+}
+#endif

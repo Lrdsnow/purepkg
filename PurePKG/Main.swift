@@ -24,6 +24,17 @@ struct PurePKGBinary {
 struct PurePKGApp: App {
     @StateObject private var appData = AppData()
     
+    init() {
+        #if !os(tvOS) && !os(macOS)
+        UINavigationBar.appearance().prefersLargeTitles = true
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
+        UITableView.appearance().backgroundColor = .clear
+        UITableView.appearance().separatorStyle = .none
+        UITableView.appearance().separatorColor = .clear
+        #endif
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -54,6 +65,13 @@ struct ContentView: View {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
+            if !appData.queued.all.isEmpty {
+                HomeView()
+                    .tabItem {
+                        Image(systemName: "list.bullet")
+                        Text("Queued")
+                    }
+            }
         }.onAppear() {
             appData.jbdata.jbtype = Jailbreak.type(appData)
             appData.jbdata.jbarch = Jailbreak.arch(appData)

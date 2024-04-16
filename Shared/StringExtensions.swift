@@ -11,6 +11,21 @@ extension String: LocalizedError {
     public var errorDescription: String? { return self }
 }
 
+extension Array where Element: Hashable {
+    func removingDuplicates() -> [Element] {
+        var addedDict = [Element: Bool]()
+
+        return filter {
+            addedDict.updateValue(true, forKey: $0) == nil
+        }
+    }
+    
+    func removingDuplicatesBySubValue<T: Hashable>(byKey key: (Element) -> T) -> [Element] {
+        var seen = Set<T>()
+        return filter { seen.insert(key($0)).inserted }
+    }
+}
+
 extension String {
     func removingBetweenAngleBrackets() -> String {
         let regex = try! NSRegularExpression(pattern: "<.*?>", options: .caseInsensitive)

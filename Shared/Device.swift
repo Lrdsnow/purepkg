@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if !os(macOS)
 import UIKit
+#endif
 
 #if !os(watchOS) && !os(macOS)
 public extension UIDevice {

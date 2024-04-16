@@ -7,8 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		65839EF62BCE480F00068B7A /* BrowseRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF52BCE480F00068B7A /* BrowseRows.swift */; };
+		65839EF82BCE485B00068B7A /* TweaksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF72BCE485B00068B7A /* TweaksListView.swift */; };
+		65839EFA2BCE486B00068B7A /* RepoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF92BCE486B00068B7A /* RepoView.swift */; };
+		65839EFC2BCE48B300068B7A /* TweakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EFB2BCE48B300068B7A /* TweakView.swift */; };
+		65839EFE2BCE492F00068B7A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EFD2BCE492F00068B7A /* SettingsView.swift */; };
+		65839F002BCE4BEE00068B7A /* URLExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EFF2BCE4BEE00068B7A /* URLExtensions.swift */; };
+		65839F022BCE4C2B00068B7A /* ListRowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839F012BCE4C2B00068B7A /* ListRowExtensions.swift */; };
 		65DC66C32BCCEC5300EBFE82 /* Compat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B12BCCEC5300EBFE82 /* Compat.swift */; };
-		65DC66C42BCCEC5300EBFE82 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B22BCCEC5300EBFE82 /* Misc.swift */; };
 		65DC66C52BCCEC5300EBFE82 /* Popups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B32BCCEC5300EBFE82 /* Popups.swift */; };
 		65DC66C82BCCEC5300EBFE82 /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */; };
 		65DC66C92BCCEC5300EBFE82 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */; };
@@ -32,9 +38,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		65839EF52BCE480F00068B7A /* BrowseRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseRows.swift; sourceTree = "<group>"; };
+		65839EF72BCE485B00068B7A /* TweaksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweaksListView.swift; sourceTree = "<group>"; };
+		65839EF92BCE486B00068B7A /* RepoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoView.swift; sourceTree = "<group>"; };
+		65839EFB2BCE48B300068B7A /* TweakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakView.swift; sourceTree = "<group>"; };
+		65839EFD2BCE492F00068B7A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		65839EFF2BCE4BEE00068B7A /* URLExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensions.swift; sourceTree = "<group>"; };
+		65839F012BCE4C2B00068B7A /* ListRowExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListRowExtensions.swift; sourceTree = "<group>"; };
 		65D0169E2BA949C9003F11E4 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65DC66B12BCCEC5300EBFE82 /* Compat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compat.swift; sourceTree = "<group>"; };
-		65DC66B22BCCEC5300EBFE82 /* Misc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 		65DC66B32BCCEC5300EBFE82 /* Popups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Popups.swift; sourceTree = "<group>"; };
 		65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowseView.swift; sourceTree = "<group>"; };
 		65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -93,17 +105,29 @@
 			isa = PBXGroup;
 			children = (
 				65DC66B12BCCEC5300EBFE82 /* Compat.swift */,
-				65DC66B22BCCEC5300EBFE82 /* Misc.swift */,
 				65DC66B32BCCEC5300EBFE82 /* Popups.swift */,
+				65839F012BCE4C2B00068B7A /* ListRowExtensions.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
 		};
 		65DC66B82BCCEC5300EBFE82 /* SubViews */ = {
+			isa = PBXGroup;
+			children = (
+				65839EF52BCE480F00068B7A /* BrowseRows.swift */,
+				65839EF72BCE485B00068B7A /* TweaksListView.swift */,
+				65839EF92BCE486B00068B7A /* RepoView.swift */,
+			);
+			path = SubViews;
+			sourceTree = "<group>";
+		};
 		65DC66BB2BCCEC5300EBFE82 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				65DC66B82BCCEC5300EBFE82 /* SubViews */,
 				65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */,
+				65839EFB2BCE48B300068B7A /* TweakView.swift */,
+				65839EFD2BCE492F00068B7A /* SettingsView.swift */,
 				65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */,
 			);
 			path = Views;
@@ -130,6 +154,7 @@
 				65DC66F32BCCF3A400EBFE82 /* Jailbreak.swift */,
 				65DC66F92BCCF3A400EBFE82 /* RepoHandler.swift */,
 				65DC67022BCCF3B300EBFE82 /* StringExtensions.swift */,
+				65839EFF2BCE4BEE00068B7A /* URLExtensions.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -242,15 +267,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65839EFA2BCE486B00068B7A /* RepoView.swift in Sources */,
+				65839F002BCE4BEE00068B7A /* URLExtensions.swift in Sources */,
+				65839EF82BCE485B00068B7A /* TweaksListView.swift in Sources */,
 				65DC66C82BCCEC5300EBFE82 /* BrowseView.swift in Sources */,
 				65DC66CB2BCCEC5300EBFE82 /* Main.swift in Sources */,
 				65DC66C92BCCEC5300EBFE82 /* HomeView.swift in Sources */,
+				65839F022BCE4C2B00068B7A /* ListRowExtensions.swift in Sources */,
 				65DC66FB2BCCF3A400EBFE82 /* Device.swift in Sources */,
-				65DC66C42BCCEC5300EBFE82 /* Misc.swift in Sources */,
 				65DC66EE2BCCF31600EBFE82 /* waitpid_decode.c in Sources */,
 				65DC66FE2BCCF3A400EBFE82 /* Package.swift in Sources */,
+				65839EFE2BCE492F00068B7A /* SettingsView.swift in Sources */,
 				65DC66FC2BCCF3A400EBFE82 /* Jailbreak.swift in Sources */,
+				65839EF62BCE480F00068B7A /* BrowseRows.swift in Sources */,
 				65DC67012BCCF3A400EBFE82 /* RepoHandler.swift in Sources */,
+				65839EFC2BCE48B300068B7A /* TweakView.swift in Sources */,
 				65DC66EF2BCCF31600EBFE82 /* RootHelperMain.swift in Sources */,
 				65DC66F02BCCF31600EBFE82 /* spawnStuff.swift in Sources */,
 				65DC66ED2BCCF31600EBFE82 /* spawn_stuff.m in Sources */,
@@ -407,10 +438,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purekfd.;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -443,10 +475,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purekfd.;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;

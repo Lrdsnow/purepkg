@@ -23,8 +23,10 @@ extension View {
     func navigationBarTitleC(_ title: String) -> some View {
         #if os(iOS)
         self.navigationBarTitle(title, displayMode: .large)
-        #else
+        #elseif !os(macOS)
         self.navigationBarTitle(title)
+        #else
+        self
         #endif
     }
     @ViewBuilder

@@ -1,8 +1,8 @@
 //
-//  Misc.swift
+//  URLExtensions.swift
 //  PurePKG
 //
-//  Created by Lrdsnow on 3/18/24.
+//  Created by Lrdsnow on 4/15/24.
 //
 
 import Foundation
