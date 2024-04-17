@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */; };
+		653AB8932BCF429500E3A215 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 653AB8922BCF429500E3A215 /* MarkdownUI */; };
+		653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8942BCF433B00E3A215 /* InstalledView.swift */; };
+		653AB8972BCF434A00E3A215 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8962BCF434A00E3A215 /* SearchView.swift */; };
 		65839EF62BCE480F00068B7A /* BrowseRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF52BCE480F00068B7A /* BrowseRows.swift */; };
 		65839EF82BCE485B00068B7A /* TweaksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF72BCE485B00068B7A /* TweaksListView.swift */; };
 		65839EFA2BCE486B00068B7A /* RepoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF92BCE486B00068B7A /* RepoView.swift */; };
@@ -17,7 +21,6 @@
 		65DC66C32BCCEC5300EBFE82 /* Compat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B12BCCEC5300EBFE82 /* Compat.swift */; };
 		65DC66C52BCCEC5300EBFE82 /* Popups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B32BCCEC5300EBFE82 /* Popups.swift */; };
 		65DC66C82BCCEC5300EBFE82 /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */; };
-		65DC66C92BCCEC5300EBFE82 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */; };
 		65DC66CA2BCCEC5300EBFE82 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65DC66BC2BCCEC5300EBFE82 /* Assets.xcassets */; };
 		65DC66CB2BCCEC5300EBFE82 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66BD2BCCEC5300EBFE82 /* Main.swift */; };
 		65DC66E12BCCF24F00EBFE82 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = 65DC66E02BCCF24F00EBFE82 /* Nuke */; };
@@ -38,6 +41,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakDepitionView.swift; sourceTree = "<group>"; };
+		653AB8942BCF433B00E3A215 /* InstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledView.swift; sourceTree = "<group>"; };
+		653AB8962BCF434A00E3A215 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		65839EF52BCE480F00068B7A /* BrowseRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseRows.swift; sourceTree = "<group>"; };
 		65839EF72BCE485B00068B7A /* TweaksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweaksListView.swift; sourceTree = "<group>"; };
 		65839EF92BCE486B00068B7A /* RepoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoView.swift; sourceTree = "<group>"; };
@@ -49,7 +55,6 @@
 		65DC66B12BCCEC5300EBFE82 /* Compat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compat.swift; sourceTree = "<group>"; };
 		65DC66B32BCCEC5300EBFE82 /* Popups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Popups.swift; sourceTree = "<group>"; };
 		65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowseView.swift; sourceTree = "<group>"; };
-		65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		65DC66BC2BCCEC5300EBFE82 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		65DC66BD2BCCEC5300EBFE82 /* Main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		65DC66E42BCCF31600EBFE82 /* bridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge.h; sourceTree = "<group>"; };
@@ -75,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				653AB8932BCF429500E3A215 /* MarkdownUI in Frameworks */,
 				65DC66E12BCCF24F00EBFE82 /* Nuke in Frameworks */,
 				65DC66E32BCCF24F00EBFE82 /* NukeUI in Frameworks */,
 			);
@@ -117,6 +123,7 @@
 				65839EF52BCE480F00068B7A /* BrowseRows.swift */,
 				65839EF72BCE485B00068B7A /* TweaksListView.swift */,
 				65839EF92BCE486B00068B7A /* RepoView.swift */,
+				653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */,
 			);
 			path = SubViews;
 			sourceTree = "<group>";
@@ -128,7 +135,8 @@
 				65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */,
 				65839EFB2BCE48B300068B7A /* TweakView.swift */,
 				65839EFD2BCE492F00068B7A /* SettingsView.swift */,
-				65DC66BA2BCCEC5300EBFE82 /* HomeView.swift */,
+				653AB8942BCF433B00E3A215 /* InstalledView.swift */,
+				653AB8962BCF434A00E3A215 /* SearchView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -210,6 +218,7 @@
 			packageProductDependencies = (
 				65DC66E02BCCF24F00EBFE82 /* Nuke */,
 				65DC66E22BCCF24F00EBFE82 /* NukeUI */,
+				653AB8922BCF429500E3A215 /* MarkdownUI */,
 			);
 			productName = PureKFD;
 			productReference = 65D0169E2BA949C9003F11E4 /* PurePKG.app */;
@@ -241,6 +250,7 @@
 			mainGroup = 65D016952BA949C9003F11E4;
 			packageReferences = (
 				65DC66DF2BCCF24F00EBFE82 /* XCRemoteSwiftPackageReference "Nuke" */,
+				653AB8912BCF429500E3A215 /* XCRemoteSwiftPackageReference "swift-markdown-ui-compat" */,
 			);
 			productRefGroup = 65D0169F2BA949C9003F11E4 /* Products */;
 			projectDirPath = "";
@@ -272,8 +282,9 @@
 				65839EF82BCE485B00068B7A /* TweaksListView.swift in Sources */,
 				65DC66C82BCCEC5300EBFE82 /* BrowseView.swift in Sources */,
 				65DC66CB2BCCEC5300EBFE82 /* Main.swift in Sources */,
-				65DC66C92BCCEC5300EBFE82 /* HomeView.swift in Sources */,
 				65839F022BCE4C2B00068B7A /* ListRowExtensions.swift in Sources */,
+				653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */,
+				653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */,
 				65DC66FB2BCCF3A400EBFE82 /* Device.swift in Sources */,
 				65DC66EE2BCCF31600EBFE82 /* waitpid_decode.c in Sources */,
 				65DC66FE2BCCF3A400EBFE82 /* Package.swift in Sources */,
@@ -285,6 +296,7 @@
 				65DC66EF2BCCF31600EBFE82 /* RootHelperMain.swift in Sources */,
 				65DC66F02BCCF31600EBFE82 /* spawnStuff.swift in Sources */,
 				65DC66ED2BCCF31600EBFE82 /* spawn_stuff.m in Sources */,
+				653AB8972BCF434A00E3A215 /* SearchView.swift in Sources */,
 				65DC66FF2BCCF3A400EBFE82 /* Repo.swift in Sources */,
 				65DC66C52BCCEC5300EBFE82 /* Popups.swift in Sources */,
 				65DC66C32BCCEC5300EBFE82 /* Compat.swift in Sources */,
@@ -515,6 +527,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		653AB8912BCF429500E3A215 /* XCRemoteSwiftPackageReference "swift-markdown-ui-compat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lrdsnow/swift-markdown-ui-compat.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		65DC66DF2BCCF24F00EBFE82 /* XCRemoteSwiftPackageReference "Nuke" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kean/Nuke.git";
@@ -526,6 +546,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		653AB8922BCF429500E3A215 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 653AB8912BCF429500E3A215 /* XCRemoteSwiftPackageReference "swift-markdown-ui-compat" */;
+			productName = MarkdownUI;
+		};
 		65DC66E02BCCF24F00EBFE82 /* Nuke */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 65DC66DF2BCCF24F00EBFE82 /* XCRemoteSwiftPackageReference "Nuke" */;

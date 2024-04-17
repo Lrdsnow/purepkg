@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import NukeUI
 
 struct SettingsView: View {
     @EnvironmentObject var appData: AppData
@@ -145,13 +146,10 @@ struct CreditsView: View {
     var body: some View {
         VStack {
             Link(destination: URL(string: "https://github.com/Lrdsnow")!) {
-                CreditView(name: "Lrdsnow", role: "Developer", icon: "lrdsnow")
-            }
-            Link(destination: URL(string: "https://icons8.com")!) {
-                CreditView(name: "Icons8", role: "Default Icons", icon: "icons8")
+                CreditView(name: "Lrdsnow", role: "Developer", icon: URL(string: "https://github.com/lrdsnow.png")!)
             }
             Link(destination: URL(string: "https://github.com/Sileo")!) {
-                CreditView(name: "Sileo", role: "APTWrapper", icon: "sileo")
+                CreditView(name: "Sileo", role: "APTWrapper", icon: URL(string: "https://github.com/sileo.png")!)
             }
             Spacer()
         }.padding().navigationBarTitleC("Credits")
@@ -161,7 +159,7 @@ struct CreditsView: View {
 struct CreditView: View {
     let name: String
     let role: String
-    let icon: String
+    let icon: URL
     #if os(macOS)
     @State private var scale: CGFloat = 0
     @EnvironmentObject var appData: AppData
@@ -172,13 +170,21 @@ struct CreditView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             
-            Image(icon)
-                .resizable()
-                .scaledToFit()
-                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-                .aspectRatio(contentMode: .fit)
-                .frame(width: scale, height: scale)
-                .cornerRadius(20)
+            LazyImage(url: icon) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
+                } else {
+                    ProgressView()
+                        .scaledToFit()
+                }
+            }
+            .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: scale, height: scale)
+            .cornerRadius(20)
             
             Spacer()
             

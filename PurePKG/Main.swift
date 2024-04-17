@@ -55,18 +55,18 @@ struct ContentView: View {
                     Image(systemName: "globe")
                     Text("Browse")
                 }
-            HomeView()
+            InstalledView()
                 .tabItem {
                     Image(systemName: "star.fill")
                     Text("Installed")
                 }
-            HomeView()
+            SearchView()
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
             if !appData.queued.all.isEmpty {
-                HomeView()
+                EmptyView()
                     .tabItem {
                         Image(systemName: "list.bullet")
                         Text("Queued")

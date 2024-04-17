@@ -2,7 +2,7 @@
 //  TweakView.swift
 //  PurePKG
 //
-//  Created by Lrdsnow on 4/15/24.
+//  Created by Lrdsnow on 1/11/24.
 //
 
 import Foundation
@@ -19,50 +19,90 @@ struct TweakView: View {
     
     var body: some View {
         List {
-            HStack {
-                LazyImage(url: pkg.icon) { state in
+            if let banner = banner {
+                LazyImage(url: banner) { state in
                     if let image = state.image {
                         image
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .scaledToFit()
-                    } else if state.error != nil {
-                        Image("DisplayAppIcon")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .scaledToFit()
+                            .aspectRatio(contentMode: .fill)
                     } else {
                         ProgressView()
                             .scaledToFit()
                     }
-                }.frame(width: 100, height: 100).cornerRadius(20).padding(.trailing, 5)
-                VStack {
-                    Text(pkg.name).font(.system(size: 30, weight: .bold, design: .rounded))
                 }
-                Spacer()
-                Button(action: {
-                    installPKG()
-                }, label: {
-                    Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
-                }).contextMenu(menuItems: {
-                    if !queued && !installed {
-                        ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
-                            Button(action: {installPKG(ver)}) {
-                                Text(ver)
+                #if !os(macOS)
+                   .frame(width: UIScreen.main.bounds.width-40, height: 200)
+                #endif
+                   .cornerRadius(20)
+                   .clipped()
+                   .listRowBackground(Color.clear)
+                   .listRowSeparatorC(false)
+                   .padding(.bottom)
+                   .padding(.top, -40)
+            }
+            
+            Section {
+                VStack(alignment: .leading) {
+                    HStack(alignment: .center) {
+                        LazyImage(url: pkg.icon) { state in
+                            if let image = state.image {
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .scaledToFit()
+                            } else if state.error != nil {
+                                Image("DisplayAppIcon")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .scaledToFit()
+                            } else {
+                                ProgressView()
+                                    .scaledToFit()
                             }
                         }
-                    }
-                    if installed {
-                        ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
-                            if let installedPKG = installedPKG, installedPKG.version != ver {
-                                Button(action: {installPKG(ver)}) {
-                                    Text("\(installedPKG.version.compareVersion(ver) == .orderedAscending ? "Upgrade to" : "Downgrade to") \(ver)")
+                        .frame(width: 80, height: 80)
+                        .cornerRadius(15)
+                        .padding(.trailing, 5)
+                        .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                        
+                        VStack(alignment: .leading) {
+                            Text(pkg.name)
+                                .font(.headline.bold())
+                                .lineLimit(1)
+                            Text(pkg.author)
+                                .font(.subheadline)
+                                .opacity(0.7)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        Button(action: {
+                            installPKG()
+                        }, label: {
+                            Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
+                        }).buttonStyle(.borderedProminentC).opacity(0.7).animation(.spring()).contextMenu(menuItems: {
+                            if !queued && !installed {
+                                ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
+                                    Button(action: {installPKG(ver)}) {
+                                        Text(ver)
+                                    }
                                 }
                             }
-                        }
+                            if installed {
+                                ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
+                                    if let installedPKG = installedPKG, installedPKG.version != ver {
+                                        Button(action: {installPKG(ver)}) {
+                                            Text("\(installedPKG.version.compareVersion(ver) == .orderedAscending ? "Upgrade to" : "Downgrade to") \(ver)")
+                                        }
+                                    }
+                                }
+                            }
+                        })
                     }
-                })
-            }.padding().listRowInsets(EdgeInsets()).listRowBackground(Color.clear).listRowSeparatorC(false)
+                }
+            }
+            .listRowBackground(Color.clear).listRowSeparatorC(false)
+            
+            TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
             
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {
@@ -75,7 +115,10 @@ struct TweakView: View {
                 Text("\(pkg.id) (\(pkg.installedVersion == "" ? pkg.version : pkg.installedVersion))\(pkg.installedVersion == "" ? "" : " (\(pkg.version) available)")").foregroundColor(Color(UIColor.secondaryLabel))
                 Spacer()
             }.listRowBackground(Color.clear).listRowSeparatorC(false)
-        }.onAppear() {
+        }
+        .listStyle(.plain)
+        .onChange(of: appData.queued.all.count, perform: { _ in queued = appData.queued.all.contains(pkg.id) })
+        .onAppear() {
             queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
             installedPKG = appData.installed_pkgs.first(where: { $0.id == pkg.id })
@@ -109,3 +152,4 @@ struct TweakView: View {
         }
     }
 }
+
