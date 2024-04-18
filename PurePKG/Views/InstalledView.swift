@@ -8,6 +8,12 @@
 import Foundation
 import SwiftUI
 
+enum sortInstalledBy {
+    case date
+    case size
+    case name
+}
+
 struct InstalledView: View {
     @EnvironmentObject var appData: AppData
     @State private var searchText = ""
@@ -91,17 +97,17 @@ struct InstalledView: View {
                             Spacer()
                             Menu("Sort By") {
                                 Button(action: {
-                                    self.appData.installed_pkgs.sort(by: { ($0.installDate ?? Date()) < ($1.installDate ?? Date()) })
+                                    self.sort(.date)
                                 }) {
                                     Text("Install Date")
                                 }
                                 Button(action: {
-                                    self.appData.installed_pkgs.sort(by: { $0.installed_size < $1.installed_size })
+                                    self.sort(.size)
                                 }) {
                                     Text("Install Size")
                                 }
                                 Button(action: {
-                                    self.appData.installed_pkgs.sort(by: { $0.name < $1.name })
+                                    self.sort(.name)
                                 }) {
                                     Text("Name")
                                 }
@@ -124,12 +130,28 @@ struct InstalledView: View {
             .listStyle(.plain)
             .onAppear() {
                 updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+                self.sort()
             }
             .navigationBarTitleC("Installed")
         }
     }
     
-    func sort() {
-        
+    func sort(_ sort: sortInstalledBy? = nil) {
+        if let sort = sort {
+            UserDefaults.standard.setValue((sort == .date ? 0 : sort == .size ? 1 : 2), forKey: "sortInstalledBy")
+            switch sort {
+            case .date:
+                self.appData.installed_pkgs.sort(by: { ($0.installDate ?? Date()) < ($1.installDate ?? Date()) })
+            case .size:
+                self.appData.installed_pkgs.sort(by: { $0.installed_size < $1.installed_size })
+            case .name:
+                self.appData.installed_pkgs.sort(by: { $0.name < $1.name })
+            }
+        } else {
+            let savedSortInt = UserDefaults.standard.integer(forKey: "sortInstalledBy")
+            var savedSort: sortInstalledBy = .date
+            if savedSortInt == 1 { savedSort = .size } else if savedSortInt == 2 { savedSort = .name }
+            self.sort(savedSort)
+        }
     }
 }
