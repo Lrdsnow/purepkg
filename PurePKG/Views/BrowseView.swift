@@ -12,7 +12,7 @@ struct BrowseView: View {
     @EnvironmentObject var appData: AppData
     
     var body: some View {
-        NavigationView {
+        NavigationViewC {
             List {
                 NavigationLink(destination: {
                     TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)

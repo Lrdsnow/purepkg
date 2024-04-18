@@ -24,7 +24,7 @@ struct SearchView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationViewC {
             VStack {
                 TextField("Search", text: $searchText)
                     .padding(7)
@@ -34,7 +34,7 @@ struct SearchView: View {
                 #endif
                     .cornerRadius(8)
                     .autocorrectionDisabled()
-                #if !os(tvOS)
+                #if os(iOS)
                     .overlay(
                         HStack {
                             Image(systemName: "magnifyingglass")

@@ -32,7 +32,7 @@ struct InstalledView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationViewC {
             VStack {
                 TextField("Search Installed Tweaks", text: $searchText)
                     .padding(7)

@@ -88,7 +88,7 @@ struct SettingsView: View {
                     Text("Credits")
                 }.listRowBG()
 #else
-                Section("Credits") {
+                SectionC("Credits") {
                     Link(destination: URL(string: "https://github.com/Lrdsnow")!) {
                         CreditView(name: "Lrdsnow", role: "Developer", icon: "lrdsnow")
                     }

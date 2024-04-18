@@ -133,6 +133,7 @@ struct DepictionSpacerView: DepictionView {
 
 public var isFetchingData = false
 
+@available(iOS 15.0, tvOS 15.0, *)
 struct TweakDepictionView: View {
     let pkg: Package
     @Binding var banner: URL?
@@ -388,11 +389,7 @@ struct TweakDepictionView: View {
                 .padding(.bottom, subheader.useBottomMargin ? 8 : 0);Spacer()})
 
         case let markdown as DepictionMarkdownView:
-            if #available(iOS 15.0, tvOS 15.0, *) {
-                return AnyView(Markdown(markdown.markdown))
-            } else {
-                return AnyView(EmptyView())
-            }
+            return AnyView(Markdown(markdown.markdown))
 
         case let tableText as DepictionTableTextView:
             return AnyView(HStack {

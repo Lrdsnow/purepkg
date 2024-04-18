@@ -108,7 +108,9 @@ struct TweakView: View {
             }
             .listRowBackground(Color.clear).listRowSeparatorC(false)
             
-            TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
+            if #available(iOS 15.0, tvOS 15.0, *) {
+                TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
+            }
             
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {

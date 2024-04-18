@@ -8,12 +8,39 @@
 import Foundation
 import SwiftUI
 
-// stuff for iOS 14 and below - once i work on adding support for those vers
+#if os(macOS)
+typealias UIColor = NSColor
+extension NSColor {
+    static var secondaryLabel: NSColor {
+        return NSColor.secondaryLabelColor
+    }
+}
+#endif
+
+struct NavigationViewC<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+#if os(macOS)
+        NavigationStack {
+            content
+        }
+#else
+        NavigationView {
+            content
+        }.navigationViewStyle(.stack)
+#endif
+    }
+}
 
 extension View {
     @ViewBuilder
     func tintC(_ tint: Color) -> some View {
-        if #available(iOS 15, tvOS 15.0, *) {
+        if #available(iOS 15, tvOS 15.0, macOS 13.0, *) {
             self.tint(tint)
         } else {
             self
@@ -53,7 +80,7 @@ struct SectionC<Content: View>: View {
     }
 
     var body: some View {
-        if #available(iOS 15, tvOS 15.0, *) {
+        if #available(iOS 15, tvOS 15.0, macOS 12.0, *) {
             Section(text) {
                 content
             }
@@ -67,7 +94,7 @@ struct SectionC<Content: View>: View {
 
 struct BorderedProminentC: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        if #available(iOS 15.0, tvOS 15.0, *) {
+        if #available(iOS 15.0, tvOS 15.0, macOS 12.0, *) {
             configuration.label
                 .buttonStyle(.borderedProminent)
         } else {
