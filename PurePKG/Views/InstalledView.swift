@@ -128,4 +128,8 @@ struct InstalledView: View {
             .navigationBarTitleC("Installed")
         }
     }
+    
+    func sort() {
+        
+    }
 }

@@ -336,6 +336,7 @@ public class RepoHandler {
                                     Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
                                     Tweak.name = lowercasedTweak["name"] ?? lowercasedTweak["package"] ?? "Unknown Tweak"
                                     Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
+                                    Tweak.path = lowercasedTweak["filename"] ?? ""
                                     Tweak.version = lowercasedTweak["version"] ?? "0.0"
                                     Tweak.versions.append(lowercasedTweak["version"] ?? "0.0")
                                     Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0

@@ -96,6 +96,12 @@ struct TweakView: View {
                                     }
                                 }
                             }
+                            if !installed, !(pkg.repo.url.path == "/"), pkg.path != "" {
+                                let debURL = pkg.repo.url.appendingPathComponent(pkg.path)
+                                Link(destination: debURL, label: {
+                                    Text("Download deb")
+                                })
+                            }
                         })
                     }
                 }
