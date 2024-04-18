@@ -130,7 +130,6 @@ struct TweakView: View {
             queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
             installedPKG = appData.installed_pkgs.first(where: { $0.id == pkg.id })
-            print(pkg)
         }
     }
     

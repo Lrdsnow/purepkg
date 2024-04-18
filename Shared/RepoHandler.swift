@@ -330,7 +330,7 @@ public class RepoHandler {
                                 }
                                 var Tweak = Package()
                                 Tweak.arch = lowercasedTweak["architecture"] ?? ""
-                                if Tweak.arch == Jailbreak.arch() {
+                                if Tweak.tweakCompatibility() == .supported {
                                     Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
                                     Tweak.desc = lowercasedTweak["description"] ?? "Description"
                                     Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"

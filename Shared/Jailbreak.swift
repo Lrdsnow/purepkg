@@ -26,6 +26,12 @@ enum jbType {
     case unknown
 }
 
+enum TweakCompatibility {
+    case supported
+    case conversionReq
+    case unsupported
+}
+
 public class Jailbreak {
     static func roothide_jbroot() -> URL? {
         let fileManager = FileManager.default
@@ -182,44 +188,45 @@ public class Jailbreak {
             ("Serotonin", URL(fileURLWithPath: "/var/mobile/Serotonin.jp2"))
         ]
         for (name, url) in jburls {
-            log("\(url.path)")
             if FileManager.default.fileExists(atPath: url.path) {
-                log("jb: \(name)")
                 return name
-            } else {
-                log("does not exist")
-            }
+            } else {}
         }
         return nil
     }
-    
-    static func tweakArchSupported(_ pkgarch: String, _ appData: AppData? = nil) -> Bool {
-        /* ill uncomment this when i actually add conversion lol
-        let jbtype = self.type()
+}
+
+extension Package {
+    func tweakCompatibility(_ appData: AppData? = nil) -> TweakCompatibility {
+        #if targetEnvironment(simulator)
+        return .supported
+        #else
+        let jbtype = Jailbreak.type()
         if jbtype == .rootful {
-            if pkgarch == "iphoneos-arm" {
-                return true
+            if self.arch == "iphoneos-arm" {
+                return .supported
             } else {
-                return false
+                return .unsupported
             }
         } else if jbtype == .rootless {
-            if pkgarch == "iphoneos-arm" || pkgarch == "iphoneos-arm64" {
-                return true
+            if self.arch == "iphoneos-arm" {
+                return .supported
+            } else if self.arch == "iphoneos-arm64" {
+                return .conversionReq
             } else {
-                return false
+                return .unsupported
             }
         } else if jbtype == .roothide {
-            if pkgarch == "iphoneos-arm" || pkgarch == "iphoneos-arm64" || pkgarch == "iphoneos-arm64e" {
-                return true
+            if self.arch == "iphoneos-arm" {
+                return .supported
+            } else if self.arch == "iphoneos-arm64" || self.arch == "iphoneos-arm64e" {
+                return .conversionReq
             } else {
-                return false
+                return .unsupported
             }
+        } else {
+            return .unsupported
         }
-         */
-        #if targetEnvironment(simulator)
-        return true
-        #else
-        return self.arch(appData) == pkgarch
         #endif
     }
 }
