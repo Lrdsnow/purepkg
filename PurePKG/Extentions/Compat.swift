@@ -68,6 +68,14 @@ extension View {
         self
         #endif
     }
+    @ViewBuilder
+    func borderedProminentButtonC() -> some View {
+        if #available(iOS 15.0, tvOS 15.0, macOS 12.0, *) {
+            self.buttonStyle(.borderedProminent)
+        } else {
+            self
+        }
+    }
 }
 
 struct SectionC<Content: View>: View {
@@ -90,20 +98,4 @@ struct SectionC<Content: View>: View {
             }
         }
     }
-}
-
-struct BorderedProminentC: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        if #available(iOS 15.0, tvOS 15.0, macOS 12.0, *) {
-            configuration.label
-                .buttonStyle(.borderedProminent)
-        } else {
-            configuration.label
-                .buttonStyle(.plain)
-        }
-    }
-}
-
-extension ButtonStyle where Self == BorderedProminentC {
-    static var borderedProminentC: Self { Self() }
 }

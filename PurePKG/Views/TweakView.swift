@@ -79,7 +79,7 @@ struct TweakView: View {
                             installPKG()
                         }, label: {
                             Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
-                        }).buttonStyle(.borderedProminentC).opacity(0.7).animation(.spring()).contextMenu(menuItems: {
+                        }).borderedProminentButtonC().opacity(0.7).animation(.spring()).contextMenu(menuItems: {
                             if !queued && !installed {
                                 ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                     Button(action: {installPKG(ver)}) {

@@ -66,7 +66,7 @@ struct ContentView: View {
                     Text("Search")
                 }
             if !appData.queued.all.isEmpty {
-                Text("test")
+                QueueView()
                     .tabItem {
                         Image(systemName: "list.bullet")
                         Text("Queued")
