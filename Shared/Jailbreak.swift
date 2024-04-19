@@ -200,7 +200,7 @@ extension Package {
     func tweakCompatibility(_ appData: AppData? = nil) -> TweakCompatibility {
         #if targetEnvironment(simulator)
         return .supported
-        #else
+        #elseif os(iOS)
         let jbtype = Jailbreak.type()
         if jbtype == .rootful {
             if self.arch == "iphoneos-arm" {
@@ -227,6 +227,8 @@ extension Package {
         } else {
             return .unsupported
         }
+        #else
+        return (self.arch == Jailbreak.arch()) ? .supported : .unsupported
         #endif
     }
 }

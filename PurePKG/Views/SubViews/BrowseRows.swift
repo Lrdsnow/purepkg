@@ -164,7 +164,7 @@ struct TweakRow: View {
                         }
                     }
 #if os(tvOS)
-                    .frame(width: 70, height: 70)
+                    .frame(width: 85, height: 85)
                     .cornerRadius(15)
 #else
                     .frame(width: 50, height: 50)
@@ -178,9 +178,9 @@ struct TweakRow: View {
                         .foregroundColor(Color.accentColor)
                         .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)
-                        .offset(x: 55, y: -2)
+                        .offset(x: 15, y: -5)
 #else
-                        .offset(x: 5, y: 5)
+                        .offset(x: 5, y: -5)
 #endif
                 }
             }
