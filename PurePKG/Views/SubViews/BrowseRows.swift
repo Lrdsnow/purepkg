@@ -176,7 +176,6 @@ struct TweakRow: View {
                 if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(Color.accentColor)
-                        .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
 #if os(tvOS)
                         .offset(x: 15, y: -5)
 #else
@@ -188,12 +187,15 @@ struct TweakRow: View {
             VStack(alignment: .leading) {
                 Text(tweak.name)
                     .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text((tweak.installedVersion == "") ? "\(tweak.author) · \(tweak.version) · \(tweak.id)" : "\(tweak.author) · \(tweak.installedVersion) (\(tweak.version) available) · \(tweak.id)")
                     .font(.subheadline)
                     .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(tweak.desc)
                     .font(.footnote)
                     .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }.padding(.vertical, 5)
     }

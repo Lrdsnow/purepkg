@@ -812,12 +812,12 @@ func refreshRepos(_ appData: AppData) {
                     appData.repos = fixDuplicateRepos(appData.repos)
                     if let AppDataRepoIndex = appData.repos.firstIndex(where: { $0.url == repo.url.appendingPathComponent("refreshing/") && $0.component == repo.component }) {
                         var tempRepo = repo
-                        if repo.tweaks.isEmpty {
-                            spawnRootHelper(args: ["clearRepoFiles", repo.url.absoluteString])
-                            if repo.error == nil || repo.error == "" {
-                                tempRepo.error = "An unknown error occured getting repo packages"
-                            }
-                        }
+//                        if repo.tweaks.isEmpty {
+//                            spawnRootHelper(args: ["clearRepoFiles", repo.url.absoluteString])
+//                            if repo.error == nil || repo.error == "" {
+//                                tempRepo.error = "An unknown error occured getting repo packages"
+//                            }
+//                        }
                         appData.repos[AppDataRepoIndex] = tempRepo
                         appData.repos = fixDuplicateRepos(appData.repos)
                         appData.pkgs  = appData.repos.flatMap { $0.tweaks }
