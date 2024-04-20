@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import MarkdownUI
+import Down
 
 #if canImport(WebKit) && !os(macOS)
 import WebKit
@@ -29,6 +29,82 @@ struct WebView: UIViewRepresentable {
 
 }
 #endif
+
+class MarkdownObservable: ObservableObject {
+    @Published public var textView = UITextView()
+    public let text: String
+    
+    init(text: String) {
+        self.text = text
+    }
+}
+
+struct MarkdownRepresentable: UIViewRepresentable {
+    @Environment(\.colorScheme) var colorScheme
+    @Binding var dynamicHeight: CGFloat
+    @EnvironmentObject var markdownObject: MarkdownObservable
+    
+    @State var test: Int = 0
+    
+    init(height: Binding<CGFloat>) {
+        self._dynamicHeight = height
+    }
+    
+    
+    func makeUIView(context: Context) -> UITextView {
+        
+        let down = Down(markdownString: markdownObject.text)
+        
+        let attributedText = try? down.toAttributedString(styler: DownStyler())
+        markdownObject.textView.attributedText = attributedText
+        markdownObject.textView.attributedText = attributedText
+        markdownObject.textView.textAlignment = .left
+        markdownObject.textView.isScrollEnabled = false
+        markdownObject.textView.isUserInteractionEnabled = true
+        markdownObject.textView.showsVerticalScrollIndicator = false
+        markdownObject.textView.showsHorizontalScrollIndicator = false
+        markdownObject.textView.isEditable = false
+        markdownObject.textView.backgroundColor = .clear
+        
+        markdownObject.textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        markdownObject.textView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        
+        return markdownObject.textView
+    }
+    
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        DispatchQueue.main.async {
+            uiView.textColor = colorScheme == .dark ? UIColor.white : UIColor.black
+            
+            dynamicHeight = uiView.sizeThatFits(CGSize(width: uiView.bounds.width,
+                                                       height: CGFloat.greatestFiniteMagnitude))
+                .height
+        }
+    }
+}
+
+struct MarkDownView: View {
+    @ObservedObject private var markdownObject: MarkdownObservable
+    private var markdownString: String
+    
+    @State private var height: CGFloat = .zero
+    
+    init(text: String) {
+        self.markdownString = text
+        self.markdownObject = MarkdownObservable(text: text)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            ScrollView {
+                MarkdownRepresentable(height: $height)
+                    .frame(height: height)
+                    .environmentObject(markdownObject)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
 
 struct DepictionTabView {
     let classType: String
@@ -133,7 +209,6 @@ struct DepictionSpacerView: DepictionView {
 
 public var isFetchingData = false
 
-@available(iOS 15.0, tvOS 15.0, *)
 struct TweakDepictionView: View {
     let pkg: Package
     @Binding var banner: URL?
@@ -378,8 +453,7 @@ struct TweakDepictionView: View {
 
         return DepictionTableButtonView(title: title.trimmingCharacters(in: .whitespaces), action: action, openExternal: openExternal)
     }
-
-
+    
     private func getView(for view: DepictionView) -> some View {
         switch view {
         case let subheader as DepictionSubheaderView:
@@ -389,7 +463,7 @@ struct TweakDepictionView: View {
                 .padding(.bottom, subheader.useBottomMargin ? 8 : 0);Spacer()})
 
         case let markdown as DepictionMarkdownView:
-            return AnyView(Markdown(markdown.markdown))
+            return AnyView(MarkDownView(text: markdown.markdown))
 
         case let tableText as DepictionTableTextView:
             return AnyView(HStack {

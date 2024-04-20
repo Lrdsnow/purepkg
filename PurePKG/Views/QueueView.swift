@@ -20,6 +20,8 @@ struct QueueView: View {
     @State private var installingQueue = false
     @State private var installLog = ""
     @State private var focused: Bool = false
+    @State private var deps: [Package] = []
+    @State private var toInstall: [Package] = []
     
     var body: some View {
         NavigationViewC {
@@ -28,15 +30,17 @@ struct QueueView: View {
                     List {
                         if !appData.queued.install.isEmpty {
                             Section(content: {
-                                ForEach(appData.queued.install, id: \.id) { package in
+                                ForEach(toInstall, id: \.id) { package in
                                     VStack {
                                         HStack {
                                             TweakRow(tweak: package)
+                                                .padding(.leading, (deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id })) ? 10 : 0)
                                             Spacer()
-                                            if editing {
+                                            if editing && !(deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id }))  {
                                                 Button(action: {
                                                     appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
                                                     appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                    refresh()
                                                 }) {
                                                     Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
                                                 }
@@ -111,7 +115,7 @@ struct QueueView: View {
                                 installLog += "Simulator doesnt support installing tweaks..."
                                 showLog = true
                                 #else
-                                APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: RepoHandler.getDeps(appData.queued.install, appData),
+                                APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: deps,
                                 progressCallback: { _, statusValid, statusReadable, package in
                                     log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
                                     var percent: Double = 0
@@ -146,10 +150,26 @@ struct QueueView: View {
                     }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
                     Spacer()
                 }.padding().padding(.bottom, 30)
-            }.listStyle(.plain)
+            }.listStyle(.plain).onAppear() {
+                refresh()
+            }
             #if os(iOS)
                 .navigationBarTitleC("Queued")
             #endif
+            #if !os(macOS)
+                .navigationBarItems(trailing: HStack {
+                        Button(action: {
+                            editing.toggle()
+                        }, label: {
+                            Image(systemName: "pencil")
+                        })
+                })
+            #endif
         }
+    }
+    
+    private func refresh() {
+        deps = RepoHandler.getDeps(appData.queued.install, appData)
+        toInstall = appData.queued.install + deps.filter { dep in appData.queued.install.first(where: { $0.id == dep.id }) == nil }
     }
 }

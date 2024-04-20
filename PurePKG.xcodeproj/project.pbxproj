@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		652BCB492BD3678E00DA4AA0 /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = 652BCB482BD3678E00DA4AA0 /* Down */; };
 		653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */; };
-		653AB8932BCF429500E3A215 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 653AB8922BCF429500E3A215 /* MarkdownUI */; };
 		653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8942BCF433B00E3A215 /* InstalledView.swift */; };
 		653AB8972BCF434A00E3A215 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8962BCF434A00E3A215 /* SearchView.swift */; };
 		6575F92C2BD1BFD400D84BC1 /* QueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575F92B2BD1BFD400D84BC1 /* QueueView.swift */; };
@@ -82,9 +82,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				653AB8932BCF429500E3A215 /* MarkdownUI in Frameworks */,
 				65DC66E12BCCF24F00EBFE82 /* Nuke in Frameworks */,
 				65DC66E32BCCF24F00EBFE82 /* NukeUI in Frameworks */,
+				652BCB492BD3678E00DA4AA0 /* Down in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,7 +149,6 @@
 			children = (
 				65DC66B42BCCEC5300EBFE82 /* Extentions */,
 				65DC66BB2BCCEC5300EBFE82 /* Views */,
-				65DC66BC2BCCEC5300EBFE82 /* Assets.xcassets */,
 				65DC66BD2BCCEC5300EBFE82 /* Main.swift */,
 			);
 			path = PurePKG;
@@ -158,6 +157,8 @@
 		65DC66D42BCCF0F900EBFE82 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				65DC66E92BCCF31600EBFE82 /* CBackend */,
+				65DC66BC2BCCEC5300EBFE82 /* Assets.xcassets */,
 				65DC66F72BCCF3A400EBFE82 /* Structs */,
 				65DC66F12BCCF3A400EBFE82 /* APTWrapper.swift */,
 				65DC66F82BCCF3A400EBFE82 /* Debug.swift */,
@@ -185,7 +186,6 @@
 		65DC66EC2BCCF31600EBFE82 /* RootHelper */ = {
 			isa = PBXGroup;
 			children = (
-				65DC66E92BCCF31600EBFE82 /* CBackend */,
 				65DC66EA2BCCF31600EBFE82 /* RootHelperMain.swift */,
 				65DC66EB2BCCF31600EBFE82 /* spawnStuff.swift */,
 			);
@@ -222,7 +222,7 @@
 			packageProductDependencies = (
 				65DC66E02BCCF24F00EBFE82 /* Nuke */,
 				65DC66E22BCCF24F00EBFE82 /* NukeUI */,
-				653AB8922BCF429500E3A215 /* MarkdownUI */,
+				652BCB482BD3678E00DA4AA0 /* Down */,
 			);
 			productName = PureKFD;
 			productReference = 65D0169E2BA949C9003F11E4 /* PurePKG.app */;
@@ -254,7 +254,7 @@
 			mainGroup = 65D016952BA949C9003F11E4;
 			packageReferences = (
 				65DC66DF2BCCF24F00EBFE82 /* XCRemoteSwiftPackageReference "Nuke" */,
-				653AB8912BCF429500E3A215 /* XCRemoteSwiftPackageReference "swift-markdown-ui-compat" */,
+				652BCB472BD3678E00DA4AA0 /* XCRemoteSwiftPackageReference "Down" */,
 			);
 			productRefGroup = 65D0169F2BA949C9003F11E4 /* Products */;
 			projectDirPath = "";
@@ -292,7 +292,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ ${BUILT_PRODUCTS_DIR} != *\"simulator\"* ]]; then\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nBundleName=\"PurePKG.app\"\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    BundleName=\"PurePKG.app/Contents\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\n\ncp Icon.png ${BUILT_PRODUCTS_DIR}/$BundleName/Icon.png\n\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    plutil -insert CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    plutil -replace CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    cp Icon.icns ${BUILT_PRODUCTS_DIR}/$BundleName/Resources\nfi\n\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\n\ncd ${BUILT_PRODUCTS_DIR}/Build\n\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../$BundleName/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\ngen_control() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nName: PurePKG\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_postinst() {\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi'\n}\ngen_macos_postinst() {\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app'\n}\ngen_deb() {\n    local arch=$1\n    local path=$2\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir -p \"${path}\"\n    cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n    gen_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"14\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\ngen_macos_deb() {\n    local arch=$1\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir Applications\n    cp -r ../../PurePKG.app Applications/PurePKG.app\n    gen_macos_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf PurePKG.app\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\ncp PurePKGDemo.ipa ../../../Build/PurePKGDemo.ipa\ncp PurePKG.tipa ../../../Build/PurePKG.tipa\ngen_deb iphoneos-arm64 var/jb/Applications\ngen_deb iphoneos-arm Applications\ngen_deb iphoneos-arm64e Applications\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\ngen_deb appletvos-arm64 Applications\nfi\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\ngen_macos_deb darwin-amd64\ngen_macos_deb darwin-arm64\nfi\n\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\nfor deb_file in ./*.deb; do\n    filename=$(basename \"$deb_file\")\n    version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n    new_filename=\"${filename//_$version/}\"\n    cp \"$deb_file\" \"../../../Build/$new_filename\"\ndone\nfi\n";
+			shellScript = "if [[ ${BUILT_PRODUCTS_DIR} != *\"simulator\"* ]]; then\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nBundleName=\"PurePKG.app\"\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    BundleName=\"PurePKG.app/Contents\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\n\ncp Icon.png ${BUILT_PRODUCTS_DIR}/$BundleName/Icon.png\n\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    plutil -insert CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    plutil -replace CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    cp Icon.icns ${BUILT_PRODUCTS_DIR}/$BundleName/Resources\nfi\n\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\n\ncd ${BUILT_PRODUCTS_DIR}/Build\n\nVERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../$BundleName/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\n\ngen_control_testing() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg.testing\nName: PurePKG (testing)\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nConflicts: uwu.lrdsnow.purepkg\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_control() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg\nName: PurePKG\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nConflicts: uwu.lrdsnow.purepkg.testing\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_postinst() {\necho '#!/bin/sh\n\nif [ \"$1\" = \"configure\" ]; then\n    uicache -p /Applications/PurePKG.app\nfi'\n}\ngen_macos_postinst() {\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app'\n}\ngen_deb() {\n    local arch=$1\n    local path=$2\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir -p \"${path}\"\n    cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n    gen_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control_testing $arch \"14\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\ngen_macos_deb() {\n    local arch=$1\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir Applications\n    cp -r ../../PurePKG.app Applications/PurePKG.app\n    gen_macos_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control_testing $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf PurePKG.app\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\ncp PurePKGDemo.ipa ../../../Build/PurePKGDemo.ipa\ncp PurePKG.tipa ../../../Build/PurePKG.tipa\ngen_deb iphoneos-arm64 var/jb/Applications\ngen_deb iphoneos-arm Applications\ngen_deb iphoneos-arm64e Applications\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\ngen_deb appletvos-arm64 Applications\nfi\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\ngen_macos_deb darwin-amd64\ngen_macos_deb darwin-arm64\nfi\n\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\nfor deb_file in ./*.deb; do\n    filename=$(basename \"$deb_file\")\n    version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n    new_filename=\"${filename//_$version/}\"\n    cp \"$deb_file\" \"../../../Build/$new_filename\"\ndone\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -489,7 +489,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Shared/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
 				TVOS_DEPLOYMENT_TARGET = 14.0;
@@ -530,7 +530,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = RootHelper/CBackend/bridge.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Shared/CBackend/bridge.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
 				TVOS_DEPLOYMENT_TARGET = 14.0;
@@ -561,11 +561,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		653AB8912BCF429500E3A215 /* XCRemoteSwiftPackageReference "swift-markdown-ui-compat" */ = {
+		652BCB472BD3678E00DA4AA0 /* XCRemoteSwiftPackageReference "Down" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Lrdsnow/swift-markdown-ui-compat.git";
+			repositoryURL = "https://github.com/johnxnguyen/Down.git";
 			requirement = {
-				branch = main;
+				branch = master;
 				kind = branch;
 			};
 		};
@@ -580,10 +580,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		653AB8922BCF429500E3A215 /* MarkdownUI */ = {
+		652BCB482BD3678E00DA4AA0 /* Down */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 653AB8912BCF429500E3A215 /* XCRemoteSwiftPackageReference "swift-markdown-ui-compat" */;
-			productName = MarkdownUI;
+			package = 652BCB472BD3678E00DA4AA0 /* XCRemoteSwiftPackageReference "Down" */;
+			productName = Down;
 		};
 		65DC66E02BCCF24F00EBFE82 /* Nuke */ = {
 			isa = XCSwiftPackageProductDependency;

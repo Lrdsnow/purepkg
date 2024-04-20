@@ -495,7 +495,7 @@ public class RepoHandler {
         let arrayofdicts = self.get_local(dpkgPath+"/status")
         var tweaks: [Package] = []
         for tweak in arrayofdicts {
-            if (tweak["Status"] ?? "").contains("installed") {
+            if (tweak["Status"] ?? "").contains("installed") && !(tweak["Status"] ?? "").contains("not-installed") {
                 var Tweak = createPackageStruct(tweak)
                 let packageInstallPath = URL(string: dpkgPath)!.appendingPathComponent("info/\(Tweak.id).list")
                 let attr = try? FileManager.default.attributesOfItem(atPath: packageInstallPath.path)
@@ -633,31 +633,26 @@ public class RepoHandler {
         try fileContent.write(to: fileURL, atomically: false, encoding: .utf8)
     }
     
-    // absolutely terrible way of getting deps that i will rewrite later
     static func getDeps(_ pkgs: [Package], _ appData: AppData) -> [Package] {
         let all_pkgs = appData.pkgs + appData.installed_pkgs
-        // gets the deps ofc
         var uniqueDeps: [String: verReq] = [:]
-        for package in pkgs {
-            for dependency in package.depends {
+        
+        pkgs.forEach { package in
+            package.depends.forEach { dependency in
                 let depID = dependency.id
-                if let existingDep = uniqueDeps[depID] {
-                    if dependency.reqVer.version > existingDep.version {
-                        uniqueDeps[depID] = dependency.reqVer
-                    }
-                } else {
+                let existingDep = uniqueDeps[depID]
+                if existingDep == nil || dependency.reqVer.version > existingDep!.version {
                     uniqueDeps[depID] = dependency.reqVer
                 }
             }
         }
-        let pkgDeps: [DepPackage] = uniqueDeps.map { (depID, reqVer) in
-            return DepPackage(id: depID, reqVer: reqVer)
-        }
-        //
-        var resultDeps: [Package] = []
-        for dep in pkgDeps {
-            if let matchingPackage = all_pkgs.first(where: { $0.id == dep.id }) {
-                if ((dep.reqVer.version >= matchingPackage.version && dep.reqVer.minVer) || (dep.reqVer.version <= matchingPackage.version && !dep.reqVer.minVer)) && !appData.installed_pkgs.contains(where: { $0.id == dep.id }) {
+        
+        var resultDeps = [Package]()
+        resultDeps.reserveCapacity(uniqueDeps.count)
+        
+        uniqueDeps.forEach { (depID, reqVer) in
+            if let matchingPackage = all_pkgs.first(where: { $0.id == depID }) {
+                if ((reqVer.version >= matchingPackage.version && reqVer.minVer) || (reqVer.version <= matchingPackage.version && !reqVer.minVer)) && !appData.installed_pkgs.contains(where: { $0.id == depID }) {
                     resultDeps.append(matchingPackage)
                 }
             }
@@ -866,4 +861,32 @@ func checkForUpdates(installed: [Package], all: [Package]) -> [Package] {
         }
     }
     return updates
+}
+
+extension Package {
+    func getDeps(_ appData: AppData) -> [Package] {
+        let all_pkgs = appData.pkgs + appData.installed_pkgs
+        var uniqueDeps: [String: verReq] = [:]
+        
+        self.depends.forEach { dependency in
+            let depID = dependency.id
+            let existingDep = uniqueDeps[depID]
+            if existingDep == nil || dependency.reqVer.version > existingDep!.version {
+                uniqueDeps[depID] = dependency.reqVer
+            }
+        }
+        
+        var resultDeps = [Package]()
+        resultDeps.reserveCapacity(uniqueDeps.count)
+        
+        uniqueDeps.forEach { (depID, reqVer) in
+            if let matchingPackage = all_pkgs.first(where: { $0.id == depID }) {
+                if ((reqVer.version >= matchingPackage.version && reqVer.minVer) || (reqVer.version <= matchingPackage.version && !reqVer.minVer)) && !appData.installed_pkgs.contains(where: { $0.id == depID }) {
+                    resultDeps.append(matchingPackage)
+                }
+            }
+        }
+        
+        return resultDeps
+    }
 }
