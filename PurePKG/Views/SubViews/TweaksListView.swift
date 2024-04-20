@@ -20,7 +20,7 @@ struct TweaksListView: View {
                 if !tweaks.isEmpty {
                     ForEach(tweaks, id: \.name) { tweak in
                         NavigationLink(destination: {
-                            TweakView(pkg: tweak)
+                            TweakView(pkg: tweak, preview: false)
                         }, label: {
                             TweakRow(tweak: tweak)
                         })

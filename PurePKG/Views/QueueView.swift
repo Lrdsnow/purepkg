@@ -103,53 +103,7 @@ struct QueueView: View {
                     Text(installLog).padding()
                 }
                 Spacer()
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        if !showLog {
-                            if Jailbreak.type(appData) == .jailed {
-                                showPopup("bruh", "PurePKG is in demo mode, you cannot install tweaks")
-                            } else {
-                                installingQueue = true
-                                #if targetEnvironment(simulator)
-                                installLog += "Simulator doesnt support installing tweaks..."
-                                showLog = true
-                                #else
-                                APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: deps,
-                                progressCallback: { _, statusValid, statusReadable, package in
-                                    log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
-                                    var percent: Double = 0
-                                    if statusReadable.contains("Installed") {
-                                        percent = 1
-                                    } else if statusReadable.contains("Configuring") {
-                                        percent = 0.7
-                                    } else if statusReadable.contains("Preparing") {
-                                        percent = 0.4
-                                    }
-                                    DispatchQueue.main.async {
-                                        if appData.queued.status[package]?.percentage ?? 0 <= percent {
-                                            appData.queued.status[package] = installStatus(message: statusReadable, percentage: percent)
-                                        }
-                                    }
-                                },
-                                outputCallback: { output, _ in installLog += "\(output)" },
-                                completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); showLog = true })
-                                #endif
-                            }
-                        } else {
-                            installingQueue = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                appData.queued = PKGQueue()
-                                showLog = false
-                            }
-                        }
-                    }, label: {
-                        Spacer()
-                        Text(showLog ? "Close" : "Perform Actions").padding()
-                        Spacer()
-                    }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
-                    Spacer()
-                }.padding().padding(.bottom, 30)
+                InstallQueuedButton(showLog: $showLog, installingQueue: $installingQueue, installLog: $installLog, deps: $deps).padding().padding(.bottom, 30)
             }.listStyle(.plain).onAppear() {
                 refresh()
             }
@@ -171,5 +125,63 @@ struct QueueView: View {
     private func refresh() {
         deps = RepoHandler.getDeps(appData.queued.install, appData)
         toInstall = appData.queued.install + deps.filter { dep in appData.queued.install.first(where: { $0.id == dep.id }) == nil }
+    }
+}
+
+struct InstallQueuedButton: View {
+    @EnvironmentObject var appData: AppData
+    @Binding var showLog: Bool
+    @Binding var installingQueue: Bool
+    @Binding var installLog: String
+    @Binding var deps: [Package]
+    
+    var body: some View {
+        HStack {
+            Spacer()
+            Button(action: {
+                if !showLog {
+                    if Jailbreak.type(appData) == .jailed {
+                        showPopup("bruh", "PurePKG is in demo mode, you cannot install tweaks")
+                    } else {
+                        installingQueue = true
+                        #if targetEnvironment(simulator)
+                        installLog += "Simulator doesnt support installing tweaks..."
+                        showLog = true
+                        #else
+                        APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: deps,
+                        progressCallback: { _, statusValid, statusReadable, package in
+                            log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
+                            var percent: Double = 0
+                            if statusReadable.contains("Installed") {
+                                percent = 1
+                            } else if statusReadable.contains("Configuring") {
+                                percent = 0.7
+                            } else if statusReadable.contains("Preparing") {
+                                percent = 0.4
+                            }
+                            DispatchQueue.main.async {
+                                if appData.queued.status[package]?.percentage ?? 0 <= percent {
+                                    appData.queued.status[package] = installStatus(message: statusReadable, percentage: percent)
+                                }
+                            }
+                        },
+                        outputCallback: { output, _ in installLog += "\(output)" },
+                        completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); showLog = true })
+                        #endif
+                    }
+                } else {
+                    installingQueue = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        appData.queued = PKGQueue()
+                        showLog = false
+                    }
+                }
+            }, label: {
+                Spacer()
+                Text(showLog ? "Close" : "Perform Actions").padding()
+                Spacer()
+            }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
+            Spacer()
+        }
     }
 }

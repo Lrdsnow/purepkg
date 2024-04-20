@@ -10,6 +10,9 @@ import SwiftUI
 
 struct BrowseView: View {
     @EnvironmentObject var appData: AppData
+    @Binding var importedPackage: Package?
+    @Binding var showPackage: Bool
+    let preview: Bool
     
     var body: some View {
         NavigationViewC {
@@ -27,6 +30,9 @@ struct BrowseView: View {
                             RepoRow(repo: repo)
                         }.listRowSeparatorC(false)
                     }
+                }
+                if let importedPackage = importedPackage {
+                    NavigationLink(destination: TweakView(pkg: importedPackage, preview: preview), isActive: $showPackage, label: {})
                 }
             }.navigationBarTitleC("Browse").listStyle(.plain)
             #if !os(macOS)

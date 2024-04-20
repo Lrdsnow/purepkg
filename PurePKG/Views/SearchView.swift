@@ -11,6 +11,7 @@ import SwiftUI
 struct SearchView: View {
     @EnvironmentObject var appData: AppData
     @State private var searchText = ""
+    let preview: Bool
     
     var filteredPackages: [Package] {
         if searchText.isEmpty {
@@ -56,9 +57,9 @@ struct SearchView: View {
                     .padding(.horizontal, 10)
                 #endif
                 List {
-                    ForEach(filteredPackages, id: \.id) { package in
+                    ForEach(filteredPackages.prefix(preview ? 10 : filteredPackages.count), id: \.id) { package in
                         NavigationLink(destination: {
-                            TweakView(pkg: package)
+                            TweakView(pkg: package, preview: false)
                         }, label: {
                             TweakRow(tweak: package)
                         }).listRowBackground(Color.clear).listRowSeparatorC(false)

@@ -34,9 +34,6 @@ class AppData: ObservableObject {
     @Published var jbdata: JBData = JBData()
     @Published var deviceInfo: DeviceInfo = DeviceInfo()
     @Published var queued: PKGQueue = PKGQueue()
-    #if !os(macOS) && !os(watchOS) && !os(visionOS)
-    @Published var size: CGSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-    #endif
     
     @Published var test = false
     

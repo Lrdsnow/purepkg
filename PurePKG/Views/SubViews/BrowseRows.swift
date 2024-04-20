@@ -37,13 +37,21 @@ struct PlaceHolderRow: View {
                 if alltweaks != -1 {
                     Text("All Tweaks")
                         .font(.headline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     Text("\(alltweaks) Tweaks Total")
                         .font(.subheadline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 } else {
                     Text(category)
                         .font(.headline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     Text("\(categoryTweaks) Tweaks")
                         .font(.subheadline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 }
             }
         }
@@ -91,13 +99,16 @@ struct RepoRow: View {
                 Text(repo.name)
                     .font(.headline)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Text("\(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").replacingOccurrences(of: "refreshing/", with: "").removeSubstringIfExists("/dists/"))\(repo.component != "main" ? " (\(repo.component))" : "")")
                     .font(.subheadline)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 if repo.error != nil {
                     Text(repo.error ?? "")
                         .font(.footnote)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 }
             }
         }.contextMenu(menuItems: {
@@ -188,14 +199,18 @@ struct TweakRow: View {
                 Text(tweak.name)
                     .font(.headline)
                     .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Text((tweak.installedVersion == "") ? "\(tweak.author) · \(tweak.version) · \(tweak.id)" : "\(tweak.author) · \(tweak.installedVersion) (\(tweak.version) available) · \(tweak.id)")
                     .font(.subheadline)
                     .lineLimit(1)
                     .fixedSize(horizontal: false, vertical: true)
+                    .minimumScaleFactor(0.5)
                 Text(tweak.desc)
                     .font(.footnote)
-                    .lineLimit(1)
                     .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
             }
         }.padding(.vertical, 5)
     }

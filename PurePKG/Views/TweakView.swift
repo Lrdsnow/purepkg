@@ -16,6 +16,7 @@ struct TweakView: View {
     @State private var queued = false
     @State private var banner: URL? = nil
     let pkg: Package
+    let preview: Bool
     
     var body: some View {
         List {
@@ -31,7 +32,7 @@ struct TweakView: View {
                     }
                 }
                 #if !os(macOS)
-                   .frame(width: UIScreen.main.bounds.width-40, height: 200)
+                .frame(width: (preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)-40, height: preview ? 100 : 200)
                 #endif
                    .cornerRadius(20)
                    .clipped()
@@ -69,16 +70,20 @@ struct TweakView: View {
                             Text(pkg.name)
                                 .font(.headline.bold())
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                             Text(pkg.author)
                                 .font(.subheadline)
                                 .opacity(0.7)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                         }
                         Spacer()
                         Button(action: {
                             installPKG()
                         }, label: {
                             Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                         }).borderedProminentButtonC().opacity(0.7).animation(.spring()).contextMenu(menuItems: {
                             if !queued && !installed {
                                 ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
@@ -108,7 +113,9 @@ struct TweakView: View {
             }
             .listRowBackground(Color.clear).listRowSeparatorC(false)
             
-            TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
+            if !preview {
+                TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
+            }
             
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {
@@ -119,6 +126,8 @@ struct TweakView: View {
             HStack {
                 Spacer()
                 Text("\(pkg.id) (\(pkg.installedVersion == "" ? pkg.version : pkg.installedVersion))\(pkg.installedVersion == "" ? "" : " (\(pkg.version) available)")").foregroundColor(Color(UIColor.secondaryLabel))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
             }.listRowBackground(Color.clear).listRowSeparatorC(false)
         }

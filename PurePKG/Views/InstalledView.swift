@@ -19,6 +19,7 @@ struct InstalledView: View {
     @State private var searchText = ""
     @State private var isAnimating = false
     @State private var updatableTweaks: [Package] = []
+    let preview: Bool
     
     var filteredPackages: [Package] {
         if searchText.isEmpty {
@@ -82,7 +83,7 @@ struct InstalledView: View {
                         }) {
                             ForEach(updatableTweaks, id: \.id) { package in
                                 NavigationLink(destination: {
-                                    TweakView(pkg: package)
+                                    TweakView(pkg: package, preview: preview)
                                 }, label: {
                                     TweakRow(tweak: package)
                                 }).listRowBackground(Color.clear).listRowSeparatorC(false)
@@ -114,10 +115,10 @@ struct InstalledView: View {
                             }
                         }
                     }) {
-                        ForEach(filteredPackages, id: \.id) { package in
+                        ForEach(filteredPackages.prefix(preview ? 10 : filteredPackages.count), id: \.id) { package in
                             if (updatableTweaks.first { $0.id == package.id } == nil) {
                                 NavigationLink(destination: {
-                                    TweakView(pkg: package)
+                                    TweakView(pkg: package, preview: preview)
                                 }, label: {
                                     TweakRow(tweak: package)
                                 }).listRowBackground(Color.clear).listRowSeparatorC(false)
@@ -129,7 +130,9 @@ struct InstalledView: View {
             }
             .listStyle(.plain)
             .onAppear() {
-                updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+                if !preview {
+                    updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+                }
                 self.sort()
             }
             .navigationBarTitleC("Installed")
