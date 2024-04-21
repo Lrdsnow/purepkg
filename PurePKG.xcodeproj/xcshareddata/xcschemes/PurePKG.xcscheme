@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1510"
+   LastUpgradeVersion = "1530"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "657B46982B4DD9ED00AFC1F6"
+               BlueprintIdentifier = "65D0169D2BA949C9003F11E4"
                BuildableName = "PurePKG.app"
                BlueprintName = "PurePKG"
                ReferencedContainer = "container:PurePKG.xcodeproj">
@@ -43,7 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "657B46982B4DD9ED00AFC1F6"
+            BlueprintIdentifier = "65D0169D2BA949C9003F11E4"
             BuildableName = "PurePKG.app"
             BlueprintName = "PurePKG"
             ReferencedContainer = "container:PurePKG.xcodeproj">
@@ -60,7 +61,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "657B46982B4DD9ED00AFC1F6"
+            BlueprintIdentifier = "65D0169D2BA949C9003F11E4"
             BuildableName = "PurePKG.app"
             BlueprintName = "PurePKG"
             ReferencedContainer = "container:PurePKG.xcodeproj">

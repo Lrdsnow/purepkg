@@ -38,5 +38,3 @@ PurePKG is a customization focused jailbreak package manager for those who want 
 <a href="https://github.com/Sileo"><img src="https://img.shields.io/static/v1?style=social&message=APT Wrapper&logo=github&logoColor=000000&label=Sileo" /></a>
 
 <a href="https://icons8.com"><img src="https://img.shields.io/static/v1?style=social&message=Plumpy Icons&logo=icons8&logoColor=1FB141&label=icons8" /></a>
-
-This product includes software developed by the Sileo Team.

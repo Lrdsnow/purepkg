@@ -1,25 +1,19 @@
 //
 //  ContentView.swift
-//  purepkg
+//  PurePKG
 //
-//  Created by Lrdsnow on 1/9/24.
+//  Created by Lrdsnow on 3/18/24.
 //
 
 import SwiftUI
-#if os(macOS)
-import AppKit
-#else
-import UIKit
-#endif
-import Combine
-import UniformTypeIdentifiers
 
+// App
 
 @main
-struct PureKFDBinary {
+struct PurePKGBinary {
     static func main() {
         if (getuid() != 0) {
-            purepkgApp.main();
+            PurePKGApp.main();
         } else {
              exit(RootHelperMain());
         }
@@ -27,12 +21,14 @@ struct PureKFDBinary {
     }
 }
 
-struct purepkgApp: App {
+struct PurePKGApp: App {
     @StateObject private var appData = AppData()
+    @State private var tab = 0
+    @State private var importedPackage: Package? = nil
+    @State private var showPackage = false
     
     init() {
-        #if os(macOS)
-        #elseif !os(tvOS)
+        #if !os(tvOS) && !os(macOS)
         UINavigationBar.appearance().prefersLargeTitles = true
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
@@ -44,192 +40,90 @@ struct purepkgApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainView()
+            ContentView(tab: $tab, importedPackage: $importedPackage, showPackage: $showPackage, preview: false)
                 .environmentObject(appData)
-                .accentColor(Color(UIColor(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "") ?? UIColor(hex: "#EBC2FF")!))
+                .accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF"))
         }
-        #if os(macOS)
-        .windowStyle(.hiddenTitleBar)
-        #endif
-    }
-
-}
-
-extension UTType {
-    static var deb: UTType {
-        UTType(exportedAs: "org.debian.deb-archive")
     }
 }
 
-struct tabBarIcons {
-    var FeaturedIcon = Image("home_icon")
-    var BrowseIcon = Image("browse_icon")
-    var InstalledIcon = Image("installed_icon")
-    var SearchIcon = Image("search_icon")
-}
+// Main
 
-struct MainView: View {
+struct ContentView: View {
     @EnvironmentObject var appData: AppData
-    #if os(tvOS) || os(macOS)
-    @State private var basicMode = true
-    #else
-    @State private var basicMode = false
-    #endif
-    @State private var complexMode = false
-    @State private var selectedTab = 0
-    @State private var tweakViewPKG: Package? = nil
-    @State private var showPopupTab = false
+    @Binding var tab: Int
+    @Binding var importedPackage: Package?
+    @Binding var showPackage: Bool
+    let preview: Bool
     
     var body: some View {
-        if basicMode {
-            TabView(selection: $selectedTab) {
-                FeaturedView(tweakViewPKG: $tweakViewPKG, showTab: $showPopupTab).tag(0).tabItem {
-                    HStack {
-                        Image("home_icon")
-                        #if os(iOS)
-                            .renderingMode(.template)
-                        #endif
-                        Text("Featured")
-                    }
-                }
-                BrowseView().tag(1).tabItem {
-                    HStack {
-                        Image("browse_icon")
-                        #if os(iOS)
-                            .renderingMode(.template)
-                        #endif
+        if !UserDefaults.standard.bool(forKey: "customTabbar") {
+            TabView(selection: $tab) {
+                BrowseView(importedPackage: $importedPackage, showPackage: $showPackage, preview: preview)
+                    .tabItem {
+                        Image(systemName: "globe")
                         Text("Browse")
                     }
-                }
-                InstalledView().tag(2).tabItem {
-                    HStack {
-                        Image("installed_icon")
-                        #if os(iOS)
-                            .renderingMode(.template)
-                        #endif
+                    .tag(0)
+                InstalledView(preview: preview)
+                    .tabItem {
+                        Image(systemName: "star.fill")
                         Text("Installed")
                     }
-                }
-                SearchView().tag(3).tabItem {
-                    HStack {
-                        Image("search_icon")
-                        #if os(iOS)
-                            .renderingMode(.template)
-                        #endif
+                    .tag(1)
+                SearchView(preview: preview)
+                    .tabItem {
+                        Image(systemName: "magnifyingglass")
                         Text("Search")
                     }
-                }
+                    .tag(2)
                 if !appData.queued.all.isEmpty {
-                    QueuedView().tag(4).tabItem {
-                        HStack {
-                            Image("queue_icon")
-                            #if os(iOS)
-                                .renderingMode(.template)
-                            #endif
+                    QueueView()
+                        .tabItem {
+                            Image(systemName: "list.bullet")
                             Text("Queued")
                         }
-                    }
+                        .tag(3)
                 }
-                #if os(macOS)
-                if let tweakViewPKG = tweakViewPKG {
-                    TweakView(pkg: tweakViewPKG).tag(5).tabItem { Text("Local deb") }
-                }
-                #endif
-            }.onOpenURL { url in
-                handleIncomingURL(url)
-            }.onAppear() {
-                appData.basicMode = basicMode
-                appData.jbdata.jbtype = Jailbreak.type(appData)
-                appData.jbdata.jbarch = Jailbreak.arch(appData)
-                appData.jbdata.jbroot = Jailbreak.path(appData)
-                appData.deviceInfo = getDeviceInfo()
-                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
-                appData.repos = RepoHandler.getCachedRepos()
-                appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
-                    Task(priority: .background) {
-                        refreshRepos(true, appData)
-                    }
-                }
-            }
-        }
-        if complexMode {
+            }.onAppear() { startup() }
+        } else {
             ZStack(alignment: .bottom) {
-                TabView(selection: $selectedTab) {
-                    FeaturedView(tweakViewPKG: $tweakViewPKG, showTab: $showPopupTab).tag(0)
-                    BrowseView().tag(1)
-                    InstalledView().tag(2)
-                    SearchView().tag(3)
-                }.onOpenURL { url in
-                    handleIncomingURL(url)
+                TabView(selection: $tab) {
+                    BrowseView(importedPackage: $importedPackage, showPackage: $showPackage, preview: preview)
+                        .tag(0)
+                    InstalledView(preview: preview)
+                        .tag(1)
+                    SearchView(preview: preview)
+                        .tag(2)
                 }
 #if os(iOS)
                 .edgesIgnoringSafeArea(.bottom)
-                .frame(width: UIScreen.main.bounds.width)
+                .frame(width: preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)
 #endif
 #if os(iOS)
-                tabbar(selectedTab: $selectedTab)
-                    .onAppear() {
-                        appData.basicMode = basicMode
-                        appData.jbdata.jbtype = Jailbreak.type(appData)
-                        appData.jbdata.jbarch = Jailbreak.arch(appData)
-                        appData.jbdata.jbroot = Jailbreak.path(appData)
-                        appData.deviceInfo = getDeviceInfo()
-                        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
-                        appData.repos = RepoHandler.getCachedRepos()
-                        appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                        if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
-                            Task(priority: .background) {
-                                refreshRepos(true, appData)
-                            }
-                        }
-                    }
+                tabbar(selectedTab: $tab, preview: preview)
 #endif
-            }.background(Color.black).edgesIgnoringSafeArea(.bottom)
+            }.edgesIgnoringSafeArea(.bottom).onAppear() { startup() }
         }
-        if !complexMode && !basicMode {
-            VStack {
-                Text("PurePKG").onAppear() {
-                    var tempBasicMode = true
-                    tempBasicMode = UserDefaults.standard.bool(forKey: "simpleMode")
-                    tempBasicMode = UserDefaults.standard.bool(forKey: "usePlainNavBar")
-                    #if os(iOS)
-                    if !tempBasicMode {
-                        UITabBar.appearance().isHidden = true
-                        UITabBar.appearance().unselectedItemTintColor = UIColor(Color.accentColor.opacity(0.4))
-                        UITabBar.appearance().tintColor = UIColor(Color.accentColor)
-                    }
-                    #endif
-                    basicMode = tempBasicMode
-                    complexMode = !tempBasicMode
+    }
+    
+    private func startup() {
+        if !preview {
+            appData.jbdata.jbtype = Jailbreak.type(appData)
+            appData.jbdata.jbarch = Jailbreak.arch(appData)
+            appData.jbdata.jbroot = Jailbreak.path(appData)
+            appData.deviceInfo = getDeviceInfo()
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+            appData.repos = RepoHandler.getCachedRepos()
+            appData.pkgs = appData.repos.flatMap { $0.tweaks }
+            if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+                Task(priority: .background) {
+                    refreshRepos(appData)
                 }
             }
         }
     }
     
-    private func handleIncomingURL(_ url: URL) {
-        print("App was opened via URL: \(url)")
-        if url.absoluteString.contains("purepkg://addrepo/") {
-            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
-            print("Adding Repo: \(repourl)")
-            RepoHandler.addRepo(repourl)
-        } else if url.pathExtension == "deb" {
-            let info = APTWrapper.spawn(command: "\(Jailbreak.path())/\(Jailbreak.type() == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
-            if info.0 == 0 {
-                let dict = RepoHandler.genDict(info.1)
-                var tweak = RepoHandler.createPackageStruct(dict)
-                tweak.debPath = url.path
-                tweakViewPKG = tweak
-                showPopupTab = true
-                #if os(macOS)
-                selectedTab = 5
-                #endif
-            } else {
-                UIApplication.shared.alert(title: "Error", body: "There was an error reading the imported file", withButton: true)
-            }
-        }
-    }
-
 #if !os(tvOS) && !os(macOS)
     struct tabbar: View {
         @Binding var selectedTab: Int
@@ -239,8 +133,11 @@ struct MainView: View {
         @State private var installLog = ""
         @State private var showLog = false
         @State private var editing = false
-        let tabItems = ["Featured", "Browse", "Installed", "Search"]
-        let tabItemImages = ["Featured":Image("home_icon"), "Browse":Image("browse_icon"), "Installed":Image("installed_icon"), "Search":Image("search_icon")]
+        let tabItems = ["Browse", "Installed", "Search"]
+        let tabItemImages = ["Browse":Image(systemName: "globe"), "Installed":Image(systemName: "star.fill"), "Search":Image(systemName: "magnifyingglass")]
+        @State private var deps: [Package] = []
+        @State private var toInstall: [Package] = []
+        let preview: Bool
         
         var body: some View {
             VStack {
@@ -270,18 +167,17 @@ struct MainView: View {
                             if !showLog {
                                 if !appData.queued.install.isEmpty {
                                     Section(content: {
-                                        ForEach(appData.queued.install, id: \.id) { package in
+                                        ForEach(toInstall, id: \.id) { package in
                                             VStack {
                                                 HStack {
-                                                    TweakRow(tweak: package, focused: .constant(false))
+                                                    TweakRow(tweak: package)
+                                                        .padding(.leading, (deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id })) ? 10 : 0)
                                                     Spacer()
-                                                    if editing {
+                                                    if editing && !(deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id }))  {
                                                         Button(action: {
-                                                            if appData.queued.all.count == 1 {
-                                                                queueOpen = false
-                                                            }
                                                             appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
                                                             appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                            refresh()
                                                         }) {
                                                             Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
                                                         }
@@ -296,24 +192,24 @@ struct MainView: View {
                                                     }
                                                     .foregroundColor(.secondary).padding(.top, 5)
                                                 }
-                                            }.opacity(queueOpen ? 1.0 : 0.0)
-                                                .frame(height: queueOpen ? 56.0 : 0.0)
-                                                .padding(.horizontal)
+                                            }.padding(.horizontal)
                                         }
-                                    }, header: {Text(queueOpen ? "Install" : "").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                                    }, header: {
+                                        Text("Install/Upgrade").foregroundColor(.accentColor)
+                                        #if !os(iOS)
+                                            .padding(.leading).padding(.top)
+                                        #endif
+                                    })
                                 }
                                 if !appData.queued.uninstall.isEmpty {
                                     Section(content: {
                                         ForEach(appData.queued.uninstall, id: \.id) { package in
                                             VStack {
                                                 HStack {
-                                                    TweakRow(tweak: package, focused: .constant(false))
+                                                    TweakRow(tweak: package)
                                                     Spacer()
                                                     if editing {
                                                         Button(action: {
-                                                            if appData.queued.all.count == 1 {
-                                                                queueOpen = false
-                                                            }
                                                             appData.queued.uninstall.remove(at: appData.queued.uninstall.firstIndex(where: { $0.id == package.id }) ?? -2)
                                                             appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
                                                         }) {
@@ -330,11 +226,14 @@ struct MainView: View {
                                                     }
                                                     .foregroundColor(.secondary).padding(.top, 5)
                                                 }
-                                            }.opacity(queueOpen ? 1.0 : 0.0)
-                                                .frame(height: queueOpen ? 56.0 : 0.0)
-                                                .padding(.horizontal)
+                                            }.padding(.horizontal)
                                         }
-                                    }, header: {Text(queueOpen ? "Uninstall" : "").foregroundColor(.accentColor).padding(.leading).padding(.top)})
+                                    }, header: {
+                                        Text("Uninstall").foregroundColor(.accentColor)
+                                        #if !os(iOS)
+                                            .padding(.leading).padding(.top)
+                                        #endif
+                                    })
                                 }
                             } else {
                                 Text(installLog).padding().frame(height: queueOpen ? .infinity : 0)
@@ -342,55 +241,7 @@ struct MainView: View {
                             if queueOpen {
                                 Spacer()
                             }
-                            HStack {
-                                if !queueOpen {
-                                    Spacer()
-                                }
-                                Button(action: {
-                                    if !showLog {
-                                        if Jailbreak.type(appData) == .jailed {
-                                            UIApplication.shared.alert(title: ":frcoal:", body: "PurePKG is in Jailed Mode, You cannot install tweaks.")
-                                        } else {
-                                            installingQueue = true
-                                            APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: RepoHandler.getDeps(appData.queued.install, appData),
-                                            progressCallback: { _, statusValid, statusReadable, package in
-                                                log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
-                                                var percent: Double = 0
-                                                if statusReadable.contains("Installed") {
-                                                    percent = 1
-                                                } else if statusReadable.contains("Configuring") {
-                                                    percent = 0.7
-                                                } else if statusReadable.contains("Preparing") {
-                                                    percent = 0.4
-                                                }
-                                                if appData.queued.status[package]?.percentage ?? 0 <= percent {
-                                                    appData.queued.status[package] = installStatus(message: statusReadable, percentage: percent)
-                                                }
-                                            },
-                                            outputCallback: { output, _ in installLog += "\(output)" },
-                                            completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); showLog = true })
-                                        }
-                                    } else {
-                                        installingQueue = false
-                                        queueOpen = false
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                            appData.queued = PKGQueue()
-                                            showLog = false
-                                        }
-                                    }
-                                }, label: {
-                                    if queueOpen {
-                                        Spacer()
-                                    }
-                                    Text(showLog ? "Close" : "Perform Actions").padding()
-                                    if queueOpen {
-                                        Spacer()
-                                    }
-                                }).borderedPromButton().tintCompat(Color.accentColor.opacity(0.7))
-                                if !queueOpen {
-                                    Spacer()
-                                }
-                            }.padding().opacity(queueOpen ? 1.0 : 0.0).frame(height: queueOpen ? 56.0 : 0.0).padding(.bottom, 30)
+                            InstallQueuedButton(showLog: $showLog, installingQueue: $installingQueue, installLog: $installLog, deps: $deps).padding(.bottom, 30).padding().opacity(queueOpen ? 1.0 : 0.0).frame(height: queueOpen ? 56.0 : 0.0).padding(.bottom, 30)
                         }.frame(height: queueOpen ? .infinity : 0)
                     }
                 }
@@ -400,32 +251,41 @@ struct MainView: View {
                 }
                 
                 HStack {
-                    ForEach(0..<4) { index in
+                    Spacer()
+                    ForEach(0..<3) { index in
                         Button(action: { selectedTab = index }) {
                             HStack {
                                 tabItemImages[tabItems[index]]?
                                     .renderingMode(.template)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width: 36, height: 36)
+                                    .frame(width: preview ? 25 : 32, height: preview ? 25 : 32)
                                 if selectedTab == index {
-                                    Text("\(tabItems[index])").lineLimit(1)
+                                    Text("\(tabItems[index])").lineLimit(1).minimumScaleFactor(0.5)
                                 }
                             }.padding(.horizontal, UIScreen.main.bounds.width * 0.03)
                         }.padding(.top, 16).background(Color.black.opacity(0.001))
                         .foregroundColor(selectedTab == index ? .accentColor : .accentColor.opacity(0.2))
-                        .shadow(color: selectedTab == index ? .accentColor : .accentColor.opacity(0.2), radius: 5)
+                        .shadow(color: selectedTab == index ? .accentColor : .accentColor.opacity(0.2), radius: UserDefaults.standard.bool(forKey: "iconGlow") ? 5 : 0)
                         .animation(.spring(), value: selectedTab)
-                        .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 > 0 ? 35 : 16)
+                        .padding(.bottom, preview ? 16 : UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 > 0 ? 35 : 16)
+                        Spacer()
                     }
-                }.frame(width: UIScreen.main.bounds.width)
-                    .transition(.move(edge: .bottom))
-                    .noTabBarBG()
+                }.frame(width: preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width).transition(.move(edge: .bottom))
             }
-            .frame(width: UIScreen.main.bounds.width)
-            .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).edgesIgnoringSafeArea(.all))
+            .frame(width: preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)
+            .customTabbarBG()
             .transition(.move(edge: .bottom))
-            .animation(.spring(), value: appData.queued.all.isEmpty).animation(.spring(), value: queueOpen).animation(.spring(), value: editing).noTabBarBG()
+            .animation(.spring(), value: appData.queued.all.isEmpty).animation(.spring(), value: queueOpen).animation(.spring(), value: editing)
+            .accentColor(UserDefaults.standard.bool(forKey: "customIconColor") ? (Color(hex: UserDefaults.standard.string(forKey: "iconColor") ?? UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF") ?? .accentColor) : .accentColor)
+            .onAppear() {
+                refresh()
+            }
+        }
+        
+        private func refresh() {
+            deps = RepoHandler.getDeps(appData.queued.install, appData)
+            toInstall = appData.queued.install + deps.filter { dep in appData.queued.install.first(where: { $0.id == dep.id }) == nil }
         }
     }
 #endif
