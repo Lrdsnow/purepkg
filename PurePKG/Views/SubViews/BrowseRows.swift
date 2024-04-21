@@ -129,7 +129,7 @@ struct RepoRow: View {
 #endif
             }) {
                 Text("Copy Repo URL")
-                Image("copy_icon").renderingMode(.template)
+                Image(systemName: "doc.on.clipboard")
             }
 #endif
             if #available(iOS 15.0, tvOS 15.0, *) {
@@ -138,7 +138,7 @@ struct RepoRow: View {
                     refreshRepos(appData)
                 }) {
                     Text("Delete Repo")
-                    Image("trash_icon").renderingMode(.template)
+                    Image(systemName: "trash")
                 }.foregroundColor(.red)
             } else {
                 Button(action: {
@@ -146,7 +146,7 @@ struct RepoRow: View {
                     refreshRepos(appData)
                 }) {
                     Text("Delete Repo")
-                    Image("trash_icon").renderingMode(.template)
+                    Image(systemName: "trash")
                 }.foregroundColor(.red)
             }
         })

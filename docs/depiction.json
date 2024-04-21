@@ -1,0 +1,19 @@
+{
+    "class": "DepictionTabView",
+    "minVersion": "0.4",
+    "headerImage": "https://lrdsnow.github.io/purepkg/banner.png",
+    "tabs": [
+        {
+            "class": "DepictionStackView",
+            "tabname": "Details",
+            "views": [
+                {
+                    "class": "DepictionMarkdownView",
+                    "markdown": "PurePKG is a customization focused jailbreak package manager for those who want a truely modern jailbreak experience.\n\n**WARNING:** There are probably a lot of bugs at the moment, if you encounter one please create an issue on github for it.\n",
+                    "useSpacing": true
+                }
+            ]
+        }
+    ]
+}
+

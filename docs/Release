@@ -1,0 +1,25 @@
+Architectures: xros-arm64 watchos-arm appletvos-arm64 darwin-amd64 darwin-arm64 iphoneos-arm iphoneos-arm64 iphoneos-arm64e
+Codename: purepkg
+Components: main
+Date: Sun, 21 Apr 2024 23:38:36 +0000
+Description: PurePKG
+Label: PurePKG
+Origin: PurePKG
+Suite: stable
+Version: 1.0
+MD5Sum:
+ c1ad434deaea7ea833beb4291c8110a5             6184 Packages
+ cd200b9805807fd39e269149f401614b             1916 Packages.gz
+ f26ac6549e260b1a425f741a9dd7fd51              276 Release
+SHA1:
+ d22c1c95debdd0f0f066ef2f4ba441ad5fe62003             6184 Packages
+ 42193c1539b42f98e51f1e0a2e1a44ddf1ed9360             1916 Packages.gz
+ 666905ab870f4f0fc31b350660f59fc365ee8810              276 Release
+SHA256:
+ edeb155137384ee83118392312a10fd4b0a874c15664d41b9ae0139b63a8a788             6184 Packages
+ 12d8983c53c044cdc2e89748c597fa8c2c8506a681b4866459870dc4494bc050             1916 Packages.gz
+ 94f4ba2a71036cb317e6644c55e6c651484b2d4201b9188c8f6e2f2a6d08c0eb              276 Release
+SHA512:
+ 1925026ebee83a3333265b2a5d3fb75fd459b0399bd6f3a9d916fedacd7f702d772832cd576892ed09bb7671cf676a6bae8b620f8a419c745462247c0a7e499e             6184 Packages
+ 7e7914fbcd9e3f197695ac8daf9c60ff4b64e8018d6a9f3a6745e8e4cce07228dd901e28e1758a49c29acd67f9e6d38cd8ee9aeb1a03e99c1a2ccfbd30404743             1916 Packages.gz
+ 61aef641c3b92fe4c6818479c6a45503dae414c0369a4e1aa6646b99dcd91e5d7b51b14d54f022c35a73cf74ed6fbed9faf772a264dd47adb73a8ede46d82f0c              276 Release
