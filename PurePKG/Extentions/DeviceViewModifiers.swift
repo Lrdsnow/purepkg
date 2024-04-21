@@ -6,10 +6,10 @@
 //
 
 import Foundation
+#if os(iOS)
 import SwiftUI
 import UIKit
 
-#if os(iOS)
 struct DeviceRotationViewModifier: ViewModifier {
     let action: (UIDeviceOrientation) -> Void
 

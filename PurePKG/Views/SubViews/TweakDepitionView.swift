@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+#if !os(macOS)
 import Down
 
 #if canImport(WebKit) && !os(macOS)
@@ -63,7 +64,9 @@ struct MarkdownRepresentable: UIViewRepresentable {
         markdownObject.textView.isUserInteractionEnabled = true
         markdownObject.textView.showsVerticalScrollIndicator = false
         markdownObject.textView.showsHorizontalScrollIndicator = false
+        #if !os(tvOS)
         markdownObject.textView.isEditable = false
+        #endif
         markdownObject.textView.backgroundColor = .clear
         
         markdownObject.textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -102,7 +105,6 @@ struct MarkDownView: View {
                     .environmentObject(markdownObject)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -488,3 +490,4 @@ struct TweakDepictionView: View {
         }
     }
 }
+#endif

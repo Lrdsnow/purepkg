@@ -48,6 +48,7 @@ func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardTy
     }
 }
 
+#if os(iOS)
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Environment(\.presentationMode) var presentationMode
@@ -79,6 +80,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
     }
 }
+#endif
 #else
 import AppKit
 

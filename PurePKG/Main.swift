@@ -96,9 +96,13 @@ struct ContentView: View {
                     SearchView(preview: preview)
                         .tag(2)
                 }
+#if os(iOS)
                 .edgesIgnoringSafeArea(.bottom)
                 .frame(width: preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)
+#endif
+#if os(iOS)
                 tabbar(selectedTab: $tab, preview: preview)
+#endif
             }.edgesIgnoringSafeArea(.bottom).onAppear() { startup() }
         }
     }

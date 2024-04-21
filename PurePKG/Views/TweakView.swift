@@ -113,9 +113,11 @@ struct TweakView: View {
             }
             .listRowBackground(Color.clear).listRowSeparatorC(false)
             
+            #if !os(macOS)
             if !preview {
                 TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
             }
+            #endif
             
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {

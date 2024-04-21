@@ -43,6 +43,7 @@ struct BrowseView: View {
                     Image(systemName: "arrow.clockwise")
                 }
                 Button(action: {
+                    #if !os(tvOS)
                     #if os(macOS)
                     let pasteboard = NSPasteboard.general
                     let clipboardString = pasteboard.string(forType: .string) ?? ""
@@ -50,6 +51,10 @@ struct BrowseView: View {
                     let clipboardString = UIPasteboard.general.string ?? ""
                     #endif
                     let urlCount = clipboardString.urlCount()
+                    #else
+                    let clipboardString = ""
+                    let urlCount = 0
+                    #endif
                     if urlCount > 1 {
                         let urls = clipboardString.extractURLs()
                         Task {

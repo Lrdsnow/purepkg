@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+#if os(iOS)
 import UIKit
 
 extension UserDefaults {
@@ -27,3 +28,4 @@ extension UserDefaults {
         return nil
     }
 }
+#endif
