@@ -128,6 +128,7 @@ struct InstalledView: View {
                     
                 }.animation(.spring(), value: filteredPackages.count)
             }
+            .appBG()
             .listStyle(.plain)
             .onAppear() {
                 if !preview {

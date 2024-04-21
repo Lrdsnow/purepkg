@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import NukeUI
+import PhotosUI
 
 struct SettingsView: View {
     @EnvironmentObject var appData: AppData
@@ -111,6 +112,7 @@ struct SettingsView: View {
             jb = Jailbreak.jailbreak()
             VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
         }
+        .appBG()
     }
 }
 
@@ -157,7 +159,7 @@ struct CreditsView: View {
                 CreditView(name: "Sileo", role: "APTWrapper", icon: URL(string: "https://github.com/sileo.png")!)
             }
             Spacer()
-        }.padding().navigationBarTitleC("Credits")
+        }.appBG().padding().navigationBarTitleC("Credits")
     }
 }
 
@@ -237,6 +239,9 @@ struct UISettingsView: View {
     @State private var showPackage = false
     // Global Settings
     @State private var accentColor: Color = .accentColor
+    @State private var useCustomBackground: Bool = false
+    @State private var customBackground: UIImage? = nil
+    @State private var isShowingImagePicker: Bool = false
     // Tabbar Settings
     @State private var customTabbar = false
     @State private var blurredTabbar = false
@@ -244,6 +249,9 @@ struct UISettingsView: View {
     @State private var tabbarColor: Color = .black
     @State private var customIconColor = false
     @State private var iconColor: Color = .accentColor
+    // Rows Settings
+    @State private var showIcons: Bool = true
+    @State private var circleIcons: Bool = false
     
     var body: some View {
         HStack {
@@ -312,7 +320,7 @@ struct UISettingsView: View {
                     }).background(Rectangle().foregroundColor(.accentColor.opacity(0.5)).cornerRadius(50)).padding(.vertical)
                     // Rows
                     Button(action: {
-                        print("hai")
+                        rowsSheet.toggle()
                     }, label: {
                         HStack {
                             if expanded == .left && !isLandscape {
@@ -331,7 +339,7 @@ struct UISettingsView: View {
                     }).background(Rectangle().foregroundColor(.accentColor.opacity(0.5)).cornerRadius(50)).padding(.vertical)
                     // Icon
                     Button(action: {
-                        print("hai")
+                        iconSheet.toggle()
                     }, label: {
                         HStack {
                             if expanded == .left && !isLandscape {
@@ -509,60 +517,222 @@ struct UISettingsView: View {
             .onAppear() {
                 guard let scene = UIApplication.shared.windows.first?.windowScene else { return }
                 isLandscape = scene.interfaceOrientation.isLandscape
+                if let accentColorHex = UserDefaults.standard.string(forKey: "accentColor") {
+                    accentColor = Color(hex: accentColorHex) ?? .accentColor
+                } else {
+                    UserDefaults.standard.set(accentColor.toHex(), forKey: "accentColor")
+                }
+                if UserDefaults.standard.object(forKey: "useCustomBackground") != nil {
+                    useCustomBackground = UserDefaults.standard.bool(forKey: "useCustomBackground")
+                } else {
+                    UserDefaults.standard.set(useCustomBackground, forKey: "useCustomBackground")
+                }
+                if UserDefaults.standard.object(forKey: "customTabbar") != nil {
+                    customTabbar = UserDefaults.standard.bool(forKey: "customTabbar")
+                } else {
+                    UserDefaults.standard.set(customTabbar, forKey: "customTabbar")
+                }
+                if UserDefaults.standard.object(forKey: "blurredTabbar") != nil {
+                    blurredTabbar = UserDefaults.standard.bool(forKey: "blurredTabbar")
+                } else {
+                    UserDefaults.standard.set(blurredTabbar, forKey: "blurredTabbar")
+                }
+                if let tabbarColorHex = UserDefaults.standard.string(forKey: "tabbarColor") {
+                    tabbarColor = Color(hex: tabbarColorHex) ?? .black
+                } else {
+                    UserDefaults.standard.set(tabbarColor.toHex(), forKey: "tabbarColor")
+                }
+                if UserDefaults.standard.object(forKey: "iconGlow") != nil {
+                    iconGlow = UserDefaults.standard.bool(forKey: "iconGlow")
+                } else {
+                    UserDefaults.standard.set(iconGlow, forKey: "iconGlow")
+                }
+                if UserDefaults.standard.object(forKey: "customIconColor") != nil {
+                    customIconColor = UserDefaults.standard.bool(forKey: "customIconColor")
+                } else {
+                    UserDefaults.standard.set(customIconColor, forKey: "customIconColor")
+                }
+                if let iconColorHex = UserDefaults.standard.string(forKey: "iconColor") {
+                    iconColor = Color(hex: iconColorHex) ?? .accentColor
+                } else {
+                    UserDefaults.standard.set(iconColor.toHex(), forKey: "iconColor")
+                }
+                if UserDefaults.standard.object(forKey: "showIcons") != nil {
+                    showIcons = !UserDefaults.standard.bool(forKey: "hideIcons")
+                } else {
+                    UserDefaults.standard.set(!showIcons, forKey: "hideIcons")
+                }
+                if UserDefaults.standard.object(forKey: "circleIcons") != nil {
+                    circleIcons = UserDefaults.standard.bool(forKey: "circleIcons")
+                } else {
+                    UserDefaults.standard.set(circleIcons, forKey: "circleIcons")
+                }
+                if UserDefaults.standard.object(forKey: "customBackground") != nil {
+                    customBackground = UserDefaults.standard.imageForKey("customBackground")
+                } else {
+                    UserDefaults.standard.setImage(customBackground, forKey: "customBackground")
+                }
             }
             .sheet(isPresented: $globalSheet, content: {
                 NavigationView {
                     List {
                         Section(content: {
-                            ColorPicker("Accent Color", selection: $accentColor)
+                            ColorPicker("Accent Color", selection: $accentColor).onChange(of: accentColor) { newValue in
+                                UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
+                            }.contextMenu(menuItems: {
+                                Button(action: {
+                                    UserDefaults.standard.set("", forKey: "accentColor")
+                                    accentColor = Color(hex: "#EBC2FF")!
+                                }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
+                            })
                         }, footer: {
                             Text("Sets the global accent color")
                         })
+                        Section(content: {
+                            Toggle("Custom Background", isOn: $useCustomBackground).tintC(.accentColor).onChange(of: useCustomBackground, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "useCustomBackground")})
+                        }, footer: {
+                            Text("Use a custom background")
+                        })
+                        if useCustomBackground {
+                            Section(content: {
+                                Button(action: {
+                                    globalSheet = false
+                                    isShowingImagePicker = true
+                                }, label: {
+                                    Text("Set Custom Background Image")
+                                })
+                            }, footer: {
+                                Text(customBackground != nil ? "There is currently an image set" : "No image set")
+                            })
+                        }
                     }.navigationBarTitleC("Global")
-                }
+                }.accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? ""))
             })
             .sheet(isPresented: $tabbarSheet, content: {
                 NavigationView {
                     List {
                         Section(content: {
-                            Toggle("Custom Tabbar", isOn: $customTabbar).tintC(.accentColor)
+                            Toggle("Custom Tabbar", isOn: $customTabbar).tintC(.accentColor).onChange(of: customTabbar, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "customTabbar")})
                         }, footer: {
                             Text("Use a custom tabbar instead of the default SwiftUI one")
                         })
                         if customTabbar {
                             Section(content: {
-                                Toggle("Blurred Background", isOn: $blurredTabbar).tintC(.accentColor)
+                                Toggle("Blurred Background", isOn: $blurredTabbar).tintC(.accentColor).onChange(of: blurredTabbar, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "blurredTabbar")})
                             }, footer: {
                                 Text("Use a blurred background instead of a colored one")
                             })
                             if !blurredTabbar {
                                 Section(content: {
-                                    ColorPicker("Tabbar Color", selection: $tabbarColor)
+                                    ColorPicker("Tabbar Color", selection: $tabbarColor).onChange(of: tabbarColor, perform: { newValue in UserDefaults.standard.set(newValue.toHex(), forKey: "tabbarColor")})
                                 }, footer: {
                                     Text("Sets the tabbar background color")
                                 })
                             }
                             Section(content: {
-                                Toggle("Icon Glow", isOn: $iconGlow).tintC(.accentColor)
+                                Toggle("Icon Glow", isOn: $iconGlow).tintC(.accentColor).onChange(of: iconGlow, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "iconGlow")})
                             }, footer: {
                                 Text("Adds glow around the icons")
                             })
                             Section(content: {
-                                Toggle("Custom Icon Color", isOn: $customIconColor).tintC(.accentColor)
+                                Toggle("Custom Icon Color", isOn: $customIconColor).tintC(.accentColor).onChange(of: customIconColor, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "customIconColor")})
                             }, footer: {
                                 Text("Use a custom icon color")
                             })
                             if customIconColor {
                                 Section(content: {
-                                    ColorPicker("Icon Color", selection: $iconColor)
+                                    ColorPicker("Icon Color", selection: $iconColor).onChange(of: iconColor, perform: { newValue in UserDefaults.standard.set(newValue.toHex(), forKey: "iconColor")})
                                 }, footer: {
                                     Text("Sets the icon color")
                                 })
                             }
                         }
                     }.navigationBarTitleC("Tabbar")
+                }.accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? ""))
+            })
+            .sheet(isPresented: $rowsSheet, content: {
+                NavigationView {
+                    List {
+                        Section(content: {
+                            Toggle("Show Icons", isOn: $showIcons).tintC(.accentColor).onChange(of: showIcons, perform: { newValue in UserDefaults.standard.set(!newValue, forKey: "hideIcons")})
+                        }, footer: {
+                            Text("Show Icons")
+                        })
+                        if showIcons {
+                            Section(content: {
+                                Toggle("Circle Icons", isOn: $circleIcons).tintC(.accentColor).onChange(of: circleIcons, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "circleIcons")})
+                            }, footer: {
+                                Text("Make icons circular")
+                            })
+                        }
+                    }.navigationBarTitleC("Rows")
+                }.accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? ""))
+            })
+            .sheet(isPresented: $iconSheet, content: {
+                NavigationView {
+                    List {
+                        Button(action: {
+                            UIApplication.shared.setAlternateIconName(nil, completionHandler: nil)
+                        }, label: {
+                            HStack {
+                                Image(uiImage: UIImage(named: "AppIcon")!)
+                                    .resizable()
+                                    .frame(width: 85, height: 85)
+                                    .cornerRadius(15)
+                                VStack(alignment: .leading) {
+                                    Text("PurePKG").font(.system(size: 25, design: .rounded).bold())
+                                    Text("Lrdsnow").font(.system(size: 15)).foregroundColor(Color.secondary)
+                                }
+                                Spacer()
+                            }.background(Rectangle().foregroundColor(.accentColor.opacity(0.1)).cornerRadius(15))
+                        })
+                        Button(action: {
+                            UIApplication.shared.setAlternateIconName("AppIcon1", completionHandler: nil)
+                        }, label: {
+                            HStack {
+                                Image(uiImage: UIImage(named: "AppIcon1")!)
+                                    .resizable()
+                                    .frame(width: 85, height: 85)
+                                    .cornerRadius(15)
+                                VStack(alignment: .leading) {
+                                    Text("PurePKG VisionOS").font(.system(size: 25, design: .rounded).bold())
+                                    Text("dor4a").font(.system(size: 15)).foregroundColor(Color.secondary)
+                                }
+                                Spacer()
+                            }.background(Rectangle().foregroundColor(.accentColor.opacity(0.1)).cornerRadius(15))
+                        })
+                        Button(action: {
+                            UIApplication.shared.setAlternateIconName("AppIcon2", completionHandler: nil)
+                        }, label: {
+                            HStack {
+                                Image(uiImage: UIImage(named: "AppIcon2")!)
+                                    .resizable()
+                                    .frame(width: 85, height: 85)
+                                    .cornerRadius(15)
+                                VStack(alignment: .leading) {
+                                    Text("DopaPKG").font(.system(size: 25, design: .rounded).bold())
+                                    Text("dor4a").font(.system(size: 15)).foregroundColor(Color.secondary)
+                                }
+                                Spacer()
+                            }.background(Rectangle().foregroundColor(.accentColor.opacity(0.1)).cornerRadius(15))
+                        })
+                    }.listStyle(.plain).navigationBarTitleC("Icons")
+                }.accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? ""))
+            })
+            .sheet(isPresented: $isShowingImagePicker) {
+                ImagePicker(image: $customBackground)
+            }
+            .onChange(of: isShowingImagePicker, perform: { _ in
+                if isShowingImagePicker == false {
+                    globalSheet = true
                 }
             })
+            .onChange(of: customBackground, perform: { newValue in
+                if newValue != nil {
+                    UserDefaults.standard.setImage(newValue, forKey: "customBackground")
+                }
+            })
+            .appBG()
     }
 }
 #endif

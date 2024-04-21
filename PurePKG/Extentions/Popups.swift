@@ -8,6 +8,7 @@
 import Foundation
 #if !os(macOS)
 import UIKit
+import SwiftUI
 
 func showPopup(_ title: String, _ message: String) {
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -44,6 +45,38 @@ func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardTy
     
     if let topViewController = UIApplication.shared.windows.first?.rootViewController {
         topViewController.present(alertController, animated: true, completion: nil)
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Environment(\.presentationMode) var presentationMode
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let uiImage = info[.originalImage] as? UIImage {
+                parent.image = uiImage
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
     }
 }
 #else

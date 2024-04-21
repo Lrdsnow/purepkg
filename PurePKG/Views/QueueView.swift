@@ -104,7 +104,7 @@ struct QueueView: View {
                 }
                 Spacer()
                 InstallQueuedButton(showLog: $showLog, installingQueue: $installingQueue, installLog: $installLog, deps: $deps).padding().padding(.bottom, 30)
-            }.listStyle(.plain).onAppear() {
+            }.appBG().listStyle(.plain).onAppear() {
                 refresh()
             }
             #if os(iOS)

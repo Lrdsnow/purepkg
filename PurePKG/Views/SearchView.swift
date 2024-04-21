@@ -66,6 +66,7 @@ struct SearchView: View {
                     }
                 }.animation(.spring(), value: filteredPackages.count)
             }
+            .appBG()
             .listStyle(.plain)
             .navigationBarTitleC("Search")
         }

@@ -131,6 +131,7 @@ struct TweakView: View {
                 Spacer()
             }.listRowBackground(Color.clear).listRowSeparatorC(false)
         }
+        .appBG()
         .listStyle(.plain)
         .onChange(of: appData.queued.all.count, perform: { _ in queued = appData.queued.all.contains(pkg.id) })
         .onAppear() {

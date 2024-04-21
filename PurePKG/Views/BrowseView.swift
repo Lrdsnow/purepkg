@@ -21,20 +21,20 @@ struct BrowseView: View {
                     TweaksListView(pageLabel: "All Tweaks", tweaksLabel: "All Tweaks", tweaks: appData.pkgs)
                 }, label: {
                     PlaceHolderRow(alltweaks: appData.pkgs.count, category: "", categoryTweaks: 0)
-                }).listRowSeparatorC(false)
+                }).listRowBackground(Color.clear).listRowSeparatorC(false)
                 SectionC("Repositories") {
                     ForEach(appData.repos.sorted { $0.name < $1.name }, id: \.id) { repo in
                         NavigationLink(destination: {
                             RepoView(repo: repo)
                         }) {
                             RepoRow(repo: repo)
-                        }.listRowSeparatorC(false)
+                        }.listRowBackground(Color.clear).listRowSeparatorC(false)
                     }
                 }
                 if let importedPackage = importedPackage {
                     NavigationLink(destination: TweakView(pkg: importedPackage, preview: preview), isActive: $showPackage, label: {})
                 }
-            }.navigationBarTitleC("Browse").listStyle(.plain)
+            }.appBG().navigationBarTitleC("Browse").listStyle(.plain)
             #if !os(macOS)
             .navigationBarItems(trailing: HStack {
                 Button(action: {
