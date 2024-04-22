@@ -76,6 +76,18 @@ extension View {
             self
         }
     }
+    @ViewBuilder
+    func clearListBG() -> some View {
+        #if os(iOS)
+        if #available(iOS 16.0, *) {
+            self.scrollContentBackground(.hidden)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
 }
 
 struct SectionC<Content: View>: View {

@@ -21,7 +21,7 @@ extension View {
                 Image(uiImage: uiimage)
             }.edgesIgnoringSafeArea(.top)
                 .edgesIgnoringSafeArea(.bottom)
-                .frame(width: UIScreen.main.bounds.width))
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.nativeBounds.height).clipped())
         } else {
             self
         }

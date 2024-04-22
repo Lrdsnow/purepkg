@@ -29,7 +29,6 @@ Applications/PurePKG.app/Down_Down.bundle/DownView.bundle/index.html uwu.lrdsnow
 Applications/PurePKG.app/Down_Down.bundle/DownView.bundle/js/down.js uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Down_Down.bundle/DownView.bundle/js/highlight.min.js uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Down_Down.bundle/Info.plist	    uwu.lrdsnow.purepkg
-Applications/PurePKG.app/Frameworks/libswift_Concurrency.dylib uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Icon.png			    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Info.plist			    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Kingfisher_Kingfisher.bundle/Info.plist uwu.lrdsnow.purepkg
@@ -53,7 +52,6 @@ var/jb/Applications/PurePKG.app/Down_Down.bundle/DownView.bundle/index.html uwu.
 var/jb/Applications/PurePKG.app/Down_Down.bundle/DownView.bundle/js/down.js uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/Down_Down.bundle/DownView.bundle/js/highlight.min.js uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/Down_Down.bundle/Info.plist uwu.lrdsnow.purepkg
-var/jb/Applications/PurePKG.app/Frameworks/libswift_Concurrency.dylib uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/Icon.png		    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/Info.plist		    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/PkgInfo			    uwu.lrdsnow.purepkg

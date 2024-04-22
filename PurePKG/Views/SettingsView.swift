@@ -108,11 +108,12 @@ struct SettingsView: View {
 #endif
             }
         }
+        .clearListBG()
+        .appBG()
         .onAppear() {
             jb = Jailbreak.jailbreak()
             VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
         }
-        .appBG()
     }
 }
 

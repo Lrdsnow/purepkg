@@ -34,7 +34,7 @@ struct TweaksListView: View {
                         }
                     })
                 }
-            }.listRowSeparatorC(false)
-        }.navigationBarTitleC(pageLabel).listStyle(.plain)
+            }.listRowSeparatorC(false).listRowBackground(Color.clear)
+        }.navigationBarTitleC(pageLabel).listStyle(.plain).appBG()
     }
 }
