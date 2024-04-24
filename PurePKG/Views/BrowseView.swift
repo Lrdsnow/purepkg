@@ -34,7 +34,7 @@ struct BrowseView: View {
                 if let importedPackage = importedPackage {
                     NavigationLink(destination: TweakView(pkg: importedPackage, preview: preview), isActive: $showPackage, label: {})
                 }
-            }.appBG().navigationBarTitleC("Browse").listStyle(.plain)
+            }.appBG().navigationBarTitleC("Browse").listStyle(.plain).refreshableC { refreshRepos(appData) }
             #if !os(macOS)
             .navigationBarItems(trailing: HStack {
                 Button(action: {

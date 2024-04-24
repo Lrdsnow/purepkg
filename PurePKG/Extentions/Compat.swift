@@ -88,6 +88,18 @@ extension View {
         self
         #endif
     }
+    @ViewBuilder
+    func refreshableC(_ action: @escaping () -> Void) -> some View {
+        #if os(iOS)
+        if #available(iOS 15.0, *) {
+            self.refreshable { action() }
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
 }
 
 struct SectionC<Content: View>: View {
