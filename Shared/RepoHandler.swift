@@ -749,7 +749,7 @@ func fixDuplicateRepos(_ repos: [Repo]) -> [Repo] {
 
 public var refreshingRepos = false
 
-func refreshRepos(_ appData: AppData) {
+func refreshRepos(completion: @escaping (Int) -> Void) {
     guard !refreshingRepos else {
         return
     }
@@ -820,6 +820,7 @@ func refreshRepos(_ appData: AppData) {
                         let endTime = CFAbsoluteTimeGetCurrent()
                         let elapsedTime = endTime - startTime
                         log("Got \(appData.repos.filter { $0.error != "Refreshing..." }.count) repos in \(elapsedTime) seconds")
+                        completion(appData.repos.count)
                         if (appData.repos.filter { $0.error != "Refreshing..." }.count + 2) >= appData.repos.count { // the +2 is just headroom for dead repos and bugs 
                             refreshingRepos = false
                         }

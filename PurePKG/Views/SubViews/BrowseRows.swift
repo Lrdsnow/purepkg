@@ -2,230 +2,260 @@
 //  BrowseRows.swift
 //  PurePKG
 //
-//  Created by Lrdsnow on 4/15/24.
+//  Created by lrdsnow on 4/27/24.
 //
 
 import Foundation
-import SwiftUI
-import NukeUI
+import UIKit
+import SDWebImage
 
-struct PlaceHolderRow: View {
-    let alltweaks: Int
-    let category: String
-    let categoryTweaks: Int
+class PlaceHolderRowCell: UITableViewCell {
+    var allTweaks: Int
+    var category: String
+    var categoryTweaks: Int
     
-    var body: some View {
-        HStack {
-            if !UserDefaults.standard.bool(forKey: "hideIcons") {
-                VStack(alignment: .center) {
-                    Spacer()
-                    Image("DisplayAppIcon")
-                        .resizable()
-                        .scaledToFit()
-#if os(tvOS)
-                        .frame(width: 70, height: 70)
-                        .customRadius(15)
-#else
-                        .frame(width: 50, height: 50)
-                        .customRadius(11)
-#endif
-                    Spacer()
-                }
-#if os(tvOS)
-                .padding(.trailing, -40)
-#endif
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    init(style: UITableViewCell.CellStyle, reuseIdentifier: String?, allTweaks: Int, category: String, categoryTweaks: Int) {
+        self.allTweaks = allTweaks
+        self.category = category
+        self.categoryTweaks = categoryTweaks
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        self.allTweaks = 0
+        self.category = ""
+        self.categoryTweaks = 0
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+
+    func configure(with allTweaks: Int, category: String, categoryTweaks: Int) {
+        self.allTweaks = allTweaks
+        self.category = category
+        self.categoryTweaks = categoryTweaks
+        hStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        vStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        iconImageView.image = nil
+        setupUI()
+    }
+    
+    private let hStack: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    private let vStack: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        return stackView
+    }()
+    
+    private let iconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    init(allTweaks: Int, category: String, categoryTweaks: Int) {
+        self.allTweaks = allTweaks
+        self.category = category
+        self.categoryTweaks = categoryTweaks
+        super.init(style: .default, reuseIdentifier: nil)
+        setupUI()
+    }
+    
+    private func setupUI() {
+        contentView.addSubview(hStack)
+        NSLayoutConstraint.activate([
+            hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            hStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            hStack.topAnchor.constraint(equalTo: contentView.topAnchor),
+            hStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+        
+//        if !UserDefaults.standard.bool(forKey: "hideIcons") {
+//            let iconContainer = UIView()
+//            iconContainer.addSubview(iconImageView)
+//            iconImageView.translatesAutoresizingMaskIntoConstraints = false
+//            NSLayoutConstraint.activate([
+//                iconImageView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
+//                iconImageView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
+//                iconImageView.widthAnchor.constraint(equalToConstant: 50),
+//                iconImageView.heightAnchor.constraint(equalToConstant: 50)
+//            ])
+//            
+//            hStack.addArrangedSubview(iconContainer)
+//        }
+        
+        hStack.addArrangedSubview(vStack)
+        
+        let titleLabel = UILabel()
+        titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+        titleLabel.numberOfLines = 1
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.minimumScaleFactor = 0.5
+        titleLabel.text = allTweaks != -1 ? "All Tweaks" : category
+        if #available(iOS 13.0, *) {} else { titleLabel.textColor = .white }
+        vStack.addArrangedSubview(titleLabel)
+        
+        let subtitleLabel = UILabel()
+        subtitleLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        subtitleLabel.numberOfLines = 1
+        subtitleLabel.adjustsFontSizeToFitWidth = true
+        subtitleLabel.minimumScaleFactor = 0.5
+        subtitleLabel.text = allTweaks != -1 ? "\(allTweaks) Tweaks Total" : "\(categoryTweaks) Tweaks"
+        if #available(iOS 13.0, *) {} else { subtitleLabel.textColor = .white }
+        vStack.addArrangedSubview(subtitleLabel)
+    }
+}
+
+class RepoRowCell: UITableViewCell {
+    var repo: Repo
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        self.repo = Repo()
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+    
+    init(style: UITableViewCell.CellStyle, reuseIdentifier: String?, repo: Repo) {
+        self.repo = repo
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+
+    func configure(with repo: Repo) {
+        self.repo = repo
+        hStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        vStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        iconImageView.image = nil
+        setupUI()
+    }
+    
+    private let hStack: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    private let vStack: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        return stackView
+    }()
+    
+    private let iconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    init(repo: Repo) {
+        self.repo = repo
+        super.init(style: .default, reuseIdentifier: nil)
+        setupUI()
+    }
+    
+    private func setupUI() {
+        contentView.addSubview(hStack)
+        NSLayoutConstraint.activate([
+            hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            hStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            hStack.topAnchor.constraint(equalTo: contentView.topAnchor),
+            hStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+//
+//        if !UserDefaults.standard.bool(forKey: "hideIcons") {
+//            let iconContainer = UIView()
+//            iconContainer.addSubview(iconImageView)
+//            iconImageView.translatesAutoresizingMaskIntoConstraints = false
+//            NSLayoutConstraint.activate([
+//                iconImageView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
+//                iconImageView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
+//                iconImageView.widthAnchor.constraint(equalToConstant: 50),
+//                iconImageView.heightAnchor.constraint(equalToConstant: 50)
+//            ])
+//
+//            hStack.addArrangedSubview(iconContainer)
+//        }
+        
+        hStack.addArrangedSubview(vStack)
+        
+        let titleLabel = UILabel()
+        titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+        titleLabel.numberOfLines = 1
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.minimumScaleFactor = 0.5
+        titleLabel.text = repo.name
+        if #available(iOS 13.0, *) {} else { titleLabel.textColor = .white }
+        vStack.addArrangedSubview(titleLabel)
+        
+        let urlString = repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").replacingOccurrences(of: "refreshing/", with: "").removeSubstringIfExists("/dists/")
+        let detailText = "\(urlString)\(repo.component != "main" ? " (\(repo.component))" : "")"
+        let detailLabel = UILabel()
+        detailLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        detailLabel.numberOfLines = 1
+        detailLabel.adjustsFontSizeToFitWidth = true
+        detailLabel.minimumScaleFactor = 0.5
+        detailLabel.text = detailText
+        if #available(iOS 13.0, *) {} else { detailLabel.textColor = .white }
+        vStack.addArrangedSubview(detailLabel)
+        
+        if repo.error != nil {
+            let errorLabel = UILabel()
+            errorLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
+            errorLabel.numberOfLines = 1
+            errorLabel.adjustsFontSizeToFitWidth = true
+            errorLabel.minimumScaleFactor = 0.5
+            errorLabel.text = repo.error ?? ""
+            if #available(iOS 13.0, *) {} else { errorLabel.textColor = .white }
+            vStack.addArrangedSubview(errorLabel)
+        }
+    }
+    
+    func presentContextMenu() {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let copyAction = UIAlertAction(title: "Copy Repo URL", style: .default) { _ in
+            #if os(macOS)
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(repo.url.absoluteString, forType: .string)
+            #else
+            let pasteboard = UIPasteboard.general
+            pasteboard.string = self.repo.url.absoluteString
+            #endif
+        }
+        
+        let deleteAction = UIAlertAction(title: "Delete Repo", style: .destructive) { _ in
+            RepoHandler.removeRepo(self.repo.url)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alertController.addAction(copyAction)
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+        
+        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
+            if let popoverController = alertController.popoverPresentationController {
+                popoverController.sourceView = topViewController.view
+                popoverController.sourceRect = CGRect(x: topViewController.view.bounds.midX, y: topViewController.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
             }
-            VStack(alignment: .leading) {
-                if alltweaks != -1 {
-                    Text("All Tweaks")
-                        .font(.headline)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    Text("\(alltweaks) Tweaks Total")
-                        .font(.subheadline)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                } else {
-                    Text(category)
-                        .font(.headline)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    Text("\(categoryTweaks) Tweaks")
-                        .font(.subheadline)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                }
-            }
+            topViewController.present(alertController, animated: true, completion: nil)
         }
     }
 }
-
-struct RepoRow: View {
-    @EnvironmentObject var appData: AppData
-    @State var repo: Repo
-    
-    var body: some View {
-        HStack {
-            if !UserDefaults.standard.bool(forKey: "hideIcons") {
-                VStack(alignment: .center) {
-                    Spacer()
-                    LazyImage(url: (URL(string: repo.url.absoluteString.replacingOccurrences(of: "refreshing/", with: "")) ?? URL(fileURLWithPath: "/")).appendingPathComponent("CydiaIcon.png")) { state in
-                        if let image = state.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .scaledToFit()
-                        } else if state.error != nil {
-                            Image("DisplayAppIcon")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .scaledToFit()
-                        } else {
-                            ProgressView()
-                                .scaledToFit()
-                        }
-                    }
-#if os(tvOS)
-                    .frame(width: 70, height: 70)
-                    .customRadius(15)
-#else
-                    .frame(width: 50, height: 50)
-                    .customRadius(11)
-#endif
-                    Spacer()
-                }
-#if os(tvOS)
-                .padding(.trailing, -40)
-#endif
-            }
-            
-            VStack(alignment: .leading) {
-                Text(repo.name)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                Text("\(repo.url.absoluteString.replacingOccurrences(of: "/./", with: "").replacingOccurrences(of: "refreshing/", with: "").removeSubstringIfExists("/dists/"))\(repo.component != "main" ? " (\(repo.component))" : "")")
-                    .font(.subheadline)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                if repo.error != nil {
-                    Text(repo.error ?? "")
-                        .font(.footnote)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                }
-            }
-        }.contextMenu(menuItems: {
-#if os(tvOS)
-#else
-            Button(action: {
-#if os(macOS)
-                let pasteboard = NSPasteboard.general
-                pasteboard.clearContents()
-                pasteboard.setString(repo.url.absoluteString, forType: .string)
-#else
-                let pasteboard = UIPasteboard.general
-                pasteboard.string = repo.url.absoluteString
-#endif
-            }) {
-                Text("Copy Repo URL")
-                Image(systemName: "doc.on.clipboard")
-            }
-#endif
-            if #available(iOS 15.0, tvOS 15.0, *) {
-                Button(role: .destructive, action: {
-                    RepoHandler.removeRepo(repo.url)
-                    refreshRepos(appData)
-                }) {
-                    Text("Delete Repo")
-                    Image(systemName: "trash")
-                }.foregroundColor(.red)
-            } else {
-                Button(action: {
-                    RepoHandler.removeRepo(repo.url)
-                    refreshRepos(appData)
-                }) {
-                    Text("Delete Repo")
-                    Image(systemName: "trash")
-                }.foregroundColor(.red)
-            }
-        })
-    }
-}
-
-struct TweakRow: View {
-    @EnvironmentObject var appData: AppData
-    @State var tweak: Package
-    
-    var body: some View {
-        HStack {
-            if !UserDefaults.standard.bool(forKey: "hideIcons") {
-                ZStack(alignment: .bottomTrailing) {
-                    VStack(alignment: .center) {
-                        Spacer()
-                        LazyImage(url: tweak.icon) { state in
-                            if let image = state.image {
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
-                            } else if state.error != nil {
-                                Image("DisplayAppIcon")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
-                            } else {
-                                ProgressView()
-                                    .scaledToFit()
-                            }
-                        }
-#if os(tvOS)
-                        .frame(width: 85, height: 85)
-                        .customRadius(15)
-#else
-                        .frame(width: 50, height: 50)
-                        .customRadius(11)
-#endif
-                        Spacer()
-                    }
-                    
-                    if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color.accentColor)
-#if os(tvOS)
-                            .offset(x: 15, y: -5)
-#else
-                            .offset(x: 5, y: -5)
-#endif
-                    }
-                }
-            }
-            
-            VStack(alignment: .leading) {
-                Text(tweak.name)
-                    .font(.headline)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                Text((tweak.installedVersion == "") ? "\(tweak.author) · \(tweak.version) · \(tweak.id)" : "\(tweak.author) · \(tweak.installedVersion) (\(tweak.version) available) · \(tweak.id)")
-                    .font(.subheadline)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .minimumScaleFactor(0.5)
-                Text(tweak.desc)
-                    .font(.footnote)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            }
-            
-            if UserDefaults.standard.bool(forKey: "hideIcons") {
-                if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color.accentColor)
-                }
-            }
-        }.padding(.vertical, 5)
-    }
-}
-

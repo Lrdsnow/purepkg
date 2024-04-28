@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 struct JBData {
     var jbtype: jbType = .unknown
@@ -26,16 +25,27 @@ struct PKGQueue {
     var all: [String] = [] // just a way to keep track of all the ids
 }
 
-class AppData: ObservableObject {
-    @Published var repoSources: [RepoSource] = []
-    @Published var repos: [Repo] = []
-    @Published var pkgs: [Package] = []
-    @Published var installed_pkgs: [Package] = []
-    @Published var jbdata: JBData = JBData()
-    @Published var deviceInfo: DeviceInfo = DeviceInfo()
-    @Published var queued: PKGQueue = PKGQueue()
-    
-    @Published var test = false
-    
-    static let shared = AppData()
+
+//#if TARGET_IOS_MAJOR_13
+//class AppData: ObservableObject {
+//    @Published var repoSources: [RepoSource] = []
+//    @Published var repos: [Repo] = []
+//    @Published var pkgs: [Package] = []
+//    @Published var installed_pkgs: [Package] = []
+//    @Published var jbdata: JBData = JBData()
+//    @Published var deviceInfo: DeviceInfo = DeviceInfo()
+//    @Published var queued: PKGQueue = PKGQueue()
+//
+//    static let shared = AppData()
+//}
+//#else
+class AppData {
+    var repoSources: [RepoSource] = []
+    var repos: [Repo] = []
+    var pkgs: [Package] = []
+    var installed_pkgs: [Package] = []
+    var jbdata: JBData = JBData()
+    var deviceInfo: DeviceInfo = DeviceInfo()
+    var queued: PKGQueue = PKGQueue()
 }
+//#endif

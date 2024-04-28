@@ -13,6 +13,7 @@ import UIKit
 #endif
 import SwiftUI
 
+#if TARGET_IOS_MAJOR_13
 extension Color {
     public func toHex() -> String {
         return UIColor(self).toHex()
@@ -26,6 +27,7 @@ extension Color {
         }
     }
 }
+#endif
 
 extension UIColor {
     public func toHex() -> String {
