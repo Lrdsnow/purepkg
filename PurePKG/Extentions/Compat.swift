@@ -118,7 +118,7 @@ extension View {
     }
     @ViewBuilder
     func contextMenuC(@ViewBuilder menuItems: @escaping () -> some View) -> some View {
-        if #available(tvOS 14.0, *) {
+        if #available(tvOS 14.0, iOS 14.0, *) {
             self.contextMenu {
                 menuItems()
             }
