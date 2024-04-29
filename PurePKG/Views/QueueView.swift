@@ -49,9 +49,11 @@ struct QueueView: View {
                                         if installingQueue {
                                             VStack(alignment: .leading) {
                                                 Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                                ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                    .progressViewStyle(LinearProgressViewStyle())
-                                                    .frame(height: 2)
+                                                if #available(iOS 14.0, tvOS 14.0, *) {
+                                                    ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                        .progressViewStyle(LinearProgressViewStyle())
+                                                        .frame(height: 2)
+                                                }
                                             }
                                             .foregroundColor(.secondary).padding(.top, 5)
                                         }
@@ -83,9 +85,11 @@ struct QueueView: View {
                                         if installingQueue {
                                             VStack(alignment: .leading) {
                                                 Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                                ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                    .progressViewStyle(LinearProgressViewStyle())
-                                                    .frame(height: 2)
+                                                if #available(iOS 14.0, tvOS 14.0, *) {
+                                                    ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                        .progressViewStyle(LinearProgressViewStyle())
+                                                        .frame(height: 2)
+                                                }
                                             }
                                             .foregroundColor(.secondary).padding(.top, 5)
                                         }

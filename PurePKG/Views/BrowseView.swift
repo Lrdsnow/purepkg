@@ -81,7 +81,11 @@ struct BrowseView: View {
                     Image(systemName: "plus")
                 }
                 NavigationLink(destination: SettingsView()) {
-                    Image(systemName: "gearshape.fill")
+                    if #available(iOS 14.0, tvOS 14.0, *) {
+                        Image(systemName: "gearshape.fill")
+                    } else {
+                        Image(systemName: "gear")
+                    }
                 }
             })
             #endif

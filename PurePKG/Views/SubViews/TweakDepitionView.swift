@@ -256,7 +256,11 @@ struct TweakDepictionView: View {
             } else {
                 HStack {
                     Spacer()
-                    ProgressView()
+                    if #available(iOS 14.0, tvOS 14.0, *) {
+                        ProgressView()
+                    } else {
+                        Text("...")
+                    }
                     Spacer()
                 }
             }

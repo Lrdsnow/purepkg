@@ -7,9 +7,11 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 #if os(macOS)
 typealias UIColor = NSColor
+typealias UIApplication = NSWorkspace
 extension NSColor {
     static var secondaryLabel: NSColor {
         return NSColor.secondaryLabelColor
@@ -49,7 +51,11 @@ extension View {
     @ViewBuilder
     func navigationBarTitleC(_ title: String) -> some View {
         #if os(iOS)
-        self.navigationBarTitle(title, displayMode: .large)
+        if #available(iOS 14.0, tvOS 14.0, *) {
+            self.navigationBarTitle(title, displayMode: .large)
+        } else {
+            self.navigationBarTitle(title)
+        }
         #elseif !os(macOS)
         self.navigationBarTitle(title)
         #else
@@ -99,6 +105,26 @@ extension View {
         #else
         self
         #endif
+    }
+    @ViewBuilder 
+    func onChangeC<T: Equatable>(of: T, perform: @escaping (T) -> Void) -> some View {
+        if #available(iOS 14.0, tvOS 14.0, *) {
+            self.onChange(of: of, perform: perform)
+        } else {
+            self.onReceive(Just(of)) { (of) in
+                perform(of)
+            }
+        }
+    }
+    @ViewBuilder
+    func contextMenuC(@ViewBuilder menuItems: @escaping () -> some View) -> some View {
+        if #available(tvOS 14.0, *) {
+            self.contextMenu {
+                menuItems()
+            }
+        } else {
+            self
+        }
     }
 }
 

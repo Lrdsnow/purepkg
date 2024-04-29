@@ -13,7 +13,13 @@ import SwiftUI
 struct PurePKGBinary {
     static func main() {
         if (getuid() != 0) {
-            PurePKGApp.main();
+            if #available(iOS 14.0, tvOS 14.0, *) {
+                PurePKGApp.main();
+            } else {
+#if !os(macOS)
+                UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(AppDelegate.self));
+#endif
+            }
         } else {
              exit(RootHelperMain());
         }
@@ -21,6 +27,57 @@ struct PurePKGBinary {
     }
 }
 
+#if !os(macOS)
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    @ObservedObject private var appData = AppData()
+    @State private var tab = 0
+    @State private var importedPackage: Package? = nil
+    @State private var showPackage = false
+
+    var window: UIWindow?
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        self.window?.makeKeyAndVisible()
+        return true
+    }
+
+    func applicationWillResignActive(_ application: UIApplication) {}
+
+    func applicationDidEnterBackground(_ application: UIApplication) {}
+
+    func applicationWillEnterForeground(_ application: UIApplication) {}
+
+    func applicationDidBecomeActive(_ application: UIApplication) {}
+
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        #if os(iOS)
+        UINavigationBar.appearance().prefersLargeTitles = true
+        UITableView.appearance().backgroundColor = .clear
+        UITableView.appearance().separatorStyle = .none
+        UITableView.appearance().separatorColor = .clear
+        #endif
+        appData.jbdata.jbtype = Jailbreak.type(appData)
+        appData.jbdata.jbarch = Jailbreak.arch(appData)
+        appData.jbdata.jbroot = Jailbreak.path(appData)
+        appData.deviceInfo = getDeviceInfo()
+        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+        appData.repos = RepoHandler.getCachedRepos()
+        appData.pkgs = appData.repos.flatMap { $0.tweaks }
+        if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+            Task(priority: .background) {
+                refreshRepos(appData)
+            }
+        }
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        self.window = window
+        let viewController = UIHostingController(rootView: ContentView(tab: $tab, importedPackage: $importedPackage, showPackage: $showPackage, preview: false).environmentObject(appData).accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF")).onAppear() { if !UserDefaults.standard.bool(forKey: "seenWarning") { showPopup("Warning", "While iOS 13 is compatible it is NOT supported and will be buggy"); UserDefaults.standard.setValue(true, forKey: "seenWarning") } })
+        window.rootViewController = viewController
+        return true
+    }
+}
+#endif
+
+@available(iOS 14.0, tvOS 14.0, *)
 struct PurePKGApp: App {
     @StateObject private var appData = AppData()
     @State private var tab = 0
@@ -108,17 +165,19 @@ struct ContentView: View {
     }
     
     private func startup() {
-        if !preview {
-            appData.jbdata.jbtype = Jailbreak.type(appData)
-            appData.jbdata.jbarch = Jailbreak.arch(appData)
-            appData.jbdata.jbroot = Jailbreak.path(appData)
-            appData.deviceInfo = getDeviceInfo()
-            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
-            appData.repos = RepoHandler.getCachedRepos()
-            appData.pkgs = appData.repos.flatMap { $0.tweaks }
-            if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
-                Task(priority: .background) {
-                    refreshRepos(appData)
+        if #available(iOS 14.0, tvOS 14.0, *) {
+            if !preview {
+                appData.jbdata.jbtype = Jailbreak.type(appData)
+                appData.jbdata.jbarch = Jailbreak.arch(appData)
+                appData.jbdata.jbroot = Jailbreak.path(appData)
+                appData.deviceInfo = getDeviceInfo()
+                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+                appData.repos = RepoHandler.getCachedRepos()
+                appData.pkgs = appData.repos.flatMap { $0.tweaks }
+                if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+                    Task(priority: .background) {
+                        refreshRepos(appData)
+                    }
                 }
             }
         }
@@ -186,9 +245,11 @@ struct ContentView: View {
                                                 if installingQueue {
                                                     VStack(alignment: .leading) {
                                                         Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                                        ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                            .progressViewStyle(LinearProgressViewStyle())
-                                                            .frame(height: 2)
+                                                        if #available(iOS 14.0, tvOS 14.0, *) {
+                                                            ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                                .progressViewStyle(LinearProgressViewStyle())
+                                                                .frame(height: 2)
+                                                        }
                                                     }
                                                     .foregroundColor(.secondary).padding(.top, 5)
                                                 }
@@ -220,9 +281,11 @@ struct ContentView: View {
                                                 if installingQueue {
                                                     VStack(alignment: .leading) {
                                                         Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                                        ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                            .progressViewStyle(LinearProgressViewStyle())
-                                                            .frame(height: 2)
+                                                        if #available(iOS 14.0, tvOS 14.0, *) {
+                                                            ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                                .progressViewStyle(LinearProgressViewStyle())
+                                                                .frame(height: 2)
+                                                        }
                                                     }
                                                     .foregroundColor(.secondary).padding(.top, 5)
                                                 }

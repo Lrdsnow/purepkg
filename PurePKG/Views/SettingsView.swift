@@ -73,7 +73,7 @@ struct SettingsView: View {
                     Toggle(isOn: $VerifySignature, label: {
                         Text("Verify GPG Signature")
                     }).tintC(.accentColor)
-                }.onChange(of: VerifySignature) { _ in
+                }.onChangeC(of: VerifySignature) { _ in
                     UserDefaults.standard.set(VerifySignature, forKey: "checkSignature")
                 }.listRowBG()
                 
@@ -81,7 +81,7 @@ struct SettingsView: View {
                     Toggle(isOn: $RefreshOnStart, label: {
                         Text("Refresh Repos on Start")
                     }).tintC(.accentColor)
-                }.onChange(of: RefreshOnStart) { _ in
+                }.onChangeC(of: RefreshOnStart) { _ in
                     UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
                 }.listRowBG()
 #if os(iOS)
@@ -153,10 +153,18 @@ struct CreditsView: View {
     
     var body: some View {
         VStack {
-            Link(destination: URL(string: "https://github.com/Lrdsnow")!) {
+            Button(action: {
+                if let url = URL(string: "https://github.com/Lrdsnow") {
+                    UIApplication.shared.open(url)
+                }
+            }) {
                 CreditView(name: "Lrdsnow", role: "Developer", icon: URL(string: "https://github.com/lrdsnow.png")!)
             }
-            Link(destination: URL(string: "https://github.com/Sileo")!) {
+            Button(action: {
+                if let url = URL(string: "https://github.com/Sileo") {
+                    UIApplication.shared.open(url)
+                }
+            }) {
                 CreditView(name: "Sileo", role: "APTWrapper", icon: URL(string: "https://github.com/sileo.png")!)
             }
             Spacer()
@@ -177,24 +185,25 @@ struct CreditView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
-            
-            LazyImage(url: icon) { state in
-                if let image = state.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .scaledToFit()
-                } else {
-                    ProgressView()
-                        .scaledToFit()
+            if #available(iOS 14.0, tvOS 14.0, *) {
+                LazyImage(url: icon) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaledToFit()
+                    } else {
+                        ProgressView()
+                            .scaledToFit()
+                    }
                 }
+                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: scale, height: scale)
+                .cornerRadius(20)
+                
+                Spacer()
             }
-            .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-            .aspectRatio(contentMode: .fit)
-            .frame(width: scale, height: scale)
-            .cornerRadius(20)
-            
-            Spacer()
             
             VStack(alignment: .center) {
                 Text(name)
@@ -577,20 +586,22 @@ struct UISettingsView: View {
             .sheet(isPresented: $globalSheet, content: {
                 NavigationView {
                     List {
-                        Section(content: {
-                            ColorPicker("Accent Color", selection: $accentColor).onChange(of: accentColor) { newValue in
-                                UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
-                            }.contextMenu(menuItems: {
-                                Button(action: {
-                                    UserDefaults.standard.set("", forKey: "accentColor")
-                                    accentColor = Color(hex: "#EBC2FF")!
-                                }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
+                        if #available(iOS 14.0, tvOS 14.0, *) {
+                            Section(content: {
+                                ColorPicker("Accent Color", selection: $accentColor).onChangeC(of: accentColor) { newValue in
+                                    UserDefaults.standard.set(newValue.toHex(), forKey: "accentColor")
+                                }.contextMenu(menuItems: {
+                                    Button(action: {
+                                        UserDefaults.standard.set("", forKey: "accentColor")
+                                        accentColor = Color(hex: "#EBC2FF")!
+                                    }, label: {Text("Clear Accent Color"); Image("trash_icon").renderingMode(.template)})
+                                })
+                            }, footer: {
+                                Text("Sets the global accent color")
                             })
-                        }, footer: {
-                            Text("Sets the global accent color")
-                        })
+                        }
                         Section(content: {
-                            Toggle("Custom Background", isOn: $useCustomBackground).tintC(.accentColor).onChange(of: useCustomBackground, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "useCustomBackground")})
+                            Toggle("Custom Background", isOn: $useCustomBackground).tintC(.accentColor).onChangeC(of: useCustomBackground, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "useCustomBackground")})
                         }, footer: {
                             Text("Use a custom background")
                         })
@@ -613,39 +624,43 @@ struct UISettingsView: View {
                 NavigationView {
                     List {
                         Section(content: {
-                            Toggle("Custom Tabbar", isOn: $customTabbar).tintC(.accentColor).onChange(of: customTabbar, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "customTabbar")})
+                            Toggle("Custom Tabbar", isOn: $customTabbar).tintC(.accentColor).onChangeC(of: customTabbar, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "customTabbar")})
                         }, footer: {
                             Text("Use a custom tabbar instead of the default SwiftUI one")
                         })
                         if customTabbar {
                             Section(content: {
-                                Toggle("Blurred Background", isOn: $blurredTabbar).tintC(.accentColor).onChange(of: blurredTabbar, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "blurredTabbar")})
+                                Toggle("Blurred Background", isOn: $blurredTabbar).tintC(.accentColor).onChangeC(of: blurredTabbar, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "blurredTabbar")})
                             }, footer: {
                                 Text("Use a blurred background instead of a colored one")
                             })
-                            if !blurredTabbar {
-                                Section(content: {
-                                    ColorPicker("Tabbar Color", selection: $tabbarColor).onChange(of: tabbarColor, perform: { newValue in UserDefaults.standard.set(newValue.toHex(), forKey: "tabbarColor")})
-                                }, footer: {
-                                    Text("Sets the tabbar background color")
-                                })
+                            if #available(iOS 14.0, tvOS 14.0, *) {
+                                if !blurredTabbar {
+                                    Section(content: {
+                                        ColorPicker("Tabbar Color", selection: $tabbarColor).onChangeC(of: tabbarColor, perform: { newValue in UserDefaults.standard.set(newValue.toHex(), forKey: "tabbarColor")})
+                                    }, footer: {
+                                        Text("Sets the tabbar background color")
+                                    })
+                                }
                             }
                             Section(content: {
-                                Toggle("Icon Glow", isOn: $iconGlow).tintC(.accentColor).onChange(of: iconGlow, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "iconGlow")})
+                                Toggle("Icon Glow", isOn: $iconGlow).tintC(.accentColor).onChangeC(of: iconGlow, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "iconGlow")})
                             }, footer: {
                                 Text("Adds glow around the icons")
                             })
-                            Section(content: {
-                                Toggle("Custom Icon Color", isOn: $customIconColor).tintC(.accentColor).onChange(of: customIconColor, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "customIconColor")})
-                            }, footer: {
-                                Text("Use a custom icon color")
-                            })
-                            if customIconColor {
+                            if #available(iOS 14.0, tvOS 14.0, *) {
                                 Section(content: {
-                                    ColorPicker("Icon Color", selection: $iconColor).onChange(of: iconColor, perform: { newValue in UserDefaults.standard.set(newValue.toHex(), forKey: "iconColor")})
+                                    Toggle("Custom Icon Color", isOn: $customIconColor).tintC(.accentColor).onChangeC(of: customIconColor, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "customIconColor")})
                                 }, footer: {
-                                    Text("Sets the icon color")
+                                    Text("Use a custom icon color")
                                 })
+                                if customIconColor {
+                                    Section(content: {
+                                        ColorPicker("Icon Color", selection: $iconColor).onChangeC(of: iconColor, perform: { newValue in UserDefaults.standard.set(newValue.toHex(), forKey: "iconColor")})
+                                    }, footer: {
+                                        Text("Sets the icon color")
+                                    })
+                                }
                             }
                         }
                     }.navigationBarTitleC("Tabbar")
@@ -654,17 +669,21 @@ struct UISettingsView: View {
             .sheet(isPresented: $rowsSheet, content: {
                 NavigationView {
                     List {
-                        Section(content: {
-                            Toggle("Show Icons", isOn: $showIcons).tintC(.accentColor).onChange(of: showIcons, perform: { newValue in UserDefaults.standard.set(!newValue, forKey: "hideIcons")})
-                        }, footer: {
-                            Text("Show Icons")
-                        })
-                        if showIcons {
+                        if #available(iOS 14.0, tvOS 14.0, *) {
                             Section(content: {
-                                Toggle("Circle Icons", isOn: $circleIcons).tintC(.accentColor).onChange(of: circleIcons, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "circleIcons")})
+                                Toggle("Show Icons", isOn: $showIcons).tintC(.accentColor).onChangeC(of: showIcons, perform: { newValue in UserDefaults.standard.set(!newValue, forKey: "hideIcons")})
                             }, footer: {
-                                Text("Make icons circular")
+                                Text("Show Icons")
                             })
+                            if showIcons {
+                                Section(content: {
+                                    Toggle("Circle Icons", isOn: $circleIcons).tintC(.accentColor).onChangeC(of: circleIcons, perform: { newValue in UserDefaults.standard.set(newValue, forKey: "circleIcons")})
+                                }, footer: {
+                                    Text("Make icons circular")
+                                })
+                            }
+                        } else {
+                            Text("All options normally found here are unavailable for iOS 13 users.")
                         }
                     }.navigationBarTitleC("Rows")
                 }.accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? ""))
@@ -723,12 +742,12 @@ struct UISettingsView: View {
             .sheet(isPresented: $isShowingImagePicker) {
                 ImagePicker(image: $customBackground)
             }
-            .onChange(of: isShowingImagePicker, perform: { _ in
+            .onChangeC(of: isShowingImagePicker, perform: { _ in
                 if isShowingImagePicker == false {
                     globalSheet = true
                 }
             })
-            .onChange(of: customBackground, perform: { newValue in
+            .onChangeC(of: customBackground, perform: { newValue in
                 if newValue != nil {
                     UserDefaults.standard.setImage(newValue, forKey: "customBackground")
                 }

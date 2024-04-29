@@ -66,37 +66,39 @@ struct RepoRow: View {
     
     var body: some View {
         HStack {
-            if !UserDefaults.standard.bool(forKey: "hideIcons") {
-                VStack(alignment: .center) {
-                    Spacer()
-                    LazyImage(url: (URL(string: repo.url.absoluteString.replacingOccurrences(of: "refreshing/", with: "")) ?? URL(fileURLWithPath: "/")).appendingPathComponent("CydiaIcon.png")) { state in
-                        if let image = state.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .scaledToFit()
-                        } else if state.error != nil {
-                            Image("DisplayAppIcon")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .scaledToFit()
-                        } else {
-                            ProgressView()
-                                .scaledToFit()
+            if #available(iOS 14.0, tvOS 14.0, *) {
+                if !UserDefaults.standard.bool(forKey: "hideIcons") {
+                    VStack(alignment: .center) {
+                        Spacer()
+                        LazyImage(url: (URL(string: repo.url.absoluteString.replacingOccurrences(of: "refreshing/", with: "")) ?? URL(fileURLWithPath: "/")).appendingPathComponent("CydiaIcon.png")) { state in
+                            if let image = state.image {
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .scaledToFit()
+                            } else if state.error != nil {
+                                Image("DisplayAppIcon")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .scaledToFit()
+                            } else {
+                                ProgressView()
+                                    .scaledToFit()
+                            }
                         }
+#if os(tvOS)
+                        .frame(width: 70, height: 70)
+                        .customRadius(15)
+#else
+                        .frame(width: 50, height: 50)
+                        .customRadius(11)
+#endif
+                        Spacer()
                     }
 #if os(tvOS)
-                    .frame(width: 70, height: 70)
-                    .customRadius(15)
-#else
-                    .frame(width: 50, height: 50)
-                    .customRadius(11)
+                    .padding(.trailing, -40)
 #endif
-                    Spacer()
                 }
-#if os(tvOS)
-                .padding(.trailing, -40)
-#endif
             }
             
             VStack(alignment: .leading) {
@@ -115,7 +117,7 @@ struct RepoRow: View {
                         .minimumScaleFactor(0.5)
                 }
             }
-        }.contextMenu(menuItems: {
+        }.contextMenuC() {
 #if os(tvOS)
 #else
             Button(action: {
@@ -149,7 +151,7 @@ struct RepoRow: View {
                     Image(systemName: "trash")
                 }.foregroundColor(.red)
             }
-        })
+        }
     }
 }
 
@@ -159,44 +161,46 @@ struct TweakRow: View {
     
     var body: some View {
         HStack {
-            if !UserDefaults.standard.bool(forKey: "hideIcons") {
-                ZStack(alignment: .bottomTrailing) {
-                    VStack(alignment: .center) {
-                        Spacer()
-                        LazyImage(url: tweak.icon) { state in
-                            if let image = state.image {
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
-                            } else if state.error != nil {
-                                Image("DisplayAppIcon")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
-                            } else {
-                                ProgressView()
-                                    .scaledToFit()
+            if #available(iOS 14.0, tvOS 14.0, *) {
+                if !UserDefaults.standard.bool(forKey: "hideIcons") {
+                    ZStack(alignment: .bottomTrailing) {
+                        VStack(alignment: .center) {
+                            Spacer()
+                            LazyImage(url: tweak.icon) { state in
+                                if let image = state.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .scaledToFit()
+                                } else if state.error != nil {
+                                    Image("DisplayAppIcon")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .scaledToFit()
+                                } else {
+                                    ProgressView()
+                                        .scaledToFit()
+                                }
                             }
+#if os(tvOS)
+                            .frame(width: 85, height: 85)
+                            .customRadius(15)
+#else
+                            .frame(width: 50, height: 50)
+                            .customRadius(11)
+#endif
+                            Spacer()
                         }
+                        
+                        if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(Color.accentColor)
 #if os(tvOS)
-                        .frame(width: 85, height: 85)
-                        .customRadius(15)
+                                .offset(x: 15, y: -5)
 #else
-                        .frame(width: 50, height: 50)
-                        .customRadius(11)
+                                .offset(x: 5, y: -5)
 #endif
-                        Spacer()
-                    }
-                    
-                    if appData.installed_pkgs.contains(where: { $0.id == tweak.id }) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color.accentColor)
-#if os(tvOS)
-                            .offset(x: 15, y: -5)
-#else
-                            .offset(x: 5, y: -5)
-#endif
+                        }
                     }
                 }
             }

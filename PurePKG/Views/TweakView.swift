@@ -20,51 +20,55 @@ struct TweakView: View {
     
     var body: some View {
         List {
-            if let banner = banner {
-                LazyImage(url: banner) { state in
-                    if let image = state.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        ProgressView()
-                            .scaledToFit()
+            if #available(iOS 14.0, tvOS 14.0, *) {
+                if let banner = banner {
+                    LazyImage(url: banner) { state in
+                        if let image = state.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            ProgressView()
+                                .scaledToFit()
+                        }
                     }
+#if !os(macOS)
+                    .frame(width: (preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)-40, height: preview ? 100 : 200)
+#endif
+                    .cornerRadius(20)
+                    .clipped()
+                    .listRowBackground(Color.clear)
+                    .listRowSeparatorC(false)
+                    .padding(.bottom)
+                    .padding(.top, -40)
                 }
-                #if !os(macOS)
-                .frame(width: (preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)-40, height: preview ? 100 : 200)
-                #endif
-                   .cornerRadius(20)
-                   .clipped()
-                   .listRowBackground(Color.clear)
-                   .listRowSeparatorC(false)
-                   .padding(.bottom)
-                   .padding(.top, -40)
             }
             
             Section {
                 VStack(alignment: .leading) {
                     HStack(alignment: .center) {
-                        LazyImage(url: pkg.icon) { state in
-                            if let image = state.image {
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
-                            } else if state.error != nil {
-                                Image("DisplayAppIcon")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
-                            } else {
-                                ProgressView()
-                                    .scaledToFit()
+                        if #available(iOS 14.0, tvOS 14.0, *) {
+                            LazyImage(url: pkg.icon) { state in
+                                if let image = state.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .scaledToFit()
+                                } else if state.error != nil {
+                                    Image("DisplayAppIcon")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .scaledToFit()
+                                } else {
+                                    ProgressView()
+                                        .scaledToFit()
+                                }
                             }
+                            .frame(width: 80, height: 80)
+                            .cornerRadius(15)
+                            .padding(.trailing, 5)
+                            .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         }
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(15)
-                        .padding(.trailing, 5)
-                        .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         
                         VStack(alignment: .leading) {
                             Text(pkg.name)
@@ -84,7 +88,7 @@ struct TweakView: View {
                             Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
-                        }).borderedProminentButtonC().opacity(0.7).animation(.spring()).contextMenu(menuItems: {
+                        }).borderedProminentButtonC().opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
                             if !queued && !installed {
                                 ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                     Button(action: {installPKG(ver)}) {
@@ -103,9 +107,11 @@ struct TweakView: View {
                             }
                             if !installed, !(pkg.repo.url.path == "/"), pkg.path != "" {
                                 let debURL = pkg.repo.url.appendingPathComponent(pkg.path)
-                                Link(destination: debURL, label: {
+                                Button(action: {
+                                    UIApplication.shared.open(debURL)
+                                }) {
                                     Text("Download deb")
-                                })
+                                }
                             }
                         })
                     }
@@ -135,7 +141,7 @@ struct TweakView: View {
         }
         .appBG()
         .listStyle(.plain)
-        .onChange(of: appData.queued.all.count, perform: { _ in queued = appData.queued.all.contains(pkg.id) })
+        .onChangeC(of: appData.queued.all.count, perform: { _ in queued = appData.queued.all.contains(pkg.id) })
         .onAppear() {
             queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
