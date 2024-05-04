@@ -19,15 +19,19 @@ struct PlaceHolderRow: View {
             if !UserDefaults.standard.bool(forKey: "hideIcons") {
                 VStack(alignment: .center) {
                     Spacer()
-                    Image("DisplayAppIcon")
+                    Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
 #if os(tvOS)
                         .frame(width: 70, height: 70)
-                        .customRadius(15)
+                        .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 #else
                         .frame(width: 50, height: 50)
+#if os(macOS)
+                        .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+#else
                         .customRadius(11)
+#endif
 #endif
                     Spacer()
                 }
@@ -74,13 +78,11 @@ struct RepoRow: View {
                             if let image = state.image {
                                 image
                                     .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
+                                    .scaledToFill()
                             } else if state.error != nil {
-                                Image("DisplayAppIcon")
+                                Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
                                     .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .scaledToFit()
+                                    .scaledToFill()
                             } else {
                                 ProgressView()
                                     .scaledToFit()
@@ -88,10 +90,14 @@ struct RepoRow: View {
                         }
 #if os(tvOS)
                         .frame(width: 70, height: 70)
-                        .customRadius(15)
+                        .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 #else
                         .frame(width: 50, height: 50)
+#if os(macOS)
+                        .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+#else
                         .customRadius(11)
+#endif
 #endif
                         Spacer()
                     }
@@ -170,13 +176,11 @@ struct TweakRow: View {
                                 if let image = state.image {
                                     image
                                         .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .scaledToFit()
+                                        .scaledToFill()
                                 } else if state.error != nil {
-                                    Image("DisplayAppIcon")
+                                    Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
                                         .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .scaledToFit()
+                                        .scaledToFill()
                                 } else {
                                     ProgressView()
                                         .scaledToFit()
@@ -184,10 +188,14 @@ struct TweakRow: View {
                             }
 #if os(tvOS)
                             .frame(width: 85, height: 85)
-                            .customRadius(15)
+                            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 #else
                             .frame(width: 50, height: 50)
+#if os(macOS)
+                            .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+#else
                             .customRadius(11)
+#endif
 #endif
                             Spacer()
                         }

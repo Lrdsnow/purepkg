@@ -142,7 +142,9 @@ struct ContentView: View {
                         }
                         .tag(3)
                 }
-            }.onAppear() { startup() }
+            }.onAppear() { startup() }.onOpenURLC { url in
+                handleIncomingURL(url)
+            }
         } else {
             ZStack(alignment: .bottom) {
                 TabView(selection: $tab) {
@@ -152,6 +154,8 @@ struct ContentView: View {
                         .tag(1)
                     SearchView(preview: preview)
                         .tag(2)
+                }.onOpenURLC { url in
+                    handleIncomingURL(url)
                 }
 #if os(iOS)
                 .edgesIgnoringSafeArea(.bottom)
@@ -179,6 +183,26 @@ struct ContentView: View {
                         refreshRepos(appData)
                     }
                 }
+            }
+        }
+    }
+    
+    private func handleIncomingURL(_ url: URL) {
+        print("App was opened via URL: \(url)")
+        if url.absoluteString.contains("purepkg://addrepo/") {
+            let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
+            print("Adding Repo: \(repourl)")
+            RepoHandler.addRepo(repourl)
+        } else if url.pathExtension == "deb" {
+            let info = APTWrapper.spawn(command: "\(Jailbreak.path())/\(Jailbreak.type() == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
+            if info.0 == 0 {
+                let dict = RepoHandler.genDict(info.1)
+                var tweak = RepoHandler.createPackageStruct(dict)
+                tweak.debPath = url.path
+                importedPackage = tweak
+                showPackage = true
+            } else {
+                showPopup("Error", "There was an error reading the imported file")
             }
         }
     }

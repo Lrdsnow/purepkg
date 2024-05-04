@@ -31,7 +31,8 @@ struct BrowseView: View {
                         }.listRowBackground(Color.clear).listRowSeparatorC(false)
                     }
                 }
-                if let importedPackage = importedPackage {
+                if let importedPackage = importedPackage,
+                   showPackage == true {
                     NavigationLink(destination: TweakView(pkg: importedPackage, preview: preview), isActive: $showPackage, label: {})
                 }
             }.appBG().navigationBarTitleC("Browse").listStyle(.plain).refreshableC { refreshRepos(appData) }

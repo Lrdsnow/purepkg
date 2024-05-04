@@ -18,7 +18,7 @@ extension View {
         if UserDefaults.standard.bool(forKey: "useCustomBackground"),
            let uiimage = UserDefaults.standard.imageForKey("customBackground") {
             self.background(VStack {
-                Image(uiImage: uiimage)
+                Image(uiImageC: uiimage)
             }.edgesIgnoringSafeArea(.top)
                 .edgesIgnoringSafeArea(.bottom)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.nativeBounds.height).clipped())

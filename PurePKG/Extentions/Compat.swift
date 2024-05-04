@@ -11,6 +11,7 @@ import Combine
 
 #if os(macOS)
 typealias UIColor = NSColor
+typealias UIImage = NSImage
 typealias UIApplication = NSWorkspace
 extension NSColor {
     static var secondaryLabel: NSColor {
@@ -36,6 +37,16 @@ struct NavigationViewC<Content: View>: View {
             content
         }.navigationViewStyle(.stack)
 #endif
+    }
+}
+
+extension Image {
+    init(uiImageC: UIImage) {
+        #if os(macOS)
+        self = Image(nsImage: uiImageC)
+        #else
+        self = Image(uiImage: uiImageC)
+        #endif
     }
 }
 
@@ -106,7 +117,19 @@ extension View {
         self
         #endif
     }
-    @ViewBuilder 
+    @ViewBuilder
+    func onOpenURLC(_ action: @escaping (URL) -> Void) -> some View {
+        #if os(iOS)
+        if #available(iOS 14.0, *) {
+            self.onOpenURL { url in action(url) }
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+    @ViewBuilder
     func onChangeC<T: Equatable>(of: T, perform: @escaping (T) -> Void) -> some View {
         if #available(iOS 14.0, tvOS 14.0, *) {
             self.onChange(of: of, perform: perform)

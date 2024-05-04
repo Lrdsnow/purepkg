@@ -21,7 +21,7 @@ struct SettingsView: View {
             Section {
                 VStack(alignment: .leading) {
                     HStack(alignment: .center) {
-                        Image("DisplayAppIcon").resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                        Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!).resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         Text("PurePKG").font(.system(size: 40, weight: .bold, design: .rounded))
                     }
                 }.padding(.leading, 5)
@@ -695,7 +695,7 @@ struct UISettingsView: View {
                             UIApplication.shared.setAlternateIconName(nil, completionHandler: nil)
                         }, label: {
                             HStack {
-                                Image(uiImage: UIImage(named: "AppIcon")!)
+                                Image(uiImageC: UIImage(named: "AppIcon")!)
                                     .resizable()
                                     .frame(width: 85, height: 85)
                                     .cornerRadius(15)
@@ -710,7 +710,7 @@ struct UISettingsView: View {
                             UIApplication.shared.setAlternateIconName("AppIcon1", completionHandler: nil)
                         }, label: {
                             HStack {
-                                Image(uiImage: UIImage(named: "AppIcon1")!)
+                                Image(uiImageC: UIImage(named: "AppIcon1")!)
                                     .resizable()
                                     .frame(width: 85, height: 85)
                                     .cornerRadius(15)
@@ -725,7 +725,7 @@ struct UISettingsView: View {
                             UIApplication.shared.setAlternateIconName("AppIcon2", completionHandler: nil)
                         }, label: {
                             HStack {
-                                Image(uiImage: UIImage(named: "AppIcon2")!)
+                                Image(uiImageC: UIImage(named: "AppIcon2")!)
                                     .resizable()
                                     .frame(width: 85, height: 85)
                                     .cornerRadius(15)

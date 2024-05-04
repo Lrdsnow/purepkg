@@ -55,7 +55,7 @@ struct TweakView: View {
                                         .aspectRatio(contentMode: .fit)
                                         .scaledToFit()
                                 } else if state.error != nil {
-                                    Image("DisplayAppIcon")
+                                    Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .scaledToFit()

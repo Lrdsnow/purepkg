@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 struct Package: Encodable, Decodable {
     var id: String = "uwu.lrdsnow.unknown" // Package
@@ -36,4 +37,11 @@ struct verReq: Encodable, Decodable {
 struct DepPackage: Encodable, Decodable {
     var id: String = "uwu.lrdsnow.unknown"
     var reqVer: verReq = verReq()
+}
+
+@available(iOS 14.0, tvOS 14.0, *)
+extension UTType {
+    static var deb: UTType {
+        UTType(exportedAs: "org.debian.deb-archive")
+    }
 }
