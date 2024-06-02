@@ -616,17 +616,18 @@ public class RepoHandler {
         
         var fileContent = ""
         
-        let newRepositoryBlock = 
-                """
-                Types: deb
-                URIs: \(repositoryURL)
-                Suites: ./
-                Components: main
-                """
+        let newRepositoryBlock =
+                "Types: deb\n" +
+                "URIs: \(repositoryURL)\n" +
+                "Suites: ./\n" +
+                "Components: \n"
         
         if FileManager.default.fileExists(atPath: fileURL.path) {
             fileContent = try String(contentsOf: fileURL, encoding: .utf8)
-            fileContent += "\n\(newRepositoryBlock)"
+            if (fileContent != "") {
+                fileContent += "\n"
+            }
+            fileContent += newRepositoryBlock
         } else {
             fileContent = newRepositoryBlock
         }
