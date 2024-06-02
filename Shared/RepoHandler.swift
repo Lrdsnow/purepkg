@@ -554,6 +554,7 @@ public class RepoHandler {
     }
     
     static func RootHelper_removeRepo(_ repositoryURL: URL, _ appData: AppData? = nil) throws {
+        NSLog("Entering RootHelper_removeRepo")
         let directoryPath = Jailbreak.path(appData)+"/etc/apt/sources.list.d"
         let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
         
@@ -569,6 +570,9 @@ public class RepoHandler {
                 
                 for paragraph in paragraphs {
                     let lines = paragraph.components(separatedBy: .newlines)
+                    if (paragraph.trimmingCharacters(in: .whitespacesAndNewlines) == "") {
+                        continue;
+                    }
                     
                     var shouldRemoveBlock = false
                     
@@ -576,19 +580,35 @@ public class RepoHandler {
                         let components = line.components(separatedBy: ":")
                         
                         if components.count >= 2 {
-                            //let key = components[0].trimmingCharacters(in: .whitespaces)
-                            var temp_components = components
-                            temp_components.removeFirst()
-                            let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
-                            
-                            if URL(string: value) == repositoryURL {
+                            let key = components[0].trimmingCharacters(in: .whitespaces)
+                            if (key != "URIs") {
+                                continue;
+                            }
+                            var temp_components = components;
+                            temp_components.removeFirst();
+                            let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces);
+                            var target = repositoryURL.standardized.absoluteString;
+                            var actual = URL(string: value)!.standardized.absoluteString;
+                            if (target.last == "/") {
+                                target = String(target.dropLast());
+                            }
+                            if (actual.last == "/") {
+                                actual = String(actual.dropLast());
+                            }
+                            if target == actual {
                                 shouldRemoveBlock = true
                             }
+                            break;
+                        } else {
+                            break;
                         }
                     }
                     
                     if !shouldRemoveBlock {
-                        modifiedContent += paragraph + "\n\n"
+                        if (modifiedContent != "") {
+                            modifiedContent += "\n"
+                        }
+                        modifiedContent += paragraph + "\n"
                     }
                 }
                 try modifiedContent.write(to: fileURL, atomically: true, encoding: .utf8)
