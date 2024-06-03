@@ -42,7 +42,6 @@ public class RepoHandler {
         var attempt = 0
         
         func attemptFetch(url: URL) {
-            log(url.absoluteString)
             get(url) { (data, error) in
                 if let data = data {
                     completion(data, nil)
@@ -86,6 +85,11 @@ public class RepoHandler {
             
             var data = _data
             
+            if (String(data: data, encoding: .utf8) ?? "").contains("<html>") {
+                completion(nil, "Invalid data received")
+                return
+            }
+            
             if let archiveType = url.archiveType() {
                 data = _data.decompress(archiveType) ?? _data
             }
@@ -95,7 +99,7 @@ public class RepoHandler {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        let fileName = "\(url.deletingPathExtension().absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
@@ -172,7 +176,20 @@ public class RepoHandler {
                 return
             }
             
+            if let httpResponse = response as? HTTPURLResponse {
+                let statusCode = httpResponse.statusCode
+                if statusCode != 200 {
+                    completion(nil, "Server responded with status code \(statusCode)")
+                    return
+                }
+            }
+            
             var data = _data
+            
+            if (String(data: data, encoding: .utf8) ?? "").contains("<html>") {
+                completion(nil, "Invalid data received")
+                return
+            }
             
             if let archiveType = url.archiveType() {
                 data = _data.decompress(archiveType) ?? _data
@@ -180,14 +197,10 @@ public class RepoHandler {
             
             if let fileContent = String(data: data, encoding: .utf8) {
                 do {
-                    if fileContent.contains("<html>") {
-                        completion(nil, "Invalid data received")
-                        return
-                    }
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        let fileName = "\(url.deletingPathExtension().absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)

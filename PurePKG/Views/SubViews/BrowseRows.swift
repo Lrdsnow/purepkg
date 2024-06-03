@@ -19,7 +19,7 @@ struct PlaceHolderRow: View {
             if !UserDefaults.standard.bool(forKey: "hideIcons") {
                 VStack(alignment: .center) {
                     Spacer()
-                    Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
+                    Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
                         .resizable()
                         .scaledToFill()
 #if os(tvOS)
@@ -80,7 +80,7 @@ struct RepoRow: View {
                                     .resizable()
                                     .scaledToFill()
                             } else if state.error != nil {
-                                Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
+                                Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
                                     .resizable()
                                     .scaledToFill()
                             } else {
@@ -178,7 +178,7 @@ struct TweakRow: View {
                                         .resizable()
                                         .scaledToFill()
                                 } else if state.error != nil {
-                                    Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!)
+                                    Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
                                         .resizable()
                                         .scaledToFill()
                                 } else {

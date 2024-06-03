@@ -35,15 +35,13 @@ extension Data {
     func decompress(_ type: ArchiveType) -> Data? {
         do {
             var decompressedData: Data? = nil
-            if type == .XZ {
+            switch type {
+            case .XZ:
                 decompressedData = try XZArchive.unarchive(archive: self)
-            } else if type == .BZip {
+            case .BZip:
                 decompressedData = try BZip2.decompress(data: self)
-            } else if type == .GZip {
+            case .GZip:
                 decompressedData = try GzipArchive.unarchive(archive: self)
-            } else {
-                log("Invalid archive type (how do u even get this error!??!)")
-                return nil
             }
             return decompressedData
         } catch {

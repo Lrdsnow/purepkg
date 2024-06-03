@@ -131,10 +131,12 @@ struct InstalledView: View {
             .appBG()
             .listStyle(.plain)
             .onAppear() {
-                if !preview {
-                    updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+                Task(priority: .background) {
+                    if !preview {
+                        updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+                    }
+                    self.sort()
                 }
-                self.sort()
             }
             .navigationBarTitleC("Installed")
         }

@@ -21,7 +21,7 @@ struct SettingsView: View {
             Section {
                 VStack(alignment: .leading) {
                     HStack(alignment: .center) {
-                        Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "App Icon")!).resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+                        Image(uiImageC: UIImage(named: "DisplayAppIcon")!).resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         Text("PurePKG").font(.system(size: 40, weight: .bold, design: .rounded))
                     }
                 }.padding(.leading, 5)
