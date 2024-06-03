@@ -13,16 +13,65 @@ import UIKit
 #endif
 
 public class RepoHandler {
+    public static func get_dict_compressed(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
+        let suffixes = ["", "gz", "lzma", "xz", "bz2"]
+        var attempt = 0
+        
+        func attemptFetch(url: URL) {
+            get_dict(url) { (dict, error) in
+                if let dict = dict {
+                    completion(dict, nil)
+                } else if attempt < suffixes.count - 1 {
+                    attempt += 1
+                    var newURL = url
+                    if let baseURL = URL(string: url.absoluteString) {
+                        newURL = baseURL.deletingPathExtension().appendingPathExtension(suffixes[attempt])
+                    }
+                    attemptFetch(url: newURL)
+                } else {
+                    completion(nil, error)
+                }
+            }
+        }
+        
+        attemptFetch(url: url)
+    }
+    
+    public static func get_compressed(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
+        let suffixes = ["", "gz", "lzma", "xz", "bz2"]
+        var attempt = 0
+        
+        func attemptFetch(url: URL) {
+            log(url.absoluteString)
+            get(url) { (data, error) in
+                if let data = data {
+                    completion(data, nil)
+                } else if attempt < suffixes.count - 1 {
+                    attempt += 1
+                    var newURL = url
+                    if let baseURL = URL(string: url.absoluteString) {
+                        newURL = baseURL.deletingPathExtension().appendingPathExtension(suffixes[attempt])
+                    }
+                    attemptFetch(url: newURL)
+                } else {
+                    completion(nil, error)
+                }
+            }
+        }
+        
+        attemptFetch(url: url)
+    }
+    
     public static func get_dict(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
         let startTime = CFAbsoluteTimeGetCurrent()
         
-        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: url) { (_data, response, error) in
             if let error = error {
                 completion(nil, error)
                 return
             }
             
-            guard let data = data else {
+            guard let _data = _data else {
                 completion(nil, "No data received")
                 return
             }
@@ -35,8 +84,15 @@ public class RepoHandler {
                 }
             }
             
+            var data = _data
+            
+            if let archiveType = url.archiveType() {
+                data = _data.decompress(archiveType) ?? _data
+            }
+            
             if let fileContent = String(data: data, encoding: .utf8) {
                 if fileContent.isValidRepoFileFormat() || (url.pathComponents.last ?? "").contains(".gpg") {
+                    
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
@@ -105,19 +161,30 @@ public class RepoHandler {
     public static func get(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
         let startTime = CFAbsoluteTimeGetCurrent()
         
-        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: url) { (_data, response, error) in
             if let error = error {
                 completion(nil, error)
                 return
             }
             
-            guard let data = data else {
+            guard let _data = _data else {
                 completion(nil, "No data received")
                 return
             }
             
+            var data = _data
+            
+            if let archiveType = url.archiveType() {
+                data = _data.decompress(archiveType) ?? _data
+            }
+            
             if let fileContent = String(data: data, encoding: .utf8) {
                 do {
+                    if fileContent.contains("<html>") {
+                        completion(nil, "Invalid data received")
+                        return
+                    }
+                    
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
                         let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
@@ -202,7 +269,7 @@ public class RepoHandler {
             let url = repoSource.url
             log("getting repo: \(url.absoluteString)")
             let startTime = CFAbsoluteTimeGetCurrent()
-            self.get_dict(url.appendingPathComponent("Release")) { (result, error) in
+            self.get_dict_compressed(url.appendingPathComponent("Release")) { (result, error) in
                 if let result = result {
                     log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
                     var Repo = Repo()
@@ -319,7 +386,7 @@ public class RepoHandler {
                     }
                     
                     log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
-                    self.get(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
+                    self.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
                         if let result = result {
                             log("got repo tweaks! \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
                             var tweaks: [Package] = []

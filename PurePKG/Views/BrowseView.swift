@@ -59,7 +59,7 @@ struct BrowseView: View {
                     if urlCount > 1 {
                         let urls = clipboardString.extractURLs()
                         Task {
-                            await addBulkRepos(urls)
+                            addBulkRepos(urls)
                         }
                     } else if urlCount == 1, let repourl = URL(string: clipboardString) {
                         Task {
