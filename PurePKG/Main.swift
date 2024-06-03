@@ -231,10 +231,11 @@ struct ContentView: View {
                             if !installingQueue {
                                 queueOpen.toggle()
                                 editing = false
+                                refresh()
                             }
                         }) {
                             HStack {
-                                Image("queue_icon")
+                                Image(systemName: "list.bullet")
                                     .renderingMode(.template)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
@@ -277,13 +278,10 @@ struct ContentView: View {
                                                     }
                                                     .foregroundColor(.secondary).padding(.top, 5)
                                                 }
-                                            }.padding(.horizontal)
+                                            }.padding(.horizontal).opacity(queueOpen ? 100 : 0)
                                         }
                                     }, header: {
-                                        Text("Install/Upgrade").foregroundColor(.accentColor)
-                                        #if !os(iOS)
-                                            .padding(.leading).padding(.top)
-                                        #endif
+                                        Text("Install/Upgrade").foregroundColor(.accentColor.opacity(queueOpen ? 100 : 0)).padding(.leading).padding(.top)
                                     })
                                 }
                                 if !appData.queued.uninstall.isEmpty {
@@ -365,9 +363,6 @@ struct ContentView: View {
             .transition(.move(edge: .bottom))
             .animation(.spring(), value: appData.queued.all.isEmpty).animation(.spring(), value: queueOpen).animation(.spring(), value: editing)
             .accentColor(UserDefaults.standard.bool(forKey: "customIconColor") ? (Color(hex: UserDefaults.standard.string(forKey: "iconColor") ?? UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF") ?? .accentColor) : .accentColor)
-            .onAppear() {
-                refresh()
-            }
         }
         
         private func refresh() {

@@ -138,20 +138,37 @@ struct InstallQueuedButton: View {
     @Binding var installingQueue: Bool
     @Binding var installLog: String
     @Binding var deps: [Package]
+    @State var buttonText = "Perform Actions"
+    @State var done = false
     
     var body: some View {
         HStack {
             Spacer()
+            if done && !showLog {
+                Button(action: {
+                    showLog = true
+                }, label: {
+                    Image(systemName: "doc.text.below.ecg").padding().font(.subheadline)
+                }).padding(.trailing, 3).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
+            }
             Button(action: {
-                if !showLog {
+                if done {
+                    installingQueue = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        appData.queued = PKGQueue()
+                        showLog = false
+                    }
+                } else {
                     if Jailbreak.type(appData) == .jailed {
                         showPopup("bruh", "PurePKG is in demo mode, you cannot install tweaks")
                     } else {
                         installingQueue = true
-                        #if targetEnvironment(simulator)
+                        installLog = ""
+#if targetEnvironment(simulator)
                         installLog += "Simulator doesnt support installing tweaks..."
-                        showLog = true
-                        #else
+                        done = true
+                        buttonText = "Close"
+#else
                         APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: deps,
                         progressCallback: { _, statusValid, statusReadable, package in
                             log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
@@ -170,19 +187,13 @@ struct InstallQueuedButton: View {
                             }
                         },
                         outputCallback: { output, _ in installLog += "\(output)" },
-                        completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); showLog = true })
-                        #endif
-                    }
-                } else {
-                    installingQueue = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        appData.queued = PKGQueue()
-                        showLog = false
+                        completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); done = true; buttonText = "Close" })
+#endif
                     }
                 }
             }, label: {
                 Spacer()
-                Text(showLog ? "Close" : "Perform Actions").padding()
+                Text(buttonText).padding()
                 Spacer()
             }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
             Spacer()
