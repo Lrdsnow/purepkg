@@ -22,7 +22,10 @@ struct PlaceHolderRow: View {
                     Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
                         .resizable()
                         .scaledToFill()
-#if os(tvOS)
+#if os(watchOS)
+                        .frame(width: 35, height: 35)
+                        .cornerRadius(100)
+#elseif os(tvOS)
                         .frame(width: 70, height: 70)
                         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 #else
@@ -88,7 +91,10 @@ struct RepoRow: View {
                                     .scaledToFit()
                             }
                         }
-#if os(tvOS)
+#if os(watchOS)
+                        .frame(width: 35, height: 35)
+                        .cornerRadius(100)
+#elseif os(tvOS)
                         .frame(width: 70, height: 70)
                         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 #else
@@ -124,8 +130,7 @@ struct RepoRow: View {
                 }
             }
         }.contextMenuC() {
-#if os(tvOS)
-#else
+#if !os(tvOS) && !os(watchOS)
             Button(action: {
 #if os(macOS)
                 let pasteboard = NSPasteboard.general
@@ -186,7 +191,10 @@ struct TweakRow: View {
                                         .scaledToFit()
                                 }
                             }
-#if os(tvOS)
+#if os(watchOS)
+                            .frame(width: 35, height: 35)
+                            .cornerRadius(100)
+#elseif os(tvOS)
                             .frame(width: 85, height: 85)
                             .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 #else

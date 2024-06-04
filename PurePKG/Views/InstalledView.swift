@@ -37,13 +37,11 @@ struct InstalledView: View {
             VStack {
                 TextField("Search Installed Tweaks", text: $searchText)
                     .padding(7)
-                #if !os(tvOS)
-                    .padding(.horizontal, 25)
-                    .background(Color.accentColor.opacity(0.05))
-                #endif
                     .cornerRadius(8)
                     .autocorrectionDisabled()
-                #if !os(tvOS)
+                #if os(iOS)
+                    .padding(.horizontal, 25)
+                    .background(Color.accentColor.opacity(0.05))
                     .overlay(
                         HStack {
                             Image(systemName: "magnifyingglass")
@@ -92,6 +90,8 @@ struct InstalledView: View {
                     }
                     
                     Section(header: HStack {
+                        
+                        #if !os(watchOS)
                         Text("Installed Tweaks")
                             .font(.headline)
                         if #available(tvOS 17.0, iOS 14.0, macCatalyst 14.0, *) {
@@ -114,6 +114,10 @@ struct InstalledView: View {
                                 }
                             }
                         }
+                        #else
+                        Text("Installed")
+                            .font(.headline)
+                        #endif
                     }) {
                         ForEach(filteredPackages.prefix(preview ? 10 : filteredPackages.count), id: \.id) { package in
                             if (updatableTweaks.first { $0.id == package.id } == nil) {

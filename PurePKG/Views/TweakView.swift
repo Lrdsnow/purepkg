@@ -32,7 +32,7 @@ struct TweakView: View {
                                 .scaledToFit()
                         }
                     }
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
                     .frame(width: (preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)-40, height: preview ? 100 : 200)
 #endif
                     .cornerRadius(20)
@@ -64,8 +64,13 @@ struct TweakView: View {
                                         .scaledToFit()
                                 }
                             }
+                            #if os(watchOS)
+                            .frame(width: 45, height: 45)
+                            .cornerRadius(100)
+                            #else
                             .frame(width: 80, height: 80)
                             .cornerRadius(15)
+                            #endif
                             .padding(.trailing, 5)
                             .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         }
@@ -82,6 +87,7 @@ struct TweakView: View {
                                 .minimumScaleFactor(0.5)
                         }
                         Spacer()
+                        #if !os(watchOS)
                         Button(action: {
                             installPKG()
                         }, label: {
@@ -108,28 +114,34 @@ struct TweakView: View {
                             if !installed, !(pkg.repo.url.path == "/"), pkg.path != "" {
                                 let debURL = pkg.repo.url.appendingPathComponent(pkg.path)
                                 Button(action: {
-                                    UIApplication.shared.open(debURL)
+                                    openURL(debURL)
                                 }) {
                                     Text("Download deb")
                                 }
                             }
                         })
+                        #endif
                     }
                 }
             }
             .listRowBackground(Color.clear).listRowSeparatorC(false)
+            #if os(watchOS)
+            .padding(.bottom, -30)
+            #endif
             
-            #if !os(macOS)
+            #if !os(macOS) && !os(watchOS)
             if !preview {
                 TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
             }
             #endif
             
+            #if !os(watchOS)
             if !(pkg.repo.url.path == "/") {
                 Section(header: Text("Repo")) {
                     RepoRow(repo: pkg.repo)
                 }.listRowBackground(Color.clear).listRowSeparatorC(false)
             }
+            #endif
             
             HStack {
                 Spacer()
@@ -138,6 +150,16 @@ struct TweakView: View {
                     .minimumScaleFactor(0.5)
                 Spacer()
             }.listRowBackground(Color.clear).listRowSeparatorC(false)
+            
+            #if os(watchOS)
+            Button(action: {
+                installPKG()
+            }, label: {
+                Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }).borderedProminentButtonC().opacity(0.7).animation(.spring()).listRowBackground(Color.clear)
+            #endif
         }
         .appBG()
         .listStyle(.plain)

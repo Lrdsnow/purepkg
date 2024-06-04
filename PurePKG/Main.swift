@@ -16,7 +16,7 @@ struct PurePKGBinary {
             if #available(iOS 14.0, tvOS 14.0, *) {
                 PurePKGApp.main();
             } else {
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
                 UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(AppDelegate.self));
 #endif
             }
@@ -27,7 +27,7 @@ struct PurePKGBinary {
     }
 }
 
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
 class AppDelegate: UIResponder, UIApplicationDelegate {
     @ObservedObject private var appData = AppData()
     @State private var tab = 0
@@ -85,7 +85,7 @@ struct PurePKGApp: App {
     @State private var showPackage = false
     
     init() {
-        #if !os(tvOS) && !os(macOS)
+        #if os(iOS)
         UINavigationBar.appearance().prefersLargeTitles = true
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.accentColor)]
@@ -97,15 +97,89 @@ struct PurePKGApp: App {
     
     var body: some Scene {
         WindowGroup {
+            #if os(watchOS)
+            ContentViewWatchOS(tab: $tab, importedPackage: $importedPackage, showPackage: $showPackage)
+                .environmentObject(appData)
+                .accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF"))
+            #else
             ContentView(tab: $tab, importedPackage: $importedPackage, showPackage: $showPackage, preview: false)
                 .environmentObject(appData)
                 .accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF"))
+            #endif
         }
     }
 }
 
 // Main
 
+struct ContentViewWatchOS: View {
+    @EnvironmentObject var appData: AppData
+    @Binding var tab: Int
+    @Binding var importedPackage: Package?
+    @Binding var showPackage: Bool
+    
+    var body: some View {
+        NavigationViewC {
+            List {
+                NavigationLink(destination: BrowseView(importedPackage: $importedPackage, showPackage: $showPackage, preview: false), label: {
+                    HStack {
+                        Image(systemName: "globe")
+                        Text("Browse")
+                    }
+                })
+                NavigationLink(destination: InstalledView(preview: false), label: {
+                    HStack {
+                        Image(systemName: "star.fill")
+                        Text("Installed")
+                    }
+                })
+                NavigationLink(destination: SearchView(preview: false), label: {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        Text("Search")
+                    }
+                })
+                if !appData.queued.all.isEmpty {
+                    NavigationLink(destination: QueueView(), label: {
+                        HStack {
+                            Image(systemName: "list.bullet")
+                            Text("Queued")
+                        }
+                    })
+                }
+                NavigationLink(destination: SettingsView(), label: {
+                    HStack {
+                        if #available(iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+                            Image(systemName: "gearshape.fill")
+                        } else {
+                            Image(systemName: "gear")
+                        }
+                        Text("Settings")
+                    }
+                })
+            }.navigationBarTitleC("PurePKG").onAppear() { startup() }
+        }
+    }
+    
+    private func startup() {
+        if #available(iOS 14.0, tvOS 14.0, *) {
+            appData.jbdata.jbtype = Jailbreak.type(appData)
+            appData.jbdata.jbarch = Jailbreak.arch(appData)
+            appData.jbdata.jbroot = Jailbreak.path(appData)
+            appData.deviceInfo = getDeviceInfo()
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+            appData.repos = RepoHandler.getCachedRepos()
+            appData.pkgs = appData.repos.flatMap { $0.tweaks }
+            if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+                Task(priority: .background) {
+                    refreshRepos(appData)
+                }
+            }
+        }
+    }
+}
+
+#if !os(watchOS)
 struct ContentView: View {
     @EnvironmentObject var appData: AppData
     @Binding var tab: Int
@@ -207,7 +281,7 @@ struct ContentView: View {
         }
     }
     
-#if !os(tvOS) && !os(macOS)
+#if os(iOS)
     struct tabbar: View {
         @Binding var selectedTab: Int
         @EnvironmentObject var appData: AppData
@@ -372,3 +446,4 @@ struct ContentView: View {
     }
 #endif
 }
+#endif

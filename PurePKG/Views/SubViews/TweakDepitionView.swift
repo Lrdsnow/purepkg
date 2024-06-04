@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-#if !os(macOS)
+#if !os(macOS) && !os(watchOS)
 import Down
 
 #if canImport(WebKit) && !os(macOS)

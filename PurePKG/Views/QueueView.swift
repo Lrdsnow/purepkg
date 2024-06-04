@@ -107,14 +107,17 @@ struct QueueView: View {
                     Text(installLog).padding()
                 }
                 Spacer()
-                InstallQueuedButton(showLog: $showLog, installingQueue: $installingQueue, installLog: $installLog, deps: $deps).padding().padding(.bottom, 30)
+                InstallQueuedButton(showLog: $showLog, installingQueue: $installingQueue, installLog: $installLog, deps: $deps)
+                #if !os(watchOS)
+                    .padding().padding(.bottom, 30)
+                #endif
             }.appBG().listStyle(.plain).onAppear() {
                 refresh()
             }
             #if os(iOS)
                 .navigationBarTitleC("Queued")
             #endif
-            #if !os(macOS)
+            #if !os(macOS) && !os(watchOS)
                 .navigationBarItems(trailing: HStack {
                         Button(action: {
                             editing.toggle()

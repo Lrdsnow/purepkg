@@ -6,7 +6,28 @@
 //
 
 import Foundation
-#if !os(macOS)
+#if os(watchOS)
+import WatchKit
+
+func showPopup(_ title: String, _ message: String) {
+    let action = WKAlertAction(title: "OK", style: .default) {}
+    if let controller = WKApplication.shared().rootInterfaceController {
+        controller.presentAlert(withTitle: title, message: message, preferredStyle: .alert, actions: [action])
+    }
+}
+
+func showTextInputPopup(_ title: String, _ placeholderText: String, completion: @escaping (String?) -> Void) {
+    if let controller = WKApplication.shared().rootInterfaceController {
+        controller.presentTextInputController(withSuggestions: [], allowedInputMode: .plain) { (results) in
+            if let result = results?.first as? String {
+                completion(result)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+}
+#elseif !os(macOS)
 import UIKit
 import SwiftUI
 

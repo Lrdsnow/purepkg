@@ -21,11 +21,19 @@ struct SettingsView: View {
             Section {
                 VStack(alignment: .leading) {
                     HStack(alignment: .center) {
+                        #if os(watchOS)
+                        Image(uiImageC: UIImage(named: "DisplayAppIcon")!).resizable().scaledToFit().frame(width: 50, height: 50).cornerRadius(100).padding(.trailing, 5)
+                        Text("PurePKG").font(.system(size: 20, weight: .bold, design: .rounded))
+                        #else
                         Image(uiImageC: UIImage(named: "DisplayAppIcon")!).resizable().scaledToFit().frame(width: 90, height: 90).cornerRadius(20).padding(.trailing, 5).shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         Text("PurePKG").font(.system(size: 40, weight: .bold, design: .rounded))
+                        #endif
                     }
                 }.padding(.leading, 5)
             }.listRowBackground(Color.clear).listRowInsets(EdgeInsets()).listRowSeparatorC(false)
+            #if os(watchOS)
+                .padding(.bottom, -15)
+            #endif
             Section {
                 HStack {
                     Text("App Version")
@@ -38,19 +46,35 @@ struct SettingsView: View {
                     Text(appData.deviceInfo.modelIdentifier)
                 }.listRowBG()
                 HStack {
+                    #if os(watchOS)
+                    Text("watchOS Ver")
+                    #else
                     Text("\(osString()) Version")
+                    #endif
                     Spacer()
+                    #if os(watchOS)
+                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")")
+                    #else
                     Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
+                    #endif
                 }.listRowBG()
 #if !os(macOS)
                 HStack {
+                    #if os(watchOS)
+                    Text("JB Type")
+                    #else
                     Text("Jailbreak Type")
+                    #endif
                     Spacer()
                     Text((appData.jbdata.jbtype == .rootful || appData.jbdata.jbtype == .tvOS_rootful) ? "Rootful" : appData.jbdata.jbtype == .rootless ? "Rootless" : appData.jbdata.jbtype == .roothide ? "Roothide" : "Jailed")
                 }.listRowBG()
 #endif
                 HStack {
+                    #if os(watchOS)
+                    Text("Arch")
+                    #else
                     Text("Architecture")
+                    #endif
                     Spacer()
                     Text("\(appData.jbdata.jbarch)")
                 }.listRowBG()
@@ -155,14 +179,14 @@ struct CreditsView: View {
         VStack {
             Button(action: {
                 if let url = URL(string: "https://github.com/Lrdsnow") {
-                    UIApplication.shared.open(url)
+                    openURL(url)
                 }
             }) {
                 CreditView(name: "Lrdsnow", role: "Developer", icon: URL(string: "https://github.com/lrdsnow.png")!)
             }
             Button(action: {
                 if let url = URL(string: "https://github.com/Sileo") {
-                    UIApplication.shared.open(url)
+                    openURL(url)
                 }
             }) {
                 CreditView(name: "Sileo", role: "APTWrapper", icon: URL(string: "https://github.com/sileo.png")!)
@@ -176,9 +200,8 @@ struct CreditView: View {
     let name: String
     let role: String
     let icon: URL
-    #if os(macOS)
-    @State private var scale: CGFloat = 0
-    @EnvironmentObject var appData: AppData
+    #if os(watchOS) || os(macOS)
+    let scale: CGFloat = 0
     #else
     let scale = UIScreen.main.bounds.height/10
     #endif

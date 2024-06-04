@@ -42,6 +42,8 @@ func osString() -> String {
     return "macOS"
     #elseif os(tvOS)
     return "tvOS"
+    #elseif os(watchOS)
+    return "watchOS"
     #else
     return "iOS"
     #endif

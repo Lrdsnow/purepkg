@@ -18,6 +18,12 @@ extension NSColor {
         return NSColor.secondaryLabelColor
     }
 }
+#elseif os(watchOS)
+extension UIColor {
+    static var secondaryLabel: UIColor {
+        return.init(red: 0.56, green: 0.56, blue: 0.56, alpha: 1)
+    }
+}
 #endif
 
 struct NavigationViewC<Content: View>: View {
@@ -171,4 +177,12 @@ struct SectionC<Content: View>: View {
             }
         }
     }
+}
+
+func openURL(_ url: URL) {
+    #if os(watchOS)
+    WKApplication.shared().openSystemURL(url)
+    #else
+    UIApplication.shared.open(url)
+    #endif
 }

@@ -29,13 +29,11 @@ struct SearchView: View {
             VStack {
                 TextField("Search", text: $searchText)
                     .padding(7)
-                #if !os(tvOS)
-                    .padding(.horizontal, 25)
-                    .background(Color.accentColor.opacity(0.05))
-                #endif
                     .cornerRadius(8)
                     .autocorrectionDisabled()
                 #if os(iOS)
+                    .padding(.horizontal, 25)
+                    .background(Color.accentColor.opacity(0.05))
                     .overlay(
                         HStack {
                             Image(systemName: "magnifyingglass")
