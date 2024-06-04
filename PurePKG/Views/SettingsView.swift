@@ -130,6 +130,9 @@ struct SettingsView: View {
                     }
                 }
 #endif
+//                NavigationLink(destination: TroubleshootingView()) {
+//                    Text("Troubleshooting")
+//                }.listRowBG()
             }
         }
         .clearListBG()

@@ -171,9 +171,12 @@ struct InstallQueuedButton: View {
                         installLog += "Simulator doesnt support installing tweaks..."
                         done = true
                         buttonText = "Close"
+#if os(watchOS)
+                        showLog = true
+#endif
 #else
                         APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: deps,
-                        progressCallback: { _, statusValid, statusReadable, package in
+                                                     progressCallback: { _, statusValid, statusReadable, package in
                             log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")
                             var percent: Double = 0
                             if statusReadable.contains("Installed") {
@@ -189,14 +192,25 @@ struct InstallQueuedButton: View {
                                 }
                             }
                         },
-                        outputCallback: { output, _ in installLog += "\(output)" },
-                        completionCallback: { _, finish, refresh in log("completionCallback: \(finish)"); appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg"); done = true; buttonText = "Close" })
+                                                     outputCallback: { output, _ in installLog += "\(output)" },
+                                                     completionCallback: { _, finish, refresh in
+                            log("completionCallback: \(finish)");
+                            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg");
+                            done = true;
+                            buttonText = "Close"
+#if os(watchOS)
+                            showLog = true
+#endif
+                        })
 #endif
                     }
                 }
             }, label: {
                 Spacer()
-                Text(buttonText).padding()
+                Text(buttonText)
+                #if !os(watchOS)
+                    .padding()
+                #endif
                 Spacer()
             }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
             Spacer()

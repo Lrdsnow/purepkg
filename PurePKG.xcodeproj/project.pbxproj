@@ -22,6 +22,7 @@
 		659D79D82BD4409200398B74 /* DeviceViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659D79D72BD4409200398B74 /* DeviceViewModifiers.swift */; };
 		659F63912C0E166F00A36D5A /* Decompression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659F63902C0E166F00A36D5A /* Decompression.swift */; };
 		659F63942C0E296900A36D5A /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = 659F63932C0E296900A36D5A /* SWCompression */; };
+		65A3896C2C0F786400FD80F2 /* TroubleshootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A3896B2C0F786400FD80F2 /* TroubleshootingView.swift */; };
 		65D427CB2BD4FAE9008D8A2C /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D427CA2BD4FAE9008D8A2C /* ColorExtensions.swift */; };
 		65D427CD2BD4FFEF008D8A2C /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D427CC2BD4FFEF008D8A2C /* UserDefaultsExtensions.swift */; };
 		65D427CF2BD503C5008D8A2C /* ThemingViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D427CE2BD503C5008D8A2C /* ThemingViewModifiers.swift */; };
@@ -64,6 +65,7 @@
 		65839F012BCE4C2B00068B7A /* ListRowExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListRowExtensions.swift; sourceTree = "<group>"; };
 		659D79D72BD4409200398B74 /* DeviceViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewModifiers.swift; sourceTree = "<group>"; };
 		659F63902C0E166F00A36D5A /* Decompression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decompression.swift; sourceTree = "<group>"; };
+		65A3896B2C0F786400FD80F2 /* TroubleshootingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TroubleshootingView.swift; sourceTree = "<group>"; };
 		65BBF02D2BE5C9D600C722B8 /* PrettyIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PrettyIcon.png; sourceTree = "<group>"; };
 		65D0169E2BA949C9003F11E4 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65D427CA2BD4FAE9008D8A2C /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				65DC66B82BCCEC5300EBFE82 /* SubViews */,
 				65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */,
 				65839EFB2BCE48B300068B7A /* TweakView.swift */,
+				65A3896B2C0F786400FD80F2 /* TroubleshootingView.swift */,
 				65839EFD2BCE492F00068B7A /* SettingsView.swift */,
 				653AB8942BCF433B00E3A215 /* InstalledView.swift */,
 				653AB8962BCF434A00E3A215 /* SearchView.swift */,
@@ -352,6 +355,7 @@
 				65D427CB2BD4FAE9008D8A2C /* ColorExtensions.swift in Sources */,
 				65DC66FE2BCCF3A400EBFE82 /* Package.swift in Sources */,
 				65839EFE2BCE492F00068B7A /* SettingsView.swift in Sources */,
+				65A3896C2C0F786400FD80F2 /* TroubleshootingView.swift in Sources */,
 				659D79D82BD4409200398B74 /* DeviceViewModifiers.swift in Sources */,
 				65DC66FC2BCCF3A400EBFE82 /* Jailbreak.swift in Sources */,
 				65839EF62BCE480F00068B7A /* BrowseRows.swift in Sources */,
@@ -520,6 +524,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
 				INFOPLIST_KEY_WKWatchOnly = NO;
 				"INFOPLIST_KEY_WKWatchOnly[sdk=watchos*]" = YES;
@@ -567,6 +572,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
 				INFOPLIST_KEY_WKWatchOnly = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
