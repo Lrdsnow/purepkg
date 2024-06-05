@@ -537,10 +537,6 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-					/opt/procursus/lib,
-					/usr/lib,
-					/var/jb/usr/lib,
-					"@loader_path/.jbroot/usr/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.6;
@@ -587,10 +583,6 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-					/opt/procursus/lib,
-					/usr/lib,
-					/var/jb/usr/lib,
-					"@loader_path/.jbroot/usr/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.6;
