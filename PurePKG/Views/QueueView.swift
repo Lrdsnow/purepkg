@@ -208,9 +208,9 @@ struct InstallQueuedButton: View {
             }, label: {
                 Spacer()
                 Text(buttonText)
-                #if !os(watchOS)
+#if !os(watchOS)
                     .padding()
-                #endif
+#endif
                 Spacer()
             }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
             Spacer()

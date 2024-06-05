@@ -99,7 +99,15 @@ public class RepoHandler {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = "\(url.deletingPathExtension().absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        let fileName = url.deletingPathExtension().absoluteString
+                            .replacingOccurrences(of: "https://", with: "")
+                            .replacingOccurrences(of: "http://", with: "")
+                            .replacingOccurrences(of: "/", with: "_")
+                            .replacingOccurrences(of: ".zst", with: "")
+                            .replacingOccurrences(of: ".bz2", with: "")
+                            .replacingOccurrences(of: ".gz", with: "")
+                            .replacingOccurrences(of: ".xz", with: "")
+                            .replacingOccurrences(of: ".lzma", with: "")
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
@@ -206,7 +214,15 @@ public class RepoHandler {
                         } else {
                             modifiedURL = url.deletingPathExtension();
                         }
-                        let fileName = "\(modifiedURL.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        let fileName = modifiedURL.deletingPathExtension().absoluteString
+                            .replacingOccurrences(of: "https://", with: "")
+                            .replacingOccurrences(of: "http://", with: "")
+                            .replacingOccurrences(of: "/", with: "_")
+                            .replacingOccurrences(of: ".zst", with: "")
+                            .replacingOccurrences(of: ".bz2", with: "")
+                            .replacingOccurrences(of: ".gz", with: "")
+                            .replacingOccurrences(of: ".xz", with: "")
+                            .replacingOccurrences(of: ".lzma", with: "")
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
@@ -245,7 +261,15 @@ public class RepoHandler {
     }
     
     static func getSavedRepoFilePath(_ url: URL) -> String {
-        let fileName = "\(url.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+        let fileName = url.deletingPathExtension().absoluteString
+            .replacingOccurrences(of: "https://", with: "")
+            .replacingOccurrences(of: "http://", with: "")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: ".zst", with: "")
+            .replacingOccurrences(of: ".bz2", with: "")
+            .replacingOccurrences(of: ".gz", with: "")
+            .replacingOccurrences(of: ".xz", with: "")
+            .replacingOccurrences(of: ".lzma", with: "")
         return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(fileName)";
     }
     
@@ -719,14 +743,23 @@ public class RepoHandler {
     static func RootHelper_addRepo(_ repositoryURL: String, _ appData: AppData? = nil) throws {
         let fileName = "purepkg.sources"
         let fileURL = URL(fileURLWithPath: Jailbreak.path(appData)+"/etc/apt/sources.list.d").appendingPathComponent(fileName)
-        
         var fileContent = ""
+        var newRepositoryBlock = ""
         
-        let newRepositoryBlock =
-                "Types: deb\n" +
-                "URIs: \(repositoryURL)\n" +
-                "Suites: ./\n" +
-                "Components: \n"
+        if repositoryURL.contains("/dists/") {
+            let spliturl = repositoryURL.components(separatedBy: "dists/")
+            newRepositoryBlock =
+            "Types: deb\n" +
+            "URIs: \(String(spliturl[0]))\n" +
+            "Suites: \(String(spliturl[1]))\n" +
+            "Components: main\n"
+        } else {
+            newRepositoryBlock =
+            "Types: deb\n" +
+            "URIs: \(repositoryURL)\n" +
+            "Suites: ./\n" +
+            "Components: \n"
+        }
         
         if FileManager.default.fileExists(atPath: fileURL.path) {
             fileContent = try String(contentsOf: fileURL, encoding: .utf8)

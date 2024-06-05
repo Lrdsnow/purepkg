@@ -112,6 +112,7 @@ struct PurePKGApp: App {
 
 // Main
 
+#if os(watchOS)
 struct ContentViewWatchOS: View {
     @EnvironmentObject var appData: AppData
     @Binding var tab: Int
@@ -178,8 +179,7 @@ struct ContentViewWatchOS: View {
         }
     }
 }
-
-#if !os(watchOS)
+#else
 struct ContentView: View {
     @EnvironmentObject var appData: AppData
     @Binding var tab: Int
