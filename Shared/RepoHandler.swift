@@ -14,7 +14,7 @@ import UIKit
 
 public class RepoHandler {
     public static func get_dict_compressed(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
-        let suffixes = ["", "gz", "lzma", "xz", "bz2"]
+        let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
         var attempt = 0
         
         func attemptFetch(url: URL) {
@@ -34,11 +34,11 @@ public class RepoHandler {
             }
         }
         
-        attemptFetch(url: url)
+        attemptFetch(url: url.deletingPathExtension().appendingPathExtension(suffixes[attempt]))
     }
     
     public static func get_compressed(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
-        let suffixes = ["", "gz", "lzma", "xz", "bz2"]
+        let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
         var attempt = 0
         
         func attemptFetch(url: URL) {
@@ -57,8 +57,8 @@ public class RepoHandler {
                 }
             }
         }
-        
-        attemptFetch(url: url)
+        attemptFetch(url: url.deletingPathExtension().appendingPathExtension(suffixes[attempt]))
+
     }
     
     public static func get_dict(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {

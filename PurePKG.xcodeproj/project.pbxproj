@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01AFD24B2C1037B500C66591 /* libzstd in Frameworks */ = {isa = PBXBuildFile; productRef = 01AFD24A2C1037B500C66591 /* libzstd */; };
 		652BCB492BD3678E00DA4AA0 /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = 652BCB482BD3678E00DA4AA0 /* Down */; };
 		653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */; };
 		653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8942BCF433B00E3A215 /* InstalledView.swift */; };
@@ -101,6 +102,7 @@
 			files = (
 				65DC66E12BCCF24F00EBFE82 /* Nuke in Frameworks */,
 				659F63942C0E296900A36D5A /* SWCompression in Frameworks */,
+				01AFD24B2C1037B500C66591 /* libzstd in Frameworks */,
 				65DC66E32BCCF24F00EBFE82 /* NukeUI in Frameworks */,
 				652BCB492BD3678E00DA4AA0 /* Down in Frameworks */,
 			);
@@ -260,6 +262,7 @@
 				65DC66E22BCCF24F00EBFE82 /* NukeUI */,
 				652BCB482BD3678E00DA4AA0 /* Down */,
 				659F63932C0E296900A36D5A /* SWCompression */,
+				01AFD24A2C1037B500C66591 /* libzstd */,
 			);
 			productName = PureKFD;
 			productReference = 65D0169E2BA949C9003F11E4 /* PurePKG.app */;
@@ -293,6 +296,7 @@
 				65DC66DF2BCCF24F00EBFE82 /* XCRemoteSwiftPackageReference "Nuke" */,
 				652BCB472BD3678E00DA4AA0 /* XCRemoteSwiftPackageReference "Down" */,
 				659F63922C0E296900A36D5A /* XCRemoteSwiftPackageReference "SWCompression" */,
+				01AFD2492C1037B500C66591 /* XCRemoteSwiftPackageReference "zstd" */,
 			);
 			productRefGroup = 65D0169F2BA949C9003F11E4 /* Products */;
 			projectDirPath = "";
@@ -533,6 +537,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					/opt/procursus/lib,
+					/usr/lib,
+					/var/jb/usr/lib,
+					"@loader_path/.jbroot/usr/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.6;
@@ -579,6 +587,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					/opt/procursus/lib,
+					/usr/lib,
+					/var/jb/usr/lib,
+					"@loader_path/.jbroot/usr/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.6;
@@ -622,6 +634,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		01AFD2492C1037B500C66591 /* XCRemoteSwiftPackageReference "zstd" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/zstd.git";
+			requirement = {
+				kind = revision;
+				revision = 794ea1b0afca0f020f4e57b6732332231fb23c70;
+			};
+		};
 		652BCB472BD3678E00DA4AA0 /* XCRemoteSwiftPackageReference "Down" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/johnxnguyen/Down.git";
@@ -649,6 +669,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		01AFD24A2C1037B500C66591 /* libzstd */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01AFD2492C1037B500C66591 /* XCRemoteSwiftPackageReference "zstd" */;
+			productName = libzstd;
+		};
 		652BCB482BD3678E00DA4AA0 /* Down */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 652BCB472BD3678E00DA4AA0 /* XCRemoteSwiftPackageReference "Down" */;
