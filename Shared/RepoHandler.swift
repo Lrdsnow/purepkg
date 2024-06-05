@@ -99,7 +99,9 @@ public class RepoHandler {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
+                        log("URL: \(url.absoluteString)")
                         let fileName = "\(url.deletingPathExtension().absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        log("fileName: \(fileName)")
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
@@ -200,7 +202,13 @@ public class RepoHandler {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = "\(url.deletingPathExtension().absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
+                        var modifiedURL: URL;
+                        if (url.absoluteString.hasSuffix(".gpg")) {
+                            modifiedURL = url;
+                        } else {
+                            modifiedURL = url.deletingPathExtension();
+                        }
+                        let fileName = "\(modifiedURL.absoluteString.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_"))"
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
