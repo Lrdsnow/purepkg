@@ -11,7 +11,7 @@ import Foundation
 func spawnRoot(_ path: String,_ args: [String], _ stdout: UnsafeMutablePointer<String>?, _ stderr: UnsafeMutablePointer<String>?) -> Int32 {
     
     var argsC: [UnsafeMutablePointer<CChar>?] = args.map { $0.withCString(strdup) }
-    var path_Cstring = strdup((path as NSString).utf8String);
+    let path_Cstring = strdup((path as NSString).utf8String);
     argsC.insert(path_Cstring, at: 0);
     argsC.append(nil);
     defer { for arg in argsC { free(arg); } }
