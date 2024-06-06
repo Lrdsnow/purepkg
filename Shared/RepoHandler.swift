@@ -214,7 +214,7 @@ public class RepoHandler {
                         } else {
                             modifiedURL = url.deletingPathExtension();
                         }
-                        let fileName = modifiedURL.deletingPathExtension().absoluteString
+                        let fileName = modifiedURL.absoluteString
                             .replacingOccurrences(of: "https://", with: "")
                             .replacingOccurrences(of: "http://", with: "")
                             .replacingOccurrences(of: "/", with: "_")
@@ -261,7 +261,7 @@ public class RepoHandler {
     }
     
     static func getSavedRepoFilePath(_ url: URL) -> String {
-        let fileName = url.deletingPathExtension().absoluteString
+        var fileName = url.absoluteString
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
             .replacingOccurrences(of: "/", with: "_")
