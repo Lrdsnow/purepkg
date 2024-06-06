@@ -37,14 +37,16 @@ public class RepoHandler {
         attemptFetch(url: url.deletingPathExtension().appendingPathExtension(suffixes[attempt]))
     }
     
-    public static func get_compressed(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
+    public static func get_compressed(_ url: URL, completion: @escaping ([[String: String]]?, Error?, URL?) -> Void) {
         let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
         var attempt = 0
         
         func attemptFetch(url: URL) {
+            log("getting repo tweaks from: \(url.absoluteString)")
+
             get(url) { (data, error) in
                 if let data = data {
-                    completion(data, nil)
+                    completion(data, nil, url)
                 } else if attempt < suffixes.count - 1 {
                     attempt += 1
                     var newURL = url
@@ -53,7 +55,7 @@ public class RepoHandler {
                     }
                     attemptFetch(url: newURL)
                 } else {
-                    completion(nil, error)
+                    completion(nil, error, nil)
                 }
             }
         }
@@ -99,15 +101,7 @@ public class RepoHandler {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = url.deletingPathExtension().absoluteString
-                            .replacingOccurrences(of: "https://", with: "")
-                            .replacingOccurrences(of: "http://", with: "")
-                            .replacingOccurrences(of: "/", with: "_")
-                            .replacingOccurrences(of: ".zst", with: "")
-                            .replacingOccurrences(of: ".bz2", with: "")
-                            .replacingOccurrences(of: ".gz", with: "")
-                            .replacingOccurrences(of: ".xz", with: "")
-                            .replacingOccurrences(of: ".lzma", with: "")
+                        let fileName = getSavedRepoFileName(url);
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
@@ -260,17 +254,15 @@ public class RepoHandler {
         task.resume()
     }
     
-    static func getSavedRepoFilePath(_ url: URL) -> String {
-        var fileName = url.absoluteString
+    static func getSavedRepoFileName(_ url: URL) -> String {
+       return (url.absoluteString.hasSuffix(".gpg") ? url : url.deletingPathExtension()).absoluteString
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
             .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: ".zst", with: "")
-            .replacingOccurrences(of: ".bz2", with: "")
-            .replacingOccurrences(of: ".gz", with: "")
-            .replacingOccurrences(of: ".xz", with: "")
-            .replacingOccurrences(of: ".lzma", with: "")
-        return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(fileName)";
+    }
+    
+    static func getSavedRepoFilePath(_ url: URL) -> String {
+        return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(getSavedRepoFileName(url))";
     }
     
     static func get_local(_ path: String) -> [[String:String]] {
@@ -428,10 +420,9 @@ public class RepoHandler {
                         pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
                     }
                     
-                    log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
-                    self.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error) in
+                    self.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error, actualURL) in
                         if let result = result {
-                            log("got repo tweaks! \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
+                            log("got repo tweaks! \(actualURL!.absoluteString)")
                             var tweaks: [Package] = []
                             for tweak in result {
                                 let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
