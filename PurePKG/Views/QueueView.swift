@@ -195,7 +195,7 @@ struct InstallQueuedButton: View {
                                                      outputCallback: { output, _ in installLog += "\(output)" },
                                                      completionCallback: { _, finish, refresh in
                             log("completionCallback: \(finish)");
-                            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg");
+                            refreshRepos(appData)
                             done = true;
                             buttonText = "Close"
 #if os(watchOS)

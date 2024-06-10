@@ -13,289 +13,12 @@ import UIKit
 #endif
 
 public class RepoHandler {
-    public static func get_dict_compressed(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
-        let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
-        var attempt = 0
-        
-        func attemptFetch(url: URL) {
-            get_dict(url) { (dict, error) in
-                if let dict = dict {
-                    completion(dict, nil)
-                } else if attempt < suffixes.count - 1 {
-                    attempt += 1
-                    var newURL = url
-                    if let baseURL = URL(string: url.absoluteString) {
-                        newURL = baseURL.deletingPathExtension().appendingPathExtension(suffixes[attempt])
-                    }
-                    attemptFetch(url: newURL)
-                } else {
-                    completion(nil, error)
-                }
-            }
-        }
-        
-        attemptFetch(url: url.deletingPathExtension().appendingPathExtension(suffixes[attempt]))
-    }
-    
-    public static func get_compressed(_ url: URL, completion: @escaping ([[String: String]]?, Error?, URL?) -> Void) {
-        let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
-        var attempt = 0
-        
-        func attemptFetch(url: URL) {
-            log("getting repo tweaks from: \(url.absoluteString)")
-
-            get(url) { (data, error) in
-                if let data = data {
-                    completion(data, nil, url)
-                } else if attempt < suffixes.count - 1 {
-                    attempt += 1
-                    var newURL = url
-                    if let baseURL = URL(string: url.absoluteString) {
-                        newURL = baseURL.deletingPathExtension().appendingPathExtension(suffixes[attempt])
-                    }
-                    attemptFetch(url: newURL)
-                } else {
-                    completion(nil, error, nil)
-                }
-            }
-        }
-        attemptFetch(url: url.deletingPathExtension().appendingPathExtension(suffixes[attempt]))
-
-    }
-    
-    public static func get_dict(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
-        let startTime = CFAbsoluteTimeGetCurrent()
-        
-        let task = URLSession.shared.dataTask(with: url) { (_data, response, error) in
-            if let error = error {
-                completion(nil, error)
-                return
-            }
-            
-            guard let _data = _data else {
-                completion(nil, "No data received")
-                return
-            }
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                let statusCode = httpResponse.statusCode
-                if statusCode != 200 {
-                    completion(nil, "Server responded with status code \(statusCode)")
-                    return
-                }
-            }
-            
-            var data = _data
-            
-            if (String(data: data, encoding: .utf8) ?? "").contains("<html>") {
-                completion(nil, "Invalid data received")
-                return
-            }
-            
-            if let archiveType = url.archiveType() {
-                data = _data.decompress(archiveType) ?? _data
-            }
-            
-            if let fileContent = String(data: data, encoding: .utf8) {
-                if fileContent.isValidRepoFileFormat() || (url.pathComponents.last ?? "").contains(".gpg") {
-                    
-                    #if !os(macOS)
-                    if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = getSavedRepoFileName(url);
-                        let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-                        do {
-                            try data.write(to: tempFilePath)
-                            spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
-                        } catch {
-                            
-                        }
-                    }
-                    #endif
-                    
-                    let lines = fileContent.components(separatedBy: .newlines)
-                    
-                    var dictionary: [String: String] = [:]
-                    
-                    for line in lines {
-                        let components = line.components(separatedBy: ":")
-                        if components.count == 2 {
-                            let key = components[0].trimmingCharacters(in: .whitespaces)
-                            let value = components[1].trimmingCharacters(in: .whitespaces)
-                            dictionary[key] = value
-                        }
-                    }
-                    
-                    let endTime = CFAbsoluteTimeGetCurrent()
-                    let elapsedTime = endTime - startTime
-                    log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
-                    completion(dictionary, nil)
-                } else {
-                    completion(nil, "Downloaded file was invalid")
-                }
-            } else {
-                completion(nil, "Failed to decode data")
-            }
-        }
-        
-        task.resume()
-    }
-    
-    public static func RootHelper_clearRepoFiles(_ url: String) throws {
-        let urlString = url.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_")
-        let fileManager = FileManager.default
-        let directoryPath = "\(Jailbreak.path())/var/lib/apt/purepkglists"
-        let fileURLs = try fileManager.contentsOfDirectory(atPath: directoryPath)
-        
-        for fileURL in fileURLs {
-            if fileURL.contains(urlString) {
-                try fileManager.removeItem(atPath: "\(directoryPath)/\(fileURL)")
-            }
-        }
-    }
-    
-    public static func RootHelper_saveRepoFiles(_ url: URL) throws {
-        try? FileManager.default.createDirectory(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists", withIntermediateDirectories: true)
-        let data = try Data(contentsOf: url)
-        try? FileManager.default.removeItem(at: url)
-        try data.write(to: URL(fileURLWithPath: "\(Jailbreak.path())/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
-    }
-    
-    public static func RootHelper_removeAllRepoFiles() throws {
-        try? FileManager.default.removeItem(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists");
-    }
-    
-    public static func get(_ url: URL, completion: @escaping ([[String: String]]?, Error?) -> Void) {
-        let startTime = CFAbsoluteTimeGetCurrent()
-        
-        let task = URLSession.shared.dataTask(with: url) { (_data, response, error) in
-            if let error = error {
-                completion(nil, error)
-                return
-            }
-            
-            guard let _data = _data else {
-                completion(nil, "No data received")
-                return
-            }
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                let statusCode = httpResponse.statusCode
-                if statusCode != 200 {
-                    completion(nil, "Server responded with status code \(statusCode)")
-                    return
-                }
-            }
-            
-            var data = _data
-            
-            if (String(data: data, encoding: .utf8) ?? "").contains("<html>") {
-                completion(nil, "Invalid data received")
-                return
-            }
-            
-            if let archiveType = url.archiveType() {
-                data = _data.decompress(archiveType) ?? _data
-            }
-            
-            if let fileContent = String(data: data, encoding: .utf8) {
-                do {
-                    
-                    #if !os(macOS)
-                    if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        var modifiedURL: URL;
-                        if (url.absoluteString.hasSuffix(".gpg")) {
-                            modifiedURL = url;
-                        } else {
-                            modifiedURL = url.deletingPathExtension();
-                        }
-                        let fileName = modifiedURL.absoluteString
-                            .replacingOccurrences(of: "https://", with: "")
-                            .replacingOccurrences(of: "http://", with: "")
-                            .replacingOccurrences(of: "/", with: "_")
-                            .replacingOccurrences(of: ".zst", with: "")
-                            .replacingOccurrences(of: ".bz2", with: "")
-                            .replacingOccurrences(of: ".gz", with: "")
-                            .replacingOccurrences(of: ".xz", with: "")
-                            .replacingOccurrences(of: ".lzma", with: "")
-                        let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-                        do {
-                            try data.write(to: tempFilePath)
-                            spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
-                        } catch {
-                            
-                        }
-                    }
-                    #endif
-                    
-                    let paragraphs = fileContent.components(separatedBy: "\n\n")
-                    
-                    var arrayOfDictionaries: [[String: String]] = []
-                    
-                    for paragraph in paragraphs {
-                        let dictionary = genDict(paragraph)
-                        
-                        if !dictionary.isEmpty {
-                            arrayOfDictionaries.append(dictionary)
-                        }
-                    }
-                    
-                    let endTime = CFAbsoluteTimeGetCurrent()
-                    let elapsedTime = endTime - startTime
-                    log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
-                    completion(arrayOfDictionaries, nil)
-                } catch {
-                    completion(nil, "Failed to save/parse data: \(error.localizedDescription)")
-                }
-            } else {
-                completion(nil, "Failed to decode data")
-            }
-        }
-        
-        task.resume()
-    }
-    
     static func getSavedRepoFileName(_ url: URL) -> String {
        return (url.absoluteString.hasSuffix(".gpg") ? url : url.deletingPathExtension()).absoluteString
-            .replacingOccurrences(of: "https://", with: "")
-            .replacingOccurrences(of: "http://", with: "")
-            .replacingOccurrences(of: "/", with: "_")
     }
     
     static func getSavedRepoFilePath(_ url: URL) -> String {
         return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(getSavedRepoFileName(url))";
-    }
-    
-    static func get_local(_ path: String) -> [[String:String]] {
-        if let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
-           let fileContent = String(data: data, encoding: .utf8) {
-            let paragraphs = fileContent.components(separatedBy: "\n\n")
-            
-            var arrayOfDictionaries: [[String: String]] = []
-            
-            for paragraph in paragraphs {
-                let lines = paragraph.components(separatedBy: .newlines)
-                
-                var dictionary: [String: String] = [:]
-                
-                for line in lines {
-                    let components = line.components(separatedBy: ":")
-                    if components.count >= 2 {
-                        let key = components[0].trimmingCharacters(in: .whitespaces)
-                        var temp_components = components
-                        temp_components.removeFirst()
-                        let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
-                        dictionary[key] = value
-                    }
-                }
-                
-                if !dictionary.isEmpty {
-                    arrayOfDictionaries.append(dictionary)
-                }
-            }
-            
-            return arrayOfDictionaries
-        }
-        return []
     }
     
     static func getRepos(_ repoSources: [RepoSource], completion: @escaping (Repo) -> Void) {
@@ -304,7 +27,7 @@ public class RepoHandler {
             let url = repoSource.url
             log("getting repo: \(url.absoluteString)")
             let startTime = CFAbsoluteTimeGetCurrent()
-            self.get_dict_compressed(url.appendingPathComponent("Release")) { (result, error) in
+            Networking.get_dict_compressed(url.appendingPathComponent("Release")) { (result, error) in
                 if let result = result {
                     log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
                     var Repo = Repo()
@@ -315,6 +38,7 @@ public class RepoHandler {
                     Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
                     Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
                     Repo.component = repoSource.components
+                    do { Repo.payment_endpoint = URL(string: try String(contentsOf: url.appendingPathComponent("payment_endpoint"))) } catch {}
                     
                     let currentArch = Jailbreak.arch()
                     if !Repo.archs.contains(currentArch) {
@@ -328,7 +52,7 @@ public class RepoHandler {
                     if UserDefaults.standard.bool(forKey: "checkSignature") {
                         log("getting repo signature: \(url.appendingPathComponent("Release.gpg"))")
                         var signature_ok: Bool = false;
-                        self.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
+                        Networking.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
                             if error != nil {
                                 switch Jailbreak.type() {
                                 case .macos:
@@ -404,7 +128,7 @@ public class RepoHandler {
                                     signature_ok = true;
                                     log("Good signature at \(url.appendingPathComponent("Release.gpg"))");
                                     
-                                    self.get(url.appendingPathComponent("InRelease")) { (result, error) in
+                                    Networking.get(url.appendingPathComponent("InRelease")) { (result, error) in
                                         if let error = error {
                                             log("Error getting InRelease: \(error.localizedDescription)")
                                         }
@@ -419,8 +143,8 @@ public class RepoHandler {
                         let repoComponents = repoSource.components
                         pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
                     }
-                    
-                    self.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error, actualURL) in
+                    log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
+                    Networking.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error, actualURL) in
                         if let result = result {
                             log("got repo tweaks! \(actualURL!.absoluteString)")
                             var tweaks: [Package] = []
@@ -441,6 +165,7 @@ public class RepoHandler {
                                     Tweak.version = lowercasedTweak["version"] ?? "0.0"
                                     Tweak.versions.append(lowercasedTweak["version"] ?? "0.0")
                                     Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
+                                    Tweak.paid = (lowercasedTweak["tag"] ?? "").contains("::commercial")
                                     for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map({ String($0) }) {
                                         var tweakDep = DepPackage()
                                         let components = dep.components(separatedBy: " ")
@@ -531,7 +256,7 @@ public class RepoHandler {
             for sourceFile in sourceFiles {
                 let fileURL = URL(fileURLWithPath: directoryPath).appendingPathComponent(sourceFile)
                 
-                let arrayOfDictionaries = self.get_local(fileURL.path)
+                let arrayOfDictionaries = Networking.get_local(fileURL.path)
                 
                 for sourceDict in arrayOfDictionaries {
                     var repo = RepoSource()
@@ -593,7 +318,7 @@ public class RepoHandler {
     }
     
     static func getInstalledTweaks(_ dpkgPath: String) -> [Package] {
-        let arrayofdicts = self.get_local(dpkgPath+"/status")
+        let arrayofdicts = Networking.get_local(dpkgPath+"/status")
         var tweaks: [Package] = []
         for tweak in arrayofdicts {
             if (tweak["Status"] ?? "").contains("installed") && !(tweak["Status"] ?? "").contains("not-installed") {
@@ -654,69 +379,6 @@ public class RepoHandler {
         }
     }
     
-    static func RootHelper_removeRepo(_ repositoryURL: URL, _ appData: AppData? = nil) throws {
-        NSLog("Entering RootHelper_removeRepo")
-        let directoryPath = Jailbreak.path(appData)+"/etc/apt/sources.list.d"
-        let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
-        
-        let sourceFiles = fileURLs.filter { $0.hasSuffix(".sources") }
-        
-        for sourceFile in sourceFiles {
-            let fileURL = URL(fileURLWithPath: directoryPath).appendingPathComponent(sourceFile)
-            
-            if let fileContent = try? String(contentsOf: fileURL, encoding: .utf8) {
-                let paragraphs = fileContent.components(separatedBy: "\n\n")
-                
-                var modifiedContent = ""
-                
-                for paragraph in paragraphs {
-                    let lines = paragraph.components(separatedBy: .newlines)
-                    if (paragraph.trimmingCharacters(in: .whitespacesAndNewlines) == "") {
-                        continue;
-                    }
-                    
-                    var shouldRemoveBlock = false
-                    
-                    for line in lines {
-                        let components = line.components(separatedBy: ":")
-                        
-                        if components.count >= 2 {
-                            let key = components[0].trimmingCharacters(in: .whitespaces)
-                            if (key != "URIs") {
-                                continue;
-                            }
-                            var temp_components = components;
-                            temp_components.removeFirst();
-                            let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces);
-                            var target = repositoryURL.standardized.absoluteString;
-                            var actual = URL(string: value)!.standardized.absoluteString;
-                            if (target.last == "/") {
-                                target = String(target.dropLast());
-                            }
-                            if (actual.last == "/") {
-                                actual = String(actual.dropLast());
-                            }
-                            if target == actual {
-                                shouldRemoveBlock = true
-                            }
-                            break;
-                        } else {
-                            break;
-                        }
-                    }
-                    
-                    if !shouldRemoveBlock {
-                        if (modifiedContent != "") {
-                            modifiedContent += "\n"
-                        }
-                        modifiedContent += paragraph + "\n"
-                    }
-                }
-                try modifiedContent.write(to: fileURL, atomically: true, encoding: .utf8)
-            }
-        }
-    }
-    
     static func addRepo(_ repositoryURL: String) {
         let (status, out, error) = spawnRootHelper(args: [ "addRepo", repositoryURL ])
         if (status != 0) {
@@ -729,40 +391,6 @@ public class RepoHandler {
                 showPopup("Failed", "RootHelper \(desc)")
             }
         }
-    }
-    
-    static func RootHelper_addRepo(_ repositoryURL: String, _ appData: AppData? = nil) throws {
-        let fileName = "purepkg.sources"
-        let fileURL = URL(fileURLWithPath: Jailbreak.path(appData)+"/etc/apt/sources.list.d").appendingPathComponent(fileName)
-        var fileContent = ""
-        var newRepositoryBlock = ""
-        
-        if repositoryURL.contains("/dists/") {
-            let spliturl = repositoryURL.components(separatedBy: "dists/")
-            newRepositoryBlock =
-            "Types: deb\n" +
-            "URIs: \(String(spliturl[0]))\n" +
-            "Suites: \(String(spliturl[1]))\n" +
-            "Components: main\n"
-        } else {
-            newRepositoryBlock =
-            "Types: deb\n" +
-            "URIs: \(repositoryURL)\n" +
-            "Suites: ./\n" +
-            "Components: \n"
-        }
-        
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            fileContent = try String(contentsOf: fileURL, encoding: .utf8)
-            if (fileContent != "") {
-                fileContent += "\n"
-            }
-            fileContent += newRepositoryBlock
-        } else {
-            fileContent = newRepositoryBlock
-        }
-        
-        try fileContent.write(to: fileURL, atomically: false, encoding: .utf8)
     }
     
     static func getDeps(_ pkgs: [Package], _ appData: AppData) -> [Package] {
@@ -842,25 +470,6 @@ public class RepoHandler {
         Tweak.author = Tweak.author.removingBetweenAngleBrackets()
         return Tweak
     }
-    
-    static func genDict(_ paragraph: String) -> [String:String] {
-        let lines = paragraph.components(separatedBy: .newlines)
-        
-        var dictionary: [String: String] = [:]
-        
-        for line in lines {
-            let components = line.components(separatedBy: ":")
-            if components.count >= 2 {
-                let key = components[0].trimmingCharacters(in: .whitespaces)
-                var temp_components = components
-                temp_components.removeFirst()
-                let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
-                dictionary[key] = value
-            }
-        }
-        
-        return dictionary
-    }
 }
 
 func fixDuplicateRepos(_ repos: [Repo]) -> [Repo] {
@@ -887,6 +496,8 @@ func refreshRepos(_ appData: AppData) {
     }
 
     refreshingRepos = true
+    
+    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
     
     let startTime = CFAbsoluteTimeGetCurrent()
     #if os(macOS)
@@ -952,7 +563,8 @@ func refreshRepos(_ appData: AppData) {
                         let endTime = CFAbsoluteTimeGetCurrent()
                         let elapsedTime = endTime - startTime
                         log("Got \(appData.repos.filter { $0.error != "Refreshing..." }.count) repos in \(elapsedTime) seconds")
-                        if (appData.repos.filter { $0.error != "Refreshing..." }.count + 2) >= appData.repos.count { // the +2 is just headroom for dead repos and bugs 
+                        appData.available_updates = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
+                        if (appData.repos.filter { $0.error != "Refreshing..." }.count + 2) >= appData.repos.count {
                             refreshingRepos = false
                         }
                         do {

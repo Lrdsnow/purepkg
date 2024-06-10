@@ -249,6 +249,7 @@ struct ContentView: View {
                 appData.jbdata.jbarch = Jailbreak.arch(appData)
                 appData.jbdata.jbroot = Jailbreak.path(appData)
                 appData.deviceInfo = getDeviceInfo()
+                log(appData.deviceInfo)
                 appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
                 appData.repos = RepoHandler.getCachedRepos()
                 appData.pkgs = appData.repos.flatMap { $0.tweaks }
@@ -270,7 +271,7 @@ struct ContentView: View {
         } else if url.pathExtension == "deb" {
             let info = APTWrapper.spawn(command: "\(Jailbreak.path())/\(Jailbreak.type() == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
             if info.0 == 0 {
-                let dict = RepoHandler.genDict(info.1)
+                let dict = Networking.genDict(info.1)
                 var tweak = RepoHandler.createPackageStruct(dict)
                 tweak.debPath = url.path
                 importedPackage = tweak

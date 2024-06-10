@@ -18,7 +18,6 @@ struct InstalledView: View {
     @EnvironmentObject var appData: AppData
     @State private var searchText = ""
     @State private var isAnimating = false
-    @State private var updatableTweaks: [Package] = []
     let preview: Bool
     
     var filteredPackages: [Package] {
@@ -63,13 +62,13 @@ struct InstalledView: View {
                     .padding(.horizontal, 10)
                 #endif
                 List {
-                    if !updatableTweaks.isEmpty {
+                    if !appData.available_updates.isEmpty {
                         Section(header: HStack {
                             Text("Updates")
                                 .font(.headline)
                             Spacer()
                             Button(action: {
-                                for pkg in updatableTweaks {
+                                for pkg in appData.available_updates {
                                     if !appData.queued.all.contains(pkg.id) {
                                         appData.queued.install.append(pkg)
                                     }
@@ -79,7 +78,7 @@ struct InstalledView: View {
                                 Text("Upgrade all")
                             })
                         }) {
-                            ForEach(updatableTweaks, id: \.id) { package in
+                            ForEach(appData.available_updates, id: \.id) { package in
                                 NavigationLink(destination: {
                                     TweakView(pkg: package, preview: preview)
                                 }, label: {
@@ -120,7 +119,7 @@ struct InstalledView: View {
                         #endif
                     }) {
                         ForEach(filteredPackages.prefix(preview ? 10 : filteredPackages.count), id: \.id) { package in
-                            if (updatableTweaks.first { $0.id == package.id } == nil) {
+                            if (appData.available_updates.first { $0.id == package.id } == nil) {
                                 NavigationLink(destination: {
                                     TweakView(pkg: package, preview: preview)
                                 }, label: {
@@ -136,9 +135,6 @@ struct InstalledView: View {
             .listStyle(.plain)
             .onAppear() {
                 Task(priority: .background) {
-                    if !preview {
-                        updatableTweaks = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
-                    }
                     self.sort()
                 }
             }

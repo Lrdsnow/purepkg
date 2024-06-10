@@ -21,6 +21,7 @@ struct Package: Encodable, Decodable {
     var versions: [String] = [] // Versions
     var installedVersion: String = "" // for Updates
     var depends: [DepPackage] = [] // Depends
+    var paid: Bool = false // Paid (::commercial)
     var installDate: Date? = nil
     var depiction: URL? = nil
     var icon: URL? = nil

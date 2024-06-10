@@ -222,11 +222,18 @@ struct TweakRow: View {
             }
             
             VStack(alignment: .leading) {
-                Text(tweak.name)
-                    .font(.headline)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                HStack {
+                    Text(tweak.name)
+                        .font(.headline)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .foregroundColor(tweak.paid ? .accentColor : .primary)
+                    if tweak.paid {
+                        Image(systemName: "dollarsign.circle")
+                            .foregroundColor(.accentColor)
+                    }
+                }
                 Text((tweak.installedVersion == "") ? "\(tweak.author) · \(tweak.version) · \(tweak.id)" : "\(tweak.author) · \(tweak.installedVersion) (\(tweak.version) available) · \(tweak.id)")
                     .font(.subheadline)
                     .lineLimit(1)

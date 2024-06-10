@@ -15,6 +15,7 @@ struct TweakView: View {
     @State private var installedPKG: Package? = nil
     @State private var queued = false
     @State private var banner: URL? = nil
+    @State private var price: String = ""
     let pkg: Package
     let preview: Bool
     
@@ -91,10 +92,10 @@ struct TweakView: View {
                         Button(action: {
                             installPKG()
                         }, label: {
-                            Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
+                            Text(queued ? "Queued" : installed ? "Uninstall" : price != "" ? price : "Install")
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
-                        }).borderedProminentButtonC().opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
+                        }).borderedProminentButtonC().disabled(pkg.paid && (price == "" || !UserDefaults.standard.bool(forKey: "usePaymentAPI"))).opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
                             if !queued && !installed {
                                 ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                     Button(action: {installPKG(ver)}) {
@@ -168,6 +169,11 @@ struct TweakView: View {
             queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
             installedPKG = appData.installed_pkgs.first(where: { $0.id == pkg.id })
+            if pkg.paid {
+                PaymentAPI.getPackageInfo(pkg.id, pkg.repo, completion: { info in
+                    price = info?.price ?? ""
+                })
+            }
         }
     }
     

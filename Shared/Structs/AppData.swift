@@ -31,6 +31,7 @@ class AppData: ObservableObject {
     @Published var repos: [Repo] = []
     @Published var pkgs: [Package] = []
     @Published var installed_pkgs: [Package] = []
+    @Published var available_updates: [Package] = []
     @Published var jbdata: JBData = JBData()
     @Published var deviceInfo: DeviceInfo = DeviceInfo()
     @Published var queued: PKGQueue = PKGQueue()

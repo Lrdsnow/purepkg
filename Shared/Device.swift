@@ -14,15 +14,15 @@ import UIKit
 public extension UIDevice {
     var modelName: String {
         #if targetEnvironment(simulator)
-            let identifier = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "Unknown"
+        let identifier = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "Unknown"
         #else
-            var systemInfo = utsname()
-            uname(&systemInfo)
-            let machineMirror = Mirror(reflecting: systemInfo.machine)
-            let identifier = machineMirror.children.reduce("") { identifier, element in
-                guard let value = element.value as? Int8, value != 0 else { return identifier }
-                return identifier + String(UnicodeScalar(UInt8(value)))
-            }
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        let identifier = machineMirror.children.reduce("") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return identifier }
+            return identifier + String(UnicodeScalar(UInt8(value)))
+        }
         #endif
         return identifier
     }
@@ -35,6 +35,7 @@ struct DeviceInfo {
     var patch: Int = 0
     var build_number: String = "0"
     var modelIdentifier: String = "Unknown Device"
+    var uniqueIdentifier: String = ""
 }
 
 func osString() -> String {
@@ -123,11 +124,20 @@ func getDeviceInfo() -> DeviceInfo {
         let build_number = systemAttributes?["ProductBuildVersion"] as? String ?? "0"
         //
         
+        var uniqueIdentifier = ""
+        if UserDefaults.standard.bool(forKey: "usePaymentAPI") {
+            let gestalt = dlopen("/usr/lib/libMobileGestalt.dylib", RTLD_GLOBAL | RTLD_LAZY)
+            typealias MGCopyAnswerFunc = @convention(c) (CFString) -> CFString
+            let MGCopyAnswer = unsafeBitCast(dlsym(gestalt, "MGCopyAnswer"), to: MGCopyAnswerFunc.self)
+            uniqueIdentifier = MGCopyAnswer("UniqueDeviceID" as CFString) as String
+        }
+        
         deviceInfo = DeviceInfo(major: major,
                                 minor: minor,
                                 patch: patch,
                                 build_number: build_number,
-                                modelIdentifier: UIDevice.current.modelName)
+                                modelIdentifier: UIDevice.current.modelName,
+                                uniqueIdentifier: uniqueIdentifier)
     }
 #endif
     return deviceInfo
