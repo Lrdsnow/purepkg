@@ -140,6 +140,9 @@ extension String {
         return .orderedSame
     }
     func isValidRepoFileFormat() -> Bool {
+        if self.contains("-----BEGIN PGP SIGNATURE-----") {
+            return true;
+        }
         if !self.contains("!DOCTYPE") {
             let lines = self.split(separator: "\n")
             for line in lines.prefix(4) {

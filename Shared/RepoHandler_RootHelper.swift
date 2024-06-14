@@ -33,7 +33,6 @@ extension RepoHandler {
     }
     
     static func RootHelper_removeRepo(_ repositoryURL: URL, _ appData: AppData? = nil) throws {
-        NSLog("Entering RootHelper_removeRepo")
         let directoryPath = Jailbreak.path(appData)+"/etc/apt/sources.list.d"
         let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
         

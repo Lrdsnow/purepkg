@@ -14,8 +14,11 @@ import UIKit
 
 public class RepoHandler {
     static func getSavedRepoFileName(_ url: URL) -> String {
-       return (url.absoluteString.hasSuffix(".gpg") ? url : url.deletingPathExtension()).absoluteString
-    }
+        let absoluteString = url.absoluteString.hasSuffix(".gpg") ? url.absoluteString : url.deletingPathExtension().absoluteString;
+        return absoluteString
+            .replacingOccurrences(of: "https://", with: "")
+            .replacingOccurrences(of: "http://", with: "")
+            .replacingOccurrences(of: "/", with: "_");    }
     
     static func getSavedRepoFilePath(_ url: URL) -> String {
         return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(getSavedRepoFileName(url))";

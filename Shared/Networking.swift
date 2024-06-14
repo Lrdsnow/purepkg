@@ -96,15 +96,7 @@ public class Networking {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = url.deletingPathExtension().absoluteString
-                            .replacingOccurrences(of: "https://", with: "")
-                            .replacingOccurrences(of: "http://", with: "")
-                            .replacingOccurrences(of: "/", with: "_")
-                            .replacingOccurrences(of: ".zst", with: "")
-                            .replacingOccurrences(of: ".bz2", with: "")
-                            .replacingOccurrences(of: ".gz", with: "")
-                            .replacingOccurrences(of: ".xz", with: "")
-                            .replacingOccurrences(of: ".lzma", with: "")
+                        let fileName = RepoHandler.getSavedRepoFileName(url);
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
@@ -181,21 +173,7 @@ public class Networking {
                     
                     #if !os(macOS)
                     if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        var modifiedURL: URL;
-                        if (url.absoluteString.hasSuffix(".gpg")) {
-                            modifiedURL = url;
-                        } else {
-                            modifiedURL = url.deletingPathExtension();
-                        }
-                        let fileName = modifiedURL.deletingPathExtension().absoluteString
-                            .replacingOccurrences(of: "https://", with: "")
-                            .replacingOccurrences(of: "http://", with: "")
-                            .replacingOccurrences(of: "/", with: "_")
-                            .replacingOccurrences(of: ".zst", with: "")
-                            .replacingOccurrences(of: ".bz2", with: "")
-                            .replacingOccurrences(of: ".gz", with: "")
-                            .replacingOccurrences(of: ".xz", with: "")
-                            .replacingOccurrences(of: ".lzma", with: "")
+                        let fileName = RepoHandler.getSavedRepoFileName(url);
                         let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                         do {
                             try data.write(to: tempFilePath)
