@@ -162,7 +162,7 @@ struct InstallQueuedButton: View {
                         showLog = false
                     }
                 } else {
-                    if Jailbreak.type(appData) == .jailed {
+                    if Jailbreak().type == .jailed {
                         showPopup("bruh", "PurePKG is in demo mode, you cannot install tweaks")
                     } else {
                         installingQueue = true

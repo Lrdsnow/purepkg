@@ -56,11 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UITableView.appearance().separatorStyle = .none
         UITableView.appearance().separatorColor = .clear
         #endif
-        appData.jbdata.jbtype = Jailbreak.type(appData)
-        appData.jbdata.jbarch = Jailbreak.arch(appData)
-        appData.jbdata.jbroot = Jailbreak.path(appData)
-        appData.deviceInfo = getDeviceInfo()
-        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+        appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
         appData.repos = RepoHandler.getCachedRepos()
         appData.pkgs = appData.repos.flatMap { $0.tweaks }
         if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
@@ -164,11 +160,7 @@ struct ContentViewWatchOS: View {
     
     private func startup() {
         if #available(iOS 14.0, tvOS 14.0, *) {
-            appData.jbdata.jbtype = Jailbreak.type(appData)
-            appData.jbdata.jbarch = Jailbreak.arch(appData)
-            appData.jbdata.jbroot = Jailbreak.path(appData)
-            appData.deviceInfo = getDeviceInfo()
-            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+            appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
             appData.repos = RepoHandler.getCachedRepos()
             appData.pkgs = appData.repos.flatMap { $0.tweaks }
             if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
@@ -245,12 +237,8 @@ struct ContentView: View {
     private func startup() {
         if #available(iOS 14.0, tvOS 14.0, *) {
             if !preview {
-                appData.jbdata.jbtype = Jailbreak.type(appData)
-                appData.jbdata.jbarch = Jailbreak.arch(appData)
-                appData.jbdata.jbroot = Jailbreak.path(appData)
-                appData.deviceInfo = getDeviceInfo()
-                log(appData.deviceInfo)
-                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+                log("PurePKG Running on \(Device().modelIdentifier) running iOS \(Device().pretty_version) (\(Device().build_number))")
+                appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
                 appData.repos = RepoHandler.getCachedRepos()
                 appData.pkgs = appData.repos.flatMap { $0.tweaks }
                 if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
@@ -269,7 +257,7 @@ struct ContentView: View {
             print("Adding Repo: \(repourl)")
             RepoHandler.addRepo(repourl)
         } else if url.pathExtension == "deb" {
-            let info = APTWrapper.spawn(command: "\(Jailbreak.path())/\(Jailbreak.type() == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
+            let info = APTWrapper.spawn(command: "\(Jailbreak().path)/\(Jailbreak().type == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
             if info.0 == 0 {
                 let dict = Networking.genDict(info.1)
                 var tweak = RepoHandler.createPackageStruct(dict)

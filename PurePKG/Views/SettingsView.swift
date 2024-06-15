@@ -43,7 +43,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Device")
                     Spacer()
-                    Text(appData.deviceInfo.modelIdentifier)
+                    Text(Device().modelIdentifier)
                 }.listRowBG()
                 HStack {
                     #if os(watchOS)
@@ -53,9 +53,9 @@ struct SettingsView: View {
                     #endif
                     Spacer()
                     #if os(watchOS)
-                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")")
+                    Text("\(Device().pretty_version)")
                     #else
-                    Text("\(appData.deviceInfo.major).\(appData.deviceInfo.minor)\(appData.deviceInfo.patch == 0 ? "" : ".\(appData.deviceInfo.patch)")\(appData.deviceInfo.build_number == "0" ? "" : " (\(appData.deviceInfo.build_number))")")
+                    Text("\(Device().pretty_version)\(Device().build_number == "0" ? "" : " (\(Device().build_number))")")
                     #endif
                 }.listRowBG()
 #if !os(macOS)
@@ -66,7 +66,7 @@ struct SettingsView: View {
                     Text("Jailbreak Type")
                     #endif
                     Spacer()
-                    Text((appData.jbdata.jbtype == .rootful || appData.jbdata.jbtype == .tvOS_rootful) ? "Rootful" : appData.jbdata.jbtype == .rootless ? "Rootless" : appData.jbdata.jbtype == .roothide ? "Roothide" : "Jailed")
+                    Text(Jailbreak().pretty_type)
                 }.listRowBG()
 #endif
                 HStack {
@@ -76,7 +76,7 @@ struct SettingsView: View {
                     Text("Architecture")
                     #endif
                     Spacer()
-                    Text("\(appData.jbdata.jbarch)")
+                    Text(Jailbreak().arch)
                 }.listRowBG()
 #if !os(macOS)
                 if let jb = jb {

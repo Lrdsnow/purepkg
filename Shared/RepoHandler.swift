@@ -21,7 +21,7 @@ public class RepoHandler {
             .replacingOccurrences(of: "/", with: "_");    }
     
     static func getSavedRepoFilePath(_ url: URL) -> String {
-        return "\(Jailbreak.path())/var/lib/apt/purepkglists/\(getSavedRepoFileName(url))";
+        return "\(Jailbreak().path)/var/lib/apt/purepkglists/\(getSavedRepoFileName(url))";
     }
     
     static func getRepos(_ repoSources: [RepoSource], completion: @escaping (Repo) -> Void) {
@@ -43,7 +43,7 @@ public class RepoHandler {
                     Repo.component = repoSource.components
                     do { Repo.payment_endpoint = URL(string: try String(contentsOf: url.appendingPathComponent("payment_endpoint"))) } catch {}
                     
-                    let currentArch = Jailbreak.arch()
+                    let currentArch = Jailbreak().arch
                     if !Repo.archs.contains(currentArch) {
                         Repo.error = "Unsupported architecture '\(currentArch)'"
                         spawnRootHelper(args: ["clearRepoFiles", url.absoluteString])
@@ -57,7 +57,7 @@ public class RepoHandler {
                         var signature_ok: Bool = false;
                         Networking.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
                             if error != nil {
-                                switch Jailbreak.type() {
+                                switch Jailbreak().type {
                                 case .macos:
                                     log("Error: No signature found for \(url.absoluteString)")
                                     Repo.error = "Error: No signature found for \(url.absoluteString)"
@@ -109,7 +109,7 @@ public class RepoHandler {
                                 if (!validAndTrusted || !errorStr.isEmpty) {
                                     log("Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))");
                                     signature_ok = false;
-                                    if Jailbreak.type() == .tvOS_rootful || Jailbreak.type() == .visionOS_rootful {
+                                    if Jailbreak().type == .tvOS_rootful || Jailbreak().type == .visionOS_rootless {
                                         if errorStr != "" {
                                             Repo.error = errorStr
                                         } else {
@@ -144,7 +144,7 @@ public class RepoHandler {
                     var pkgsURL = url
                     if repoSource.suites != nil {
                         let repoComponents = repoSource.components
-                        pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak.arch())")
+                        pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak().arch)")
                     }
                     log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
                     Networking.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error, actualURL) in
@@ -500,12 +500,12 @@ func refreshRepos(_ appData: AppData) {
 
     refreshingRepos = true
     
-    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak.path(appData)+"/Library/dpkg")
+    appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
     
     let startTime = CFAbsoluteTimeGetCurrent()
     #if os(macOS)
     Task(priority: .background) {
-        APTWrapper.spawn(command: "\(Jailbreak.path())/bin/apt-get", args: ["apt-get", "update"])
+        APTWrapper.spawn(command: "\(Jailbreak().path)/bin/apt-get", args: ["apt-get", "update"])
     }
     #endif
     let oldRepos = appData.repos
@@ -516,8 +516,8 @@ func refreshRepos(_ appData: AppData) {
     }
     try? FileManager.default.createDirectory(at: repoCacheDir, withIntermediateDirectories: true, attributes: nil)
     DispatchQueue.main.async {
-        if appData.jbdata.jbtype != .jailed {
-            appData.repoSources = RepoHandler.getAptSources(Jailbreak.path(appData)+"/etc/apt/sources.list.d")
+        if Jailbreak().type != .jailed {
+            appData.repoSources = RepoHandler.getAptSources(Jailbreak().path+"/etc/apt/sources.list.d")
         } else {
             appData.repoSources = [
                 RepoSource(url: URL(string: "https://lrdsnow.github.io/purepkg/./")!)

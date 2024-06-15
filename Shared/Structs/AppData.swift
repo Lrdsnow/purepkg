@@ -8,12 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct JBData {
-    var jbtype: jbType = .unknown
-    var jbroot: String = ""
-    var jbarch: String = ""
-}
-
 struct installStatus {
     var message: String = "Queued..."
     var percentage: Double = 0.0
@@ -32,8 +26,6 @@ class AppData: ObservableObject {
     @Published var pkgs: [Package] = []
     @Published var installed_pkgs: [Package] = []
     @Published var available_updates: [Package] = []
-    @Published var jbdata: JBData = JBData()
-    @Published var deviceInfo: DeviceInfo = DeviceInfo()
     @Published var queued: PKGQueue = PKGQueue()
     
     @Published var test = false

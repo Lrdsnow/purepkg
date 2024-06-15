@@ -11,7 +11,7 @@ extension RepoHandler {
     public static func RootHelper_clearRepoFiles(_ url: String) throws {
         let urlString = url.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "").replacingOccurrences(of: "/", with: "_")
         let fileManager = FileManager.default
-        let directoryPath = "\(Jailbreak.path())/var/lib/apt/purepkglists"
+        let directoryPath = "\(Jailbreak().path)/var/lib/apt/purepkglists"
         let fileURLs = try fileManager.contentsOfDirectory(atPath: directoryPath)
         
         for fileURL in fileURLs {
@@ -22,18 +22,18 @@ extension RepoHandler {
     }
     
     public static func RootHelper_saveRepoFiles(_ url: URL) throws {
-        try? FileManager.default.createDirectory(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists", withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(atPath: "\(Jailbreak().path)/var/lib/apt/purepkglists", withIntermediateDirectories: true)
         let data = try Data(contentsOf: url)
         try? FileManager.default.removeItem(at: url)
-        try data.write(to: URL(fileURLWithPath: "\(Jailbreak.path())/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
+        try data.write(to: URL(fileURLWithPath: "\(Jailbreak().path)/var/lib/apt/purepkglists/\(url.lastPathComponent)"))
     }
     
     public static func RootHelper_removeAllRepoFiles() throws {
-        try? FileManager.default.removeItem(atPath: "\(Jailbreak.path())/var/lib/apt/purepkglists");
+        try? FileManager.default.removeItem(atPath: "\(Jailbreak().path)/var/lib/apt/purepkglists");
     }
     
     static func RootHelper_removeRepo(_ repositoryURL: URL, _ appData: AppData? = nil) throws {
-        let directoryPath = Jailbreak.path(appData)+"/etc/apt/sources.list.d"
+        let directoryPath = Jailbreak().path+"/etc/apt/sources.list.d"
         let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
         
         let sourceFiles = fileURLs.filter { $0.hasSuffix(".sources") }
@@ -96,7 +96,7 @@ extension RepoHandler {
     
     static func RootHelper_addRepo(_ repositoryURL: String, _ appData: AppData? = nil) throws {
         let fileName = "purepkg.sources"
-        let fileURL = URL(fileURLWithPath: Jailbreak.path(appData)+"/etc/apt/sources.list.d").appendingPathComponent(fileName)
+        let fileURL = URL(fileURLWithPath: Jailbreak().path+"/etc/apt/sources.list.d").appendingPathComponent(fileName)
         var fileContent = ""
         var newRepositoryBlock = ""
         

@@ -65,12 +65,12 @@ class APTWrapper {
         var dictionary: [String: Int64] = [:]
         let fileManager = FileManager.default
 
-        guard let apps = try? fileManager.contentsOfDirectory(atPath: "\(Jailbreak.path())/Applications") else {
+        guard let apps = try? fileManager.contentsOfDirectory(atPath: "\(Jailbreak().path)/Applications") else {
             return dictionary
         }
 
         for app in apps {
-            let infoPlist = String(format: "\(Jailbreak.path())/Applications/%@/Info.plist", app)
+            let infoPlist = String(format: "\(Jailbreak().path)/Applications/%@/Info.plist", app)
 
             guard let attr = try? fileManager.attributesOfItem(atPath: infoPlist) else {
                 continue
@@ -136,7 +136,7 @@ class APTWrapper {
         let spawnStatus = custom_posix_spawn(&pid, command, &fileActions, nil, argv + [nil], proenv + [nil])
         #else
         // Weird problem with a weird workaround
-        let env = [ "PATH=\(Jailbreak.path())/usr/bin:\(Jailbreak.path())/usr/local/bin:\(Jailbreak.path())/bin:\(Jailbreak.path())/usr/sbin" ]
+        let env = [ "PATH=\(Jailbreak().path)/usr/bin:\(Jailbreak().path)/usr/local/bin:\(Jailbreak().path)/bin:\(Jailbreak().path)/usr/sbin" ]
         let envp: [UnsafeMutablePointer<CChar>?] = env.map { $0.withCString(strdup) }
         defer { for case let env? in envp { free(env) } }
         
@@ -246,7 +246,7 @@ class APTWrapper {
 
         #else
         
-        let (_, output, _) = spawn(command: "\(Jailbreak.path())/bin/sh", args: ["sh", "\(Jailbreak.path())/usr/bin/apt-key", "verify", "-q", "--status-fd", "1", key, data])
+        let (_, output, _) = spawn(command: "\(Jailbreak().path)/bin/sh", args: ["sh", "\(Jailbreak().path)/usr/bin/apt-key", "verify", "-q", "--status-fd", "1", key, data])
         
         log("apt-key output: \(output)");
 
@@ -302,7 +302,7 @@ class APTWrapper {
         #if targetEnvironment(simulator) || TARGET_SANDBOX
         return completionCallback(0, .back, true)
         #else
-        var arguments = ["\(Jailbreak.path())/usr/bin/apt-get",
+        var arguments = ["\(Jailbreak().path)/usr/bin/apt-get",
                          "install", "--reinstall",
                          "--allow-unauthenticated",
                          "--allow-downgrades",
@@ -376,7 +376,7 @@ class APTWrapper {
                 }
             }
 
-            let environment = ["SILEO=6 1", "CYDIA=6 1", "PATH=\(Jailbreak.path())/usr/bin:\(Jailbreak.path())/usr/local/bin:\(Jailbreak.path())/bin:\(Jailbreak.path())/usr/sbin"]
+            let environment = ["SILEO=6 1", "CYDIA=6 1", "PATH=\(Jailbreak().path)/usr/bin:\(Jailbreak().path)/usr/local/bin:\(Jailbreak().path)/bin:\(Jailbreak().path)/usr/sbin"]
             let env: [UnsafeMutablePointer<CChar>?] = environment.map { $0.withCString(strdup) }
             defer {
                 for case let key? in env {
@@ -581,16 +581,16 @@ class APTWrapper {
             if !difference.isEmpty {
                 outputCallback("Updating Icon Cache\n", debugFD)
                 for appName in difference {
-                    let appPath = URL(fileURLWithPath: "\(Jailbreak.path())/Applications/").appendingPathComponent(appName)
+                    let appPath = URL(fileURLWithPath: "\(Jailbreak().path)/Applications/").appendingPathComponent(appName)
                     if appPath.path == Bundle.main.bundlePath {
                         refreshSileo = true
                     } else {
-                        spawnRoot("\(Jailbreak.path())/usr/bin/uicache", ["uicache", "-p", "\(appPath.path)"], nil, nil)
+                        spawnRoot("\(Jailbreak().path)/usr/bin/uicache", ["uicache", "-p", "\(appPath.path)"], nil, nil)
                     }
                 }
             }
 
-            spawnRoot("\(Jailbreak.path())/usr/bin/apt-get", ["clean"], nil, nil)
+            spawnRoot("\(Jailbreak().path)/usr/bin/apt-get", ["clean"], nil, nil)
             
             completionCallback(Int(status), finish, refreshSileo)
         }

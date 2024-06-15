@@ -96,7 +96,7 @@ struct TweakView: View {
                                 Text(queued ? "Queued" : installed ? "Uninstall" : price != "" ? price : "Install")
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
-                            }).borderedProminentButtonC().disabled(pkg.paid && (price == "" || !UserDefaults.standard.bool(forKey: "usePaymentAPI"))).opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
+                            }).borderedProminentButtonC().disabled(!installed && !queued && pkg.paid && (price == "" || !UserDefaults.standard.bool(forKey: "usePaymentAPI"))).opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
                                 if !queued && !installed {
                                     ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                         Button(action: {installPKG(ver)}) {

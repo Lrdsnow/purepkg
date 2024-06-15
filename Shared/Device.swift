@@ -29,15 +29,6 @@ public extension UIDevice {
 }
 #endif
 
-struct DeviceInfo {
-    var major: Int = 0
-    var minor: Int = 0
-    var patch: Int = 0
-    var build_number: String = "0"
-    var modelIdentifier: String = "Unknown Device"
-    var uniqueIdentifier: String = ""
-}
-
 func osString() -> String {
     #if os(macOS)
     return "macOS"
@@ -45,6 +36,8 @@ func osString() -> String {
     return "tvOS"
     #elseif os(watchOS)
     return "watchOS"
+    #elseif os(visionOS)
+    return "visionOS"
     #else
     return "iOS"
     #endif
@@ -89,56 +82,71 @@ func getMacOSArchitecture() -> String? {
 }
 #endif
 
-func getDeviceInfo() -> DeviceInfo {
-    var deviceInfo = DeviceInfo()
-#if os(watchOS) || os(macOS)
-    let systemVersion = ProcessInfo().operatingSystemVersion
-    deviceInfo = DeviceInfo(major: systemVersion.majorVersion,
-                            minor: systemVersion.minorVersion,
-                            patch: systemVersion.patchVersion,
-                            build_number: ProcessInfo.processInfo.operatingSystemVersionString,
-                            modelIdentifier: getModelName())
-#elseif targetEnvironment(simulator)
-    let systemVersion = UIDevice.current.systemVersion
-    let versionComponents = systemVersion.split(separator: ".").compactMap { Int($0) }
-    if versionComponents.count >= 2 {
-        let major = versionComponents[0]
-        let minor = versionComponents[1]
-        let patch = versionComponents.count >= 3 ? versionComponents[2] : 0
-        deviceInfo = DeviceInfo(major: major,
-                                minor: minor,
-                                patch: patch,
-                                build_number: "0",
-                                modelIdentifier: UIDevice.current.modelName)
-    }
+class Device {
+    var build_number: String {
+        get {
+#if targetEnvironment(simulator)
+            return ""
+#elseif os(watchOS) || os(macOS)
+            return ProcessInfo.processInfo.operatingSystemVersionString
 #else
-    let systemVersion = UIDevice.current.systemVersion
-    let versionComponents = systemVersion.split(separator: ".").compactMap { Int($0) }
-    if versionComponents.count >= 2 {
-        let major = versionComponents[0]
-        let minor = versionComponents[1]
-        let patch = versionComponents.count >= 3 ? versionComponents[2] : 0
-        
-        // get model
-        let systemAttributes = NSDictionary(contentsOfFile: "/System/Library/CoreServices/SystemVersion.plist")
-        let build_number = systemAttributes?["ProductBuildVersion"] as? String ?? "0"
-        //
-        
-        var uniqueIdentifier = ""
-        if UserDefaults.standard.bool(forKey: "usePaymentAPI") {
-            let gestalt = dlopen("/usr/lib/libMobileGestalt.dylib", RTLD_GLOBAL | RTLD_LAZY)
-            typealias MGCopyAnswerFunc = @convention(c) (CFString) -> CFString
-            let MGCopyAnswer = unsafeBitCast(dlsym(gestalt, "MGCopyAnswer"), to: MGCopyAnswerFunc.self)
-            uniqueIdentifier = MGCopyAnswer("UniqueDeviceID" as CFString) as String
-        }
-        
-        deviceInfo = DeviceInfo(major: major,
-                                minor: minor,
-                                patch: patch,
-                                build_number: build_number,
-                                modelIdentifier: UIDevice.current.modelName,
-                                uniqueIdentifier: uniqueIdentifier)
-    }
+            let systemAttributes = NSDictionary(contentsOfFile: "/System/Library/CoreServices/SystemVersion.plist")
+            return systemAttributes?["ProductBuildVersion"] as? String ?? "0"
 #endif
-    return deviceInfo
+        }
+    }
+    
+    var pretty_version: String {
+        get {
+            let version = self.version
+            return "\(version.0).\(version.1)\(version.2 == 0 ? "" : ".\(version.2)")"
+        }
+    }
+    
+    var version: (Int, Int, Int) {
+        get {
+#if os(watchOS) || os(macOS)
+            let systemVersion = ProcessInfo().operatingSystemVersion
+            return (systemVersion.majorVersion, systemVersion.minorVersion, systemVersion.patchVersion)
+#else
+            let systemVersion = UIDevice.current.systemVersion
+            let versionComponents = systemVersion.split(separator: ".").compactMap { Int($0) }
+            if versionComponents.count >= 2 {
+                let major = versionComponents[0]
+                let minor = versionComponents[1]
+                let patch = versionComponents.count >= 3 ? versionComponents[2] : 0
+                return (major, minor, patch)
+            } else {
+                return (99,99,99)
+            }
+#endif
+        }
+    }
+    
+    var modelIdentifier: String {
+        get {
+#if os(watchOS) || os(macOS)
+            return getModelName()
+#else
+            return UIDevice.current.modelName
+#endif
+        }
+    }
+    
+    var uniqueIdentifier: String {
+        get {
+#if (os(iOS) || os(tvOS)) && !targetEnvironment(simulator)
+            if UserDefaults.standard.bool(forKey: "usePaymentAPI") {
+                let gestalt = dlopen("/usr/lib/libMobileGestalt.dylib", RTLD_GLOBAL | RTLD_LAZY)
+                typealias MGCopyAnswerFunc = @convention(c) (CFString) -> CFString
+                let MGCopyAnswer = unsafeBitCast(dlsym(gestalt, "MGCopyAnswer"), to: MGCopyAnswerFunc.self)
+                return MGCopyAnswer("UniqueDeviceID" as CFString) as String
+            } else {
+                return ""
+            }
+#else
+            return ""
+#endif
+        }
+    }
 }

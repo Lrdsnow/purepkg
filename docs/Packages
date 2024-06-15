@@ -1,206 +1,16 @@
 Package: uwu.lrdsnow.purepkg
-Architecture: watchos-arm
-Version: 1.0
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 8.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.0_watchos-arm.deb
-Size: 7215036
-MD5sum: 477fe0cf1dbced3b9c986e98ac5439c1
-SHA1: 16b79df5ed44de31bd3bafc0fa7c40f7d8b873a3
-SHA256: 9a96d411d9dac3536b63d2a244346281b0d0aa0c3e7febab9f9e90422655fec1
-SHA512: 89704387e788d5bec58ac923f6b5c3f01c4224cb3ac2644519bae0b1bd27743a650e3898eac834ac8395d4e4827510b6950abd196f9fdc35229755696aabc952
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: xros-arm64
-Version: 1.0
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 1.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.0_xros-arm64.deb
-Size: 7573320
-MD5sum: b3e9c65bdf2c060c5a275043506864c9
-SHA1: 4dfce7dc915ce039bebfae4c688da17402ea943c
-SHA256: a14e0cb8c50a57a00420726347c21e1207e3eb888e9991d07de5b50b4d793966
-SHA512: c3a990a87b105984d402277aebd346d804bb990893f179cf25b0f71f0c6ba76634bc289e020ecd1c8cb4b3d690245b142f28875974669688305b017af4ba9034
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
 Architecture: appletvos-arm64
-Version: 1.4.1
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 14.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.4.1_appletvos-arm64.deb
-Size: 7898604
-MD5sum: dd69d6e8c84eb4c592b10a75eaaa935f
-SHA1: 9ca15756d72789cbea493dcfc243969e825e7687
-SHA256: 60a825cfab9671262e894cf0718abfe0cff899fddc6b37b1781a7f808a62e07b
-SHA512: 7450ab01bfae6ff28f5ac503c4843bc5d3752b152911aec508a54881ebefc0d7bcb7f1123d59470dfd2770f402c5dc33aa711a9d1e0aa89687870289bf11b846
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm
-Version: 1.4.1
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 14.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.4.1_iphoneos-arm.deb
-Size: 8028100
-MD5sum: 562c233e50a6996b74d3a89631faf4da
-SHA1: a1789458698ee8b0007db7e9f73748a74b279972
-SHA256: 5e0c2e03fb5926ce409a5d7aea86cf4615254a51e43fd6e67ed0f27438cd6f1f
-SHA512: 123381af4d2c5d3d4179e5146711244332a3b04610745753d827657407d1c9d698ed6f73a3b2ca9b07366749c5dffc0eaa62dba89ce72eedf7d57b39ebfee65b
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm64
-Version: 1.4.1
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 14.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.4.1_iphoneos-arm64.deb
-Size: 8028108
-MD5sum: 5df87bf66dfa6430f36494b08366483c
-SHA1: f875f0fc103e7a09b313c3f1ed3a8ff396851fcf
-SHA256: 697e735e7c197b1193d4c4fdd6559069833c9ce196498fb9ac99548779ebae20
-SHA512: 6a4a2324312da338d3fab680ec3475abba274e8fd4a25343d63bdd52dbfa57cd4514f0a47ef8592424078d4021fbf7a687eb4210e1554d5fc5b95f01f77347e9
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm64e
-Version: 1.4.1
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 14.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.4.1_iphoneos-arm64e.deb
-Size: 8027172
-MD5sum: 019fe076cf578c1015c1303ade356e36
-SHA1: 2d3ac200004312f91e36dcc6a21d0ce017e158e0
-SHA256: 1f2ff65f204c21d0a976bef599a848489231d1319ce8ee0601c79f4a09aa886c
-SHA512: 7bf702f0facc6d89fd46b583e5e5827acbf9b4e6ff28b3b5df7cdfa12e70378080793c0f96dfef6e8173aa3101d8a29b5808def5563a2edc7c2a88224a97b7a5
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-amd64
-Version: 1.4
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.4_darwin-amd64.deb
-Size: 6233296
-MD5sum: 72a020cf7c231a1f112ee42d3286050d
-SHA1: 6c3373db1207e7abb96a1623dcf57cac00efaa84
-SHA256: 8d5f4426bc8d65fb659042a32e6db72fa4a77f804f6d2b27b3e8d108a092ba14
-SHA512: 665d954516d0b3b605def575f56f99744fa8e459830e88b3a51e7d1c4cac69a0c17d20077f38cd1453ef9d513774bd7ef57e971d8dd1c29156ad8d4e268a6211
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-arm64
-Version: 1.4
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Filename: ./debs/uwu.lrdsnow.purepkg_1.4_darwin-arm64.deb
-Size: 6233764
-MD5sum: fe267927a9d8160594c7d1aeeefc2019
-SHA1: 14ebffdd24a68d11a57dcd9837f407b47f95fc08
-SHA256: 60a7ce4a66b238a6c53586eb6623840b9f45b0dfe7752c000e981b25e0c4024a
-SHA512: a5fcee335b57cbf3c02e4fcaa6b9b29150222bf76c99bd1cdb5360449ba6f243b663283ed807a7a852e736a4eaa3d368cb7d4af60d31dad9ed85450cf66f2e40
-Description: The purest package manager ever!
-Author: Lrdsnow
-Name: PurePKG
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: appletvos-arm64
-Version: 1.5.1
+Version: 1.7
 Section: Package Manager
 Maintainer: Lrdsnow
 Depends: firmware (>= 13.0)
 Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5.1_appletvos-arm64.deb
-Size: 8937828
-MD5sum: 9d5623f4896a710b32183612125354b0
-SHA1: 1230d6d7a958a6c26d1cb0aaf8207aba068f8725
-SHA256: 8a73b14e90de0cfbc482c304bacd17efe60a8b2ccd8e6f216d1bd0f9f9629c49
-SHA512: fff5c0c21643dceead633557b9c89039b2a97c3d5bde385c7a9beaedc57137c2904cdf284d1529eb8fe7a7839770b43769ec09ad0f2b0612de70b0f6c53ee443
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-amd64
-Version: 1.5.1
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5.1_darwin-amd64.deb
-Size: 3074024
-MD5sum: 402b9806263badd1296f3355b6f6068b
-SHA1: adb4691ea14618618bc05c3bf4cf8f80e168cc23
-SHA256: 502a60eae6d09f7141228d9f28628c62750543680b1b3491f1f49a9ddb8bf589
-SHA512: 5c0931a7b51c70ad3a292617e482ae0c159038ba00f777ececdd07c974bc3393a8b514dafa0d360b29e85d814d37d3383dd749de6f408b577a185e8fe793119f
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-arm64
-Version: 1.5.1
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5.1_darwin-arm64.deb
-Size: 3074464
-MD5sum: 41c335a97f0a1c56676d04d51a901b98
-SHA1: 4f59aebb8f3dd2b1810b24fcb8cf98b1c63a24b8
-SHA256: b82cc227694faa64fab35fca5fb7ef509ed6c80a18dd406956f5b121a7536698
-SHA512: fdd72061c44e43dbe5814497f6bff215c8a871f9cf826392c837eddac33312afb29f9346c0b57baa6cf8ddd7becc3f1d0f5806416905e9d817bd0fccbc765b91
+Filename: ./debs/uwu.lrdsnow.purepkg_1.7_appletvos-arm64.deb
+Size: 9473888
+MD5sum: 2471362d38ee5527d59dfb4ccf30f567
+SHA1: db78b79b5044b61923f66cd40e55e44c3a60d036
+SHA256: 30d88e999a8b9403d80a570923bf01d34e346e0466554325e8278e16b059813d
+SHA512: 7010b8b3349bc84cf47a01693716397ef599ff873da1e3e5c244f3e5546abca386abe2e32db7e265abc8ed136621967ae0dc281a94c63331c4161264262f01a5
 Description: The purest package manager ever!
 Name: PurePKG
 Author: Lrdsnow
@@ -210,17 +20,17 @@ Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
 
 Package: uwu.lrdsnow.purepkg
 Architecture: iphoneos-arm
-Version: 1.5.1
+Version: 1.7
 Section: Package Manager
 Maintainer: Lrdsnow
 Depends: firmware (>= 13.0)
 Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5.1_iphoneos-arm.deb
-Size: 3717500
-MD5sum: aa8743c36b44277a3bc775afab9f0449
-SHA1: 967b1168f7ea623b53752a0225bf095269437abd
-SHA256: 12ea80e1dd10ab9729b3189e551e47a72966c6b74cf20f913f93544b58a71fdd
-SHA512: d95587e77065437a6206e284e2e5117a5d6854cb9c72de16328505dad038ddfc4a8556c7a90740b1f1de8b13be4b0abe3988cd957ee21ae99568d3d3abc46504
+Filename: ./debs/uwu.lrdsnow.purepkg_1.7_iphoneos-arm.deb
+Size: 4247868
+MD5sum: f4ec64524670f4f96c4df81a050e8654
+SHA1: 0ca72342c4ad36e8af4fe6c358f15f852c66484c
+SHA256: 23bf7d243ae2fe7140a162f98f9a3778ce797a1b1b3eedc60f463ab63c218099
+SHA512: a4aae63cd7e5a0bead605c4102007f7da170381e029069e7cb93d70003b7343196f32c10c35ecc5518f2a978bcb4861845fa394cdfbc08c11bd54cad8e071927
 Description: The purest package manager ever!
 Name: PurePKG
 Author: Lrdsnow
@@ -230,17 +40,17 @@ Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
 
 Package: uwu.lrdsnow.purepkg
 Architecture: iphoneos-arm64
-Version: 1.5.1
+Version: 1.7
 Section: Package Manager
 Maintainer: Lrdsnow
 Depends: firmware (>= 13.0)
 Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5.1_iphoneos-arm64.deb
-Size: 3719068
-MD5sum: 43a6d13fae0a12aac34ae7656eae82f6
-SHA1: 413908bab7591dcdc8abee4f5b6833b9ab8eacdc
-SHA256: 79fa9176745f01685b570a33dd9a7ee382c6c8a066b99947208b398150681ed1
-SHA512: 1202b28a5135e7511ef5bcf65e1ca86e752fb57eebdc3a01b547d885181a758b0b1582f06e4008d28cbaef581565468e9cef5885fbe46d41ea29dac76aa5be07
+Filename: ./debs/uwu.lrdsnow.purepkg_1.7_iphoneos-arm64.deb
+Size: 4248972
+MD5sum: 2d680c27cbe3ba1e1e8d86772e23eda6
+SHA1: d86d5118725a4c6d67640fbc184ae7639c2f602e
+SHA256: ed8867153141922fd658721bfcec5698cbc349b7c569afe2b2cdeb27dce2cb1f
+SHA512: 583bdb0bd2fb0faa4ad92fa0eb47a9c82a3c8bc2ec8ad1064b8d9be8b9414b07905d96902da66dd068b45968277695a65fc798e42fd430d1b8995764c3b3e231
 Description: The purest package manager ever!
 Name: PurePKG
 Author: Lrdsnow
@@ -250,257 +60,17 @@ Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
 
 Package: uwu.lrdsnow.purepkg
 Architecture: iphoneos-arm64e
-Version: 1.5.1
+Version: 1.7
 Section: Package Manager
 Maintainer: Lrdsnow
 Depends: firmware (>= 13.0)
 Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5.1_iphoneos-arm64e.deb
-Size: 3718908
-MD5sum: b38388017cc145229c3cbd86318bd425
-SHA1: 5688d6f60ad42b49a6717acb2439066805343f44
-SHA256: ba930f6fbfc7b2e98fdc530415623558c01673982898e6b8db42531d3442d2b5
-SHA512: 358b76db68df83f2aae6c732354ef303ed2e53677e5a2782f379e8f16d7fa55e8837b6170b80648c4cd2224b1650e2d80aa620aee752ddbdc0618d69f6f689cf
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: appletvos-arm64
-Version: 1.5
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5_appletvos-arm64.deb
-Size: 3102660
-MD5sum: 99ced4d66777d14cbf29c2595d9270db
-SHA1: f5b2435cd03b9b2f67630416417e513821e31a79
-SHA256: cfcb292b9c4a33f65fb8a84c5ba8e158e0643ef5c839edbebc585a05d0279828
-SHA512: 9b9803cbaa3561a8a1a350a5aa400ddc6413cd0b62ae4ce766135351204367f9b403fed7e9caaf47e2f74fb049fb01fbd895d136a1dcdde0e254d84db7060838
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-amd64
-Version: 1.5
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5_darwin-amd64.deb
-Size: 2310452
-MD5sum: 6b408ef968a4c6976db0b423282e4391
-SHA1: bcf40ba932ac7b34e0c14f32e13d048ad5b59125
-SHA256: 5c76bdafab19080eac54713f8dba51ddd37629bb54b9d8a685b2c7e8e0c5e162
-SHA512: e9094158484e973e717fae5385498b20e5447f02259ae81547c1774fa45640b7afc1dcc2d24736589c4ce61f2640554c7daa0171ae2bcdf75436e60fc453f0c0
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-arm64
-Version: 1.5
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5_darwin-arm64.deb
-Size: 2310056
-MD5sum: 06f50b913aaad17d8617f238156f60db
-SHA1: eaf6a0aec231d45fb0a6562061ae972c50ca0359
-SHA256: e60dab76bda192ab1b318783ce10390e537c9464db2f9093a4e4b5e4521b2cb8
-SHA512: 2bac858286bb5db0638723d482ab546df5e1b0c72672dbd9bfc58cf23850027dd2dddea91864f1689d59332049eeb189aefc99f272035b37bc49f4694af8b758
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm
-Version: 1.5
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5_iphoneos-arm.deb
-Size: 5581052
-MD5sum: 6d1b31ffb820ade977db2eef93557acb
-SHA1: 2c5c0db1fc906a358d28658a5024d7809cb9d138
-SHA256: 1e4ede52a0ef8a0917d4656f92c55927dc2ddd2931138314f9fa6665a155a8cb
-SHA512: a15f15d9e2fe173002bd20e3f03905652a330ab8926f96328224f8732dfa99bb1dedc6043315d9aa17dd2ee272f0a6433adb3aba9ccc296c89b5ac9efa3eb9f8
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm64
-Version: 1.5
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5_iphoneos-arm64.deb
-Size: 5580376
-MD5sum: 25a904aed0af094b76ba7492535a58e2
-SHA1: ed0b716aa70f085a40b140c2ef2f99fa69024fbe
-SHA256: 5e27cd8b0ee917d05803731b0eda27a6ff41f2194ef3678fd3c6bab85dd91030
-SHA512: fece5435cfc0c0f086acfb02d1c04c9709387dac40a3de03f0c8e9b0f77821b7640cd36a4fb8b683e708cfdf4829cc81a30f3179307e2bc296eb293e31be9c13
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm64e
-Version: 1.5
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.5_iphoneos-arm64e.deb
-Size: 5581348
-MD5sum: 18d1d9f17556cc0c7b71b8a97b51aa28
-SHA1: 0ec2fb701ef520da19cfce86288130f3d40e032c
-SHA256: 700fbefc2264ebd6ec11044899fdff353622c6a632eb45289183f7112cf529ce
-SHA512: 4c84d0403f54998cc64ce552c3b031f38e1fd50b546747ce2a87199c05179deb04fb39cbfd2f97c44eb91bd355f403e1eacf715cde1684f31c3de53b93ed6007
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: appletvos-arm64
-Version: 1.6
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.6_appletvos-arm64.deb
-Size: 9952692
-MD5sum: c525ac3ad66b00ecb1f13913b90c56f1
-SHA1: 73218acdc2de86fd4852ca894a8e011835116c36
-SHA256: 17f6e63d9207265d175dc4af2f06969f3d13feeffd9bce1f27d18d15a080bb9d
-SHA512: b418da1d2d4aaa973432c13be77201d484469d9a3ede542b9c5bcd7f99b9244aee2501b291f2e3703dd51a794003f38d64527bc57b01a813f9ace1d222945f41
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-amd64
-Version: 1.6
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.6_darwin-amd64.deb
-Size: 4615496
-MD5sum: 46da19065e3d73c04d0037a4fad08e7b
-SHA1: db2b82e96943ae2ef32f91265978a5fa13ceca85
-SHA256: 826b3375ecd11f83912eb687a1e038cfba3d181a6aa74073e5614e62b9098715
-SHA512: 645942eff3dfae47fe6feea01672bdf38a2bfd3b52a85091d1756c96c6c1d65584224ab67edd05481f17b006407f1f0731991ecc0eca89b268f134089c5b19ff
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: darwin-arm64
-Version: 1.6
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.6_darwin-arm64.deb
-Size: 4618824
-MD5sum: c3e6d15822819816df0dd265c3b239d6
-SHA1: 513781490a36cb467fab695d73a0ce724a416751
-SHA256: cdb63b39c1f000969354cc58303450cdc0fa2631c2a0ff47251657bb0cfdda68
-SHA512: 1c138382cca025e3d646bde54b5b7108e000771e3add5d22377d041593133a408637af435026890d10ac1f4aa46623a49821e8fd820e7d11eb07feb60a9df95c
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm
-Version: 1.6
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.6_iphoneos-arm.deb
-Size: 4763364
-MD5sum: 11bcb615a0a7397a40711a0cac16cc27
-SHA1: afdeccb92c593f9841ff66bf4fc8f9d598dab734
-SHA256: fb47cee64bcda2a371399c2f0c738f7603d29b1223790fc82bef8eae4ada5684
-SHA512: 6e6e81df14233dc311ec8f7c603c905945347b81ef7abf719b747282a082745fff6d5df4298e76396576f7e78dd8ae14bb82f6898c1ef5d1d84bb164f0c20180
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm64
-Version: 1.6
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.6_iphoneos-arm64.deb
-Size: 4767720
-MD5sum: a704a752e2e7c89e1eeb111a6216eaa5
-SHA1: 2d5a8949125dd3a23ee9b8505c70dc2f83200b91
-SHA256: 4878896a1ae70371c025b827345ea428660aebaa009c7bb7e5bc13c3c349cfb7
-SHA512: 2c8e2d31ca639872dd6bd338c7876b9d5f85fc23c6e19da567b98007d16e3074bfee15ccf9d09bfe118f1ecf6e53b526280507ad470b0352ebd440a5748dbcf4
-Description: The purest package manager ever!
-Name: PurePKG
-Author: Lrdsnow
-Support: https://discord.gg/purepkg
-SileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json
-Icon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true
-
-Package: uwu.lrdsnow.purepkg
-Architecture: iphoneos-arm64e
-Version: 1.6
-Section: Package Manager
-Maintainer: Lrdsnow
-Depends: firmware (>= 13.0)
-Conflicts: uwu.lrdsnow.purepkg.testing
-Filename: ./debs/uwu.lrdsnow.purepkg_1.6_iphoneos-arm64e.deb
-Size: 4762992
-MD5sum: 94fff63948171b0ba699c85cc910d5b6
-SHA1: b5fd3d3b50a1b00cc4d6c46b71edbba8739edc78
-SHA256: c3dd53f2c6bf75fd73c8dd2ddc41c8c704d0264558c64e5df679b5ab42509bce
-SHA512: 959b8a79504085eda0b1c1b4ec0f202b20511326fe49bf0af7951763d3acdd7d06d671b0afc800ee42167f53e8a5bb6993b6663aa9524d7ad04ac2f4a3804c11
+Filename: ./debs/uwu.lrdsnow.purepkg_1.7_iphoneos-arm64e.deb
+Size: 4248724
+MD5sum: 9e2aa32591298681b54683694bbc3bc0
+SHA1: e68e4cb827ab91823d8fa521dc50341b9dd23c92
+SHA256: f8d6d2999f6886a2e2c28efe11470d339e31fc82f8d10856accbf2604e7ffea8
+SHA512: 806ca19616e13da434f3cb9b852345c3079e1e7ae9c6ba722ebc68260dc4f304578dbf33e97e7d92f2bd3fcfb4ff164f6b6f1eb4912ce039eb56578d27fd731a
 Description: The purest package manager ever!
 Name: PurePKG
 Author: Lrdsnow

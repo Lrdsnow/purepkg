@@ -54,8 +54,7 @@ public class PaymentAPI {
     public static func getPackageInfo(_ bundleid: String, _ repo: Repo, completion: @escaping (PackagePaymentInfo?) -> Void) {
         var request: [String:String] = ["udid":"PurePKGUser", "device":"PurePKGUser"]
         if UserDefaults.standard.bool(forKey: "usePaymentAPI") {
-            let deviceInfo = getDeviceInfo()
-            request = ["udid":deviceInfo.uniqueIdentifier, "device":deviceInfo.modelIdentifier]
+            request = ["udid":Device().uniqueIdentifier, "device":Device().modelIdentifier]
         }
         postAPI("package/\(bundleid)/info", repo, request, addToken: true) { json in
             do {
