@@ -721,7 +721,7 @@ struct UISettingsView: View {
                             UIApplication.shared.setAlternateIconName(nil, completionHandler: nil)
                         }, label: {
                             HStack {
-                                Image(uiImageC: UIImage(named: "AppIcon")!)
+                                Image(uiImageC: UIImage(named: "AppIcon") ?? UIImage(named: "DisplayAppIcon")!)
                                     .resizable()
                                     .frame(width: 85, height: 85)
                                     .cornerRadius(15)
@@ -736,7 +736,7 @@ struct UISettingsView: View {
                             UIApplication.shared.setAlternateIconName("AppIcon1", completionHandler: nil)
                         }, label: {
                             HStack {
-                                Image(uiImageC: UIImage(named: "AppIcon1")!)
+                                Image(uiImageC: UIImage(named: "AppIcon1") ?? UIImage(named: "DisplayAppIcon")!)
                                     .resizable()
                                     .frame(width: 85, height: 85)
                                     .cornerRadius(15)
@@ -751,7 +751,7 @@ struct UISettingsView: View {
                             UIApplication.shared.setAlternateIconName("AppIcon2", completionHandler: nil)
                         }, label: {
                             HStack {
-                                Image(uiImageC: UIImage(named: "AppIcon2")!)
+                                Image(uiImageC: UIImage(named: "AppIcon2") ?? UIImage(named: "DisplayAppIcon")!)
                                     .resizable()
                                     .frame(width: 85, height: 85)
                                     .cornerRadius(15)

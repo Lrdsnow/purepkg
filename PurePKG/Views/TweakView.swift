@@ -20,147 +20,155 @@ struct TweakView: View {
     let preview: Bool
     
     var body: some View {
-        List {
-            if #available(iOS 14.0, tvOS 14.0, *) {
-                if let banner = banner {
-                    LazyImage(url: banner) { state in
-                        if let image = state.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } else {
-                            ProgressView()
-                                .scaledToFit()
-                        }
-                    }
-#if !os(macOS) && !os(watchOS)
-                    .frame(width: (preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)-40, height: preview ? 100 : 200)
-#endif
-                    .cornerRadius(20)
-                    .clipped()
-                    .listRowBackground(Color.clear)
-                    .listRowSeparatorC(false)
-                    .padding(.bottom)
-                    .padding(.top, -40)
-                }
-            }
-            
-            Section {
-                VStack(alignment: .leading) {
-                    HStack(alignment: .center) {
-                        if #available(iOS 14.0, tvOS 14.0, *) {
-                            LazyImage(url: pkg.icon) { state in
-                                if let image = state.image {
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .scaledToFit()
-                                } else if state.error != nil {
-                                    Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .scaledToFit()
-                                } else {
-                                    ProgressView()
-                                        .scaledToFit()
-                                }
+        ScrollView {
+            VStack {
+                if #available(iOS 14.0, tvOS 14.0, *) {
+                    if let banner = banner {
+                        LazyImage(url: banner) { state in
+                            if let image = state.image {
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } else {
+                                ProgressView()
+                                    .scaledToFit()
                             }
-                            #if os(watchOS)
-                            .frame(width: 45, height: 45)
-                            .cornerRadius(100)
-                            #else
-                            .frame(width: 80, height: 80)
-                            .cornerRadius(15)
-                            #endif
-                            .padding(.trailing, 5)
-                            .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                         }
-                        
-                        VStack(alignment: .leading) {
-                            Text(pkg.name)
-                                .font(.headline.bold())
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                            Text(pkg.author)
-                                .font(.subheadline)
-                                .opacity(0.7)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                        }
-                        Spacer()
-                        #if !os(watchOS)
-                        Button(action: {
-                            installPKG()
-                        }, label: {
-                            Text(queued ? "Queued" : installed ? "Uninstall" : price != "" ? price : "Install")
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                        }).borderedProminentButtonC().disabled(pkg.paid && (price == "" || !UserDefaults.standard.bool(forKey: "usePaymentAPI"))).opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
-                            if !queued && !installed {
-                                ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
-                                    Button(action: {installPKG(ver)}) {
-                                        Text(ver)
+#if !os(macOS) && !os(watchOS)
+                        .frame(width: (preview ? UIScreen.main.bounds.width/1.5 : UIScreen.main.bounds.width)-40, height: preview ? 100 : 200)
+#endif
+                        .cornerRadius(20)
+                        .clipped()
+                        .listRowBackground(Color.clear)
+                        .listRowSeparatorC(false)
+                        .padding(.bottom)
+                        .padding(.top, -40)
+                    }
+                }
+                
+                Section {
+                    VStack(alignment: .leading) {
+                        HStack(alignment: .center) {
+                            if #available(iOS 14.0, tvOS 14.0, *) {
+                                LazyImage(url: pkg.icon) { state in
+                                    if let image = state.image {
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .scaledToFit()
+                                    } else if state.error != nil {
+                                        Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .scaledToFit()
+                                    } else {
+                                        ProgressView()
+                                            .scaledToFit()
                                     }
                                 }
+#if os(watchOS)
+                                .frame(width: 45, height: 45)
+                                .cornerRadius(100)
+#else
+                                .frame(width: 80, height: 80)
+                                .cornerRadius(15)
+#endif
+                                .padding(.trailing, 5)
+                                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
                             }
-                            if installed {
-                                ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
-                                    if let installedPKG = installedPKG, installedPKG.version != ver {
+                            
+                            VStack(alignment: .leading) {
+                                Text(pkg.name)
+                                    .font(.headline.bold())
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                                Text(pkg.author)
+                                    .font(.subheadline)
+                                    .opacity(0.7)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                            }
+                            Spacer()
+#if !os(watchOS)
+                            Button(action: {
+                                installPKG()
+                            }, label: {
+                                Text(queued ? "Queued" : installed ? "Uninstall" : price != "" ? price : "Install")
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                            }).borderedProminentButtonC().disabled(pkg.paid && (price == "" || !UserDefaults.standard.bool(forKey: "usePaymentAPI"))).opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
+                                if !queued && !installed {
+                                    ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                         Button(action: {installPKG(ver)}) {
-                                            Text("\(installedPKG.version.compareVersion(ver) == .orderedAscending ? "Upgrade to" : "Downgrade to") \(ver)")
+                                            Text(ver)
                                         }
                                     }
                                 }
-                            }
-                            if !installed, !(pkg.repo.url.path == "/"), pkg.path != "" {
-                                let debURL = pkg.repo.url.appendingPathComponent(pkg.path)
-                                Button(action: {
-                                    openURL(debURL)
-                                }) {
-                                    Text("Download deb")
+                                if installed {
+                                    ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
+                                        if let installedPKG = installedPKG, installedPKG.version != ver {
+                                            Button(action: {installPKG(ver)}) {
+                                                Text("\(installedPKG.version.compareVersion(ver) == .orderedAscending ? "Upgrade to" : "Downgrade to") \(ver)")
+                                            }
+                                        }
+                                    }
                                 }
-                            }
-                        })
-                        #endif
+                                if !installed, !(pkg.repo.url.path == "/"), pkg.path != "" {
+                                    let debURL = pkg.repo.url.appendingPathComponent(pkg.path)
+                                    Button(action: {
+                                        openURL(debURL)
+                                    }) {
+                                        Text("Download deb")
+                                    }
+                                }
+                            })
+#endif
+                        }
                     }
                 }
-            }
-            .listRowBackground(Color.clear).listRowSeparatorC(false)
-            #if os(watchOS)
-            .padding(.bottom, -30)
-            #endif
-            
-            #if !os(macOS) && !os(watchOS)
-            if !preview {
-                TweakDepictionView(pkg: pkg, banner: $banner).listRowBackground(Color.clear).listRowSeparatorC(false)
-            }
-            #endif
-            
-            #if !os(watchOS)
-            if !(pkg.repo.url.path == "/") {
-                Section(header: Text("Repo")) {
-                    RepoRow(repo: pkg.repo)
+                .padding(.horizontal)
+#if os(watchOS)
+                .padding(.bottom, -30)
+#endif
+
+                #if !os(watchOS)
+                if #available(iOS 14.0, tvOS 14.0, *) {
+                    if let url = pkg.depiction,
+                       !preview {
+                        TweakDepictionView(url: url, banner: $banner).padding(.horizontal).frame(maxHeight: .infinity)
+                    }
+                }
+                #endif
+                
+#if !os(watchOS)
+                if !(pkg.repo.url.path == "/") {
+                    Section(header: Text("Repo")) {
+                        HStack {
+                            RepoRow(repo: pkg.repo)
+                            Spacer()
+                        }
+                    }.padding(.horizontal)
+                }
+#endif
+                
+                HStack {
+                    Spacer()
+                    Text("\(pkg.id) (\(pkg.installedVersion == "" ? pkg.version : pkg.installedVersion))\(pkg.installedVersion == "" ? "" : " (\(pkg.version) available)")").foregroundColor(Color(UIColor.secondaryLabel))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    Spacer()
                 }.listRowBackground(Color.clear).listRowSeparatorC(false)
+                
+#if os(watchOS)
+                Button(action: {
+                    installPKG()
+                }, label: {
+                    Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }).borderedProminentButtonC().opacity(0.7).animation(.spring()).listRowBackground(Color.clear)
+#endif
             }
-            #endif
-            
-            HStack {
-                Spacer()
-                Text("\(pkg.id) (\(pkg.installedVersion == "" ? pkg.version : pkg.installedVersion))\(pkg.installedVersion == "" ? "" : " (\(pkg.version) available)")").foregroundColor(Color(UIColor.secondaryLabel))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                Spacer()
-            }.listRowBackground(Color.clear).listRowSeparatorC(false)
-            
-            #if os(watchOS)
-            Button(action: {
-                installPKG()
-            }, label: {
-                Text(queued ? "Queued" : installed ? "Uninstall" : "Install")
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            }).borderedProminentButtonC().opacity(0.7).animation(.spring()).listRowBackground(Color.clear)
-            #endif
         }
         .appBG()
         .listStyle(.plain)

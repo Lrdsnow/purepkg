@@ -17,6 +17,9 @@ extension NSColor {
     static var secondaryLabel: NSColor {
         return NSColor.secondaryLabelColor
     }
+    static var label: NSColor {
+        return NSColor.labelColor
+    }
 }
 #elseif os(watchOS)
 extension UIColor {
