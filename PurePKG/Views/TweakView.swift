@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import NukeUI
+import LocalAuthentication
 
 struct TweakView: View {
     @EnvironmentObject var appData: AppData
@@ -16,8 +17,13 @@ struct TweakView: View {
     @State private var queued = false
     @State private var banner: URL? = nil
     @State private var price: String = ""
+    @State private var owned = false
+    @State private var showConfirmSheet = false
+    @State private var reqVer: String? = nil
     let pkg: Package
     let preview: Bool
+    @State private var supported: Bool? = nil
+    @State private var supportedVers: String? = nil
     
     var body: some View {
         ScrollView {
@@ -97,7 +103,8 @@ struct TweakView: View {
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                             }).borderedProminentButtonC().disabled(!installed && !queued && pkg.paid && (price == "" || !UserDefaults.standard.bool(forKey: "usePaymentAPI"))).opacity(0.7).animation(.spring()).contextMenuC(menuItems: {
-                                if !queued && !installed {
+                                
+                                if !queued && !installed && (!pkg.paid || owned) {
                                     ForEach(pkg.versions.sorted(by: { $1.compareVersion($0) == .orderedAscending }).removingDuplicates(), id: \.self) { ver in
                                         Button(action: {installPKG(ver)}) {
                                             Text(ver)
@@ -113,7 +120,7 @@ struct TweakView: View {
                                         }
                                     }
                                 }
-                                if !installed, !(pkg.repo.url.path == "/"), pkg.path != "" {
+                                if !installed, !(pkg.repo.url.path == "/"), pkg.path != "", (!pkg.paid || owned) {
                                     let debURL = pkg.repo.url.appendingPathComponent(pkg.path)
                                     Button(action: {
                                         openURL(debURL)
@@ -130,15 +137,21 @@ struct TweakView: View {
 #if os(watchOS)
                 .padding(.bottom, -30)
 #endif
-
-                #if !os(watchOS)
+                
+                if let supported = supported, let supportedVers = supportedVers, !supported {
+                    HStack {
+                        Text("Warning: This tweak only supports \(supportedVers) and may be incompatible with your current \(Device().osString) version (\(Device().pretty_version))").padding()
+                    }.background( RoundedRectangle(cornerRadius: 15).foregroundColor(.red).opacity(0.4) ).padding()
+                }
+                
+#if !os(watchOS)
                 if #available(iOS 14.0, tvOS 14.0, *) {
                     if let url = pkg.depiction,
                        !preview {
-                        TweakDepictionView(url: url, banner: $banner).padding(.horizontal).frame(maxHeight: .infinity)
+                        TweakDepictionView(url: url, banner: $banner, reqVer: $reqVer).padding(.horizontal).frame(maxWidth: UIScreen.main.bounds.width, maxHeight: .infinity)
                     }
                 }
-                #endif
+#endif
                 
 #if !os(watchOS)
                 if !(pkg.repo.url.path == "/") {
@@ -173,41 +186,143 @@ struct TweakView: View {
         .appBG()
         .listStyle(.plain)
         .onChangeC(of: appData.queued.all.count, perform: { _ in queued = appData.queued.all.contains(pkg.id) })
+        .onChangeC(of: reqVer, perform: { _ in supported = pkg.supportedByDevice(reqVer); supportedVers = pkg.supportedVers(reqVer) })
         .onAppear() {
             queued = appData.queued.all.contains(pkg.id)
             installed = appData.installed_pkgs.contains(where: { $0.id == pkg.id })
             installedPKG = appData.installed_pkgs.first(where: { $0.id == pkg.id })
+            supported = pkg.supportedByDevice(reqVer)
+            supportedVers = pkg.supportedVers(reqVer)
             if pkg.paid {
                 PaymentAPI.getPackageInfo(pkg.id, pkg.repo, completion: { info in
                     price = info?.price ?? ""
+                    owned = info?.purchased ?? false
                 })
             }
+        }
+        .sheetC(isPresented: $showConfirmSheet) {
+            #if os(iOS)
+            if #available(iOS 15.0, *) {
+                VStack {
+                    HStack {
+                        if !UserDefaults.standard.bool(forKey: "hideIcons") {
+                            ZStack(alignment: .bottomTrailing) {
+                                VStack(alignment: .center) {
+                                    Spacer()
+                                    LazyImage(url: pkg.icon) { state in
+                                        if let image = state.image {
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                        } else if state.error != nil {
+                                            Image(uiImageC: UIImage(named: "DisplayAppIcon")!)
+                                                .resizable()
+                                                .scaledToFill()
+                                        } else {
+                                            ProgressView()
+                                                .scaledToFit()
+                                        }
+                                    }
+                                    .frame(width: 50, height: 50)
+                                    .customRadius(11)
+                                    Spacer()
+                                }
+                                
+                                if appData.installed_pkgs.contains(where: { $0.id == pkg.id }) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(Color.accentColor)
+                                        .offset(x: 5, y: -5)
+                                }
+                            }
+                        }
+                        
+                        VStack(alignment: .leading) {
+                            Text(pkg.name)
+                                .font(.headline)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                            Text("\(pkg.author) · \(pkg.version) · \(pkg.id)")
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .minimumScaleFactor(0.5)
+                            Text(pkg.desc)
+                                .font(.footnote)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                        }
+                        
+                        Spacer()
+                    }
+                    HStack {
+                        Text("Price:")
+                        Spacer()
+                        Text(price)
+                    }
+                    if let supported = supported,
+                       let supportedVers = supportedVers {
+                        HStack {
+                            Text("Version Requirement:")
+                            Spacer()
+                            Text(supportedVers)
+                        }.foregroundColor(supported ? .green : .red)
+                    }
+                    Button(action: {
+                        var context = LAContext()
+                        var error: NSError?
+                        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+                            print(error?.localizedDescription ?? "Can't evaluate policy")
+                            return
+                        }
+                        Task {
+                            do {
+                                try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Authenticate Purchase")
+                                print("success")
+                            } catch let error {
+                                print(error.localizedDescription)
+                                showConfirmSheet = false
+                            }
+                        }
+                    }, label: {
+                        Text("Confirm Purchase")
+                    }).borderedProminentButtonC().opacity(0.7).cornerRadius(20)
+                }.padding(.horizontal).padding(.bottom, UIDevice.current.userInterfaceIdiom == .pad ? 20 : 0)
+                    .purePresentationDetents()
+                    .padding(.bottom, UIApplication.shared.windows[0].safeAreaInsets.bottom > 0 ? 0 : 15)
+            }
+            #endif
         }
     }
     
     func installPKG(_ version: String? = nil) {
-        if !queued && !installed {
-            if let version = version {
-                var diffVerPKG = pkg
-                diffVerPKG.version = version
-                appData.queued.install.append(diffVerPKG)
-            } else {
-                appData.queued.install.append(pkg)
+        if (!pkg.paid || owned) {
+            if !queued && !installed {
+                if let version = version {
+                    var diffVerPKG = pkg
+                    diffVerPKG.version = version
+                    appData.queued.install.append(diffVerPKG)
+                } else {
+                    appData.queued.install.append(pkg)
+                }
+                appData.queued.all.append(pkg.id)
+            } else if queued {
+                if let index = appData.queued.install.firstIndex(where: { $0.id == pkg.id }) {
+                    appData.queued.install.remove(at: index)
+                }
+                if let index = appData.queued.uninstall.firstIndex(where: { $0.id == pkg.id }) {
+                    appData.queued.uninstall.remove(at: index)
+                }
+                if let index = appData.queued.all.firstIndex(where: { $0 == pkg.id }) {
+                    appData.queued.all.remove(at: index)
+                }
+            } else if installed {
+                appData.queued.uninstall.append(pkg)
+                appData.queued.all.append(pkg.id)
             }
-            appData.queued.all.append(pkg.id)
-        } else if queued {
-            if let index = appData.queued.install.firstIndex(where: { $0.id == pkg.id }) {
-                appData.queued.install.remove(at: index)
-            }
-            if let index = appData.queued.uninstall.firstIndex(where: { $0.id == pkg.id }) {
-                appData.queued.uninstall.remove(at: index)
-            }
-            if let index = appData.queued.all.firstIndex(where: { $0 == pkg.id }) {
-                appData.queued.all.remove(at: index)
-            }
-        } else if installed {
-            appData.queued.uninstall.append(pkg)
-            appData.queued.all.append(pkg.id)
+        } else {
+            showConfirmSheet = true
         }
     }
 }

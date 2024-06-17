@@ -29,21 +29,6 @@ public extension UIDevice {
 }
 #endif
 
-func osString() -> String {
-    #if os(macOS)
-    return "macOS"
-    #elseif os(tvOS)
-    return "tvOS"
-    #elseif os(watchOS)
-    return "watchOS"
-    #elseif os(visionOS)
-    return "visionOS"
-    #else
-    return "iOS"
-    #endif
-}
-
-
 #if os(watchOS) || os(macOS)
 func getModelName() -> String {
     #if targetEnvironment(simulator)
@@ -146,6 +131,26 @@ class Device {
             }
 #else
             return ""
+#endif
+        }
+    }
+    
+    var osString: String {
+        get {
+#if os(macOS)
+            return "macOS"
+#elseif os(tvOS)
+            return "tvOS"
+#elseif os(watchOS)
+            return "watchOS"
+#elseif os(visionOS)
+            return "visionOS"
+#else
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                return "iPadOS"
+            } else {
+                return "iOS"
+            }
 #endif
         }
     }

@@ -27,6 +27,7 @@ class AppData: ObservableObject {
     @Published var installed_pkgs: [Package] = []
     @Published var available_updates: [Package] = []
     @Published var queued: PKGQueue = PKGQueue()
+    @Published var userInfo: [String:PaymentAPI.UserInfo] = [:]
     
     @Published var test = false
     

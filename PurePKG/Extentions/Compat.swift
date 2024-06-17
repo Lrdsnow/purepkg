@@ -158,6 +158,15 @@ extension View {
             self
         }
     }
+    @ViewBuilder
+    func setAccentColor() -> some View {
+        if let accent = UserDefaults.standard.string(forKey: "accentColor"),
+           let accent_color = Color(hex: accent) {
+            self.accentColor(accent_color)
+        } else {
+            self
+        }
+    }
 }
 
 struct SectionC<Content: View>: View {
@@ -189,3 +198,82 @@ func openURL(_ url: URL) {
     UIApplication.shared.open(url)
     #endif
 }
+
+#if os(iOS)
+extension View {
+    @ViewBuilder
+    func sheetC<Content: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) -> some View {
+        if #available(iOS 16.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+            self.sheet(isPresented: isPresented, content: content)
+        } else {
+           self._sheetC(isPresented: isPresented, content: content)
+        }
+    }
+    @ViewBuilder
+    func purePresentationDetents() -> some View {
+        if #available(iOS 16.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+            self.presentationDetents([.height(UIApplication.shared.windows[0].safeAreaInsets.bottom > 0 ? UIScreen.main.bounds.height/4 : UIScreen.main.bounds.height/3)])
+        } else {
+            self
+        }
+    }
+}
+
+extension View {
+    func _sheetC<Content: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) -> some View {
+        self.background(FallbackSheetPresenter(isPresented: isPresented, content: content))
+    }
+}
+
+private struct FallbackSheetPresenter<Content: View>: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+    let content: () -> Content
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isPresented: $isPresented, content: content)
+    }
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        return UIViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        log("update")
+        if isPresented && uiViewController.presentedViewController == nil {
+            let hostingController = UIHostingController(rootView: content())
+            hostingController.modalPresentationStyle = .pageSheet
+            // let sheet = hostingController.sheetPresentationController {
+            if let sheet = (hostingController as NSObject).value(forKey: "sheetPresentationController") as? NSObject {
+                let height: CGFloat
+                if UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 > 0 {
+                    height = UIScreen.main.bounds.height / 4
+                } else {
+                    height = UIScreen.main.bounds.height / 3
+                }
+                // let detent = UISheetPresentationController.Detent = ._detent(withIdentifier: "custom_detent", height)
+                // sheet.detents = [detent]
+                sheet.setValue([CustomDetent(constant: height)], forKey: "detents")
+            }
+            uiViewController.present(hostingController, animated: true)
+        } else if !isPresented && uiViewController.presentedViewController != nil {
+            uiViewController.dismiss(animated: true)
+        }
+    }
+
+    class Coordinator: NSObject {
+        @Binding var isPresented: Bool
+        let content: () -> Content
+
+        init(isPresented: Binding<Bool>, content: @escaping () -> Content) {
+            _isPresented = isPresented
+            self.content = content
+        }
+
+        @objc func dismiss() {
+            log("dismissed")
+            isPresented = false
+        }
+    }
+}
+
+#endif

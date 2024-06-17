@@ -30,12 +30,12 @@ class Keychain {
         
         let saveStatus = SecItemAdd(query, nil)
         
-        if saveStatus != errSecSuccess {
-            print("Error: \(saveStatus)")
-        }
-        
         if saveStatus == errSecDuplicateItem {
             update(data, service: service, account: account)
+        } else if saveStatus != errSecSuccess {
+            if let errorMessage = SecCopyErrorMessageString(saveStatus, nil) {
+                log("Error: \(saveStatus) - \(errorMessage)")
+            }
         }
     }
     

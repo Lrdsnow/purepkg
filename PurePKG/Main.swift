@@ -96,11 +96,11 @@ struct PurePKGApp: App {
             #if os(watchOS)
             ContentViewWatchOS(tab: $tab, importedPackage: $importedPackage, showPackage: $showPackage)
                 .environmentObject(appData)
-                .accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF"))
+                .setAccentColor()
             #else
             ContentView(tab: $tab, importedPackage: $importedPackage, showPackage: $showPackage, preview: false)
                 .environmentObject(appData)
-                .accentColor(Color(hex: UserDefaults.standard.string(forKey: "accentColor") ?? "#EBC2FF"))
+                .setAccentColor()
             #endif
         }
     }
@@ -200,7 +200,7 @@ struct ContentView: View {
                         Text("Search")
                     }
                     .tag(2)
-                if !appData.queued.all.isEmpty {
+                if !appData.queued.all.isEmpty || Device().osString == "tvOS" {
                     QueueView()
                         .tabItem {
                             Image(systemName: "list.bullet")

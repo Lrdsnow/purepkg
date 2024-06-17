@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import NukeUI
 import PhotosUI
+import AuthenticationServices
 
 struct SettingsView: View {
     @EnvironmentObject var appData: AppData
@@ -36,66 +37,66 @@ struct SettingsView: View {
             #endif
             Section {
                 HStack {
-                    Text("App Version")
+                    Text("App Version").minimumScaleFactor(0.5)
                     Spacer()
-                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0")
+                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0").minimumScaleFactor(0.5)
                 }.listRowBG()
                 HStack {
-                    Text("Device")
+                    Text("Device").minimumScaleFactor(0.5)
                     Spacer()
-                    Text(Device().modelIdentifier)
+                    Text(Device().modelIdentifier).minimumScaleFactor(0.5)
                 }.listRowBG()
                 HStack {
                     #if os(watchOS)
-                    Text("watchOS Ver")
+                    Text("watchOS Ver").minimumScaleFactor(0.5)
                     #else
-                    Text("\(osString()) Version")
+                    Text("\(Device().osString) Version").minimumScaleFactor(0.5)
                     #endif
                     Spacer()
                     #if os(watchOS)
-                    Text("\(Device().pretty_version)")
+                    Text("\(Device().pretty_version)").minimumScaleFactor(0.5)
                     #else
-                    Text("\(Device().pretty_version)\(Device().build_number == "0" ? "" : " (\(Device().build_number))")")
+                    Text("\(Device().pretty_version)\(Device().build_number == "" ? "" : " (\(Device().build_number))")").minimumScaleFactor(0.5)
                     #endif
                 }.listRowBG()
 #if !os(macOS)
                 HStack {
                     #if os(watchOS)
-                    Text("JB Type")
+                    Text("JB Type").minimumScaleFactor(0.5)
                     #else
-                    Text("Jailbreak Type")
+                    Text("Jailbreak Type").minimumScaleFactor(0.5)
                     #endif
                     Spacer()
-                    Text(Jailbreak().pretty_type)
+                    Text(Jailbreak().pretty_type).minimumScaleFactor(0.5)
                 }.listRowBG()
 #endif
                 HStack {
                     #if os(watchOS)
-                    Text("Arch")
+                    Text("Arch").minimumScaleFactor(0.5)
                     #else
-                    Text("Architecture")
+                    Text("Architecture").minimumScaleFactor(0.5)
                     #endif
                     Spacer()
-                    Text(Jailbreak().arch)
+                    Text(Jailbreak().arch).minimumScaleFactor(0.5)
                 }.listRowBG()
 #if !os(macOS)
                 if let jb = jb {
                     HStack {
-                        Text("Jailbreak")
+                        Text("Jailbreak").minimumScaleFactor(0.5)
                         Spacer()
-                        Text(jb)
+                        Text(jb).minimumScaleFactor(0.5)
                     }.listRowBG()
                 }
 #endif
                 HStack {
-                    Text("Tweak Count")
+                    Text("Tweak Count").minimumScaleFactor(0.5)
                     Spacer()
-                    Text("\(appData.installed_pkgs.count)")
+                    Text("\(appData.installed_pkgs.count)").minimumScaleFactor(0.5)
                 }.listRowBG()
                 
                 HStack {
                     Toggle(isOn: $VerifySignature, label: {
-                        Text("Verify GPG Signature")
+                        Text("Verify GPG Signature").minimumScaleFactor(0.5)
                     }).tintC(.accentColor)
                 }.onChangeC(of: VerifySignature) { _ in
                     UserDefaults.standard.set(VerifySignature, forKey: "checkSignature")
@@ -103,19 +104,26 @@ struct SettingsView: View {
                 
                 HStack {
                     Toggle(isOn: $RefreshOnStart, label: {
-                        Text("Refresh Repos on Start")
+                        Text("Refresh Repos on Start").minimumScaleFactor(0.5)
                     }).tintC(.accentColor)
                 }.onChangeC(of: RefreshOnStart) { _ in
                     UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
                 }.listRowBG()
 #if os(iOS)
+                if #available(iOS 14.0, tvOS 16.0, *) {
+                    NavigationLink(destination: PaymentSettingsView()) {
+                        Text("Payment Settings").minimumScaleFactor(0.5)
+                    }.listRowBG()
+                }
+#endif
+#if os(iOS)
                 NavigationLink(destination: UISettingsView()) {
-                    Text("UI Settings")
+                    Text("UI Settings").minimumScaleFactor(0.5)
                 }.listRowBG()
 #endif
 #if !os(macOS)
                 NavigationLink(destination: CreditsView()) {
-                    Text("Credits")
+                    Text("Credits").minimumScaleFactor(0.5)
                 }.listRowBG()
 #else
                 SectionC("Credits") {
@@ -143,6 +151,88 @@ struct SettingsView: View {
         }
     }
 }
+
+#if os(iOS)
+@available(iOS 14.0, tvOS 16.0, *)
+struct PaymentSettingsView: View {
+    @StateObject private var viewModel = PaymentAPI_AuthenticationViewModel()
+    @EnvironmentObject var appData: AppData
+    @State private var usePaymentAPI: Bool = UserDefaults.standard.bool(forKey: "usePaymentAPI")
+    @State private var hidePaidTweaks: Bool = UserDefaults.standard.bool(forKey: "hidePaidTweaks")
+    
+    var body: some View {
+        List {
+            Section {
+                Toggle(isOn: $hidePaidTweaks, label: {
+                    Text("Hide Paid Tweaks")
+                }).tintC(.accentColor).onChangeC(of: hidePaidTweaks) { _ in
+                    UserDefaults.standard.set(hidePaidTweaks, forKey: "hidePaidTweaks")
+                }.listRowBG()
+                if !hidePaidTweaks {
+                    Toggle(isOn: $usePaymentAPI, label: {
+                        Text("Use Payment API")
+                    }).tintC(.accentColor).onChangeC(of: usePaymentAPI) { _ in
+                        UserDefaults.standard.set(usePaymentAPI, forKey: "usePaymentAPI")
+                    }.listRowBG()
+                }
+            }
+            if !hidePaidTweaks && usePaymentAPI {
+                Section {
+                    ForEach(appData.repos.filter( { $0.paidRepoInfo != nil } ), id:\.id) { repo in
+                        if let paidRepoInfo = repo.paidRepoInfo {
+#if os(tvOS)
+                            if let authURL = repo.paymentAPI.authURL {
+                                NavigationLink(destination: WebAuthView(url: authURL) { v in log(v) }) {
+                                    buttonLabel(repo: repo, paidRepoInfo: paidRepoInfo)
+                                }
+                            }
+#else
+                            Button(action: {
+                                log(repo.name)
+                                viewModel.auth(repo, appData: appData)
+                            }, label: {
+                                buttonLabel(repo: repo, paidRepoInfo: paidRepoInfo)
+                            }).padding(.vertical, 5)
+#endif
+                        }
+                    }
+                }.listRowBackground(Color.clear).listRowInsets(EdgeInsets()).listRowSeparatorC(false)
+            }
+        }
+    }
+    
+    struct buttonLabel: View {
+        @EnvironmentObject var appData: AppData
+        let repo: Repo
+        let paidRepoInfo: PaidRepoInfo
+        let scale = UIScreen.main.bounds.height/10
+        
+        var body: some View {
+            HStack {
+                if #available(iOS 14.0, tvOS 14.0, *) {
+                    LazyImage(url: paidRepoInfo.icon) { state in
+                        if let image = state.image {
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } else {
+                            ProgressView()
+                                .scaledToFit()
+                        }
+                    }
+                    .frame(width: scale, height: scale)
+                    .cornerRadius(15)
+                }
+                VStack(alignment: .leading) {
+                    Text(paidRepoInfo.name).font(.system(size: 25, design: .rounded).bold()).minimumScaleFactor(0.5).lineLimit(1)
+                    Text((appData.userInfo[repo.name] != nil) ? "Logged in as \(appData.userInfo[repo.name]?.user.name ?? "Unknown")" : paidRepoInfo.description).font(.system(size: 15)).foregroundColor(Color.secondary).minimumScaleFactor(0.5).lineLimit(1)
+                }
+                Spacer()
+            }.background(Rectangle().foregroundColor(.accentColor.opacity(0.05)).cornerRadius(15))
+        }
+    }
+}
+#endif
 
 #if os(macOS)
 struct CreditView: View {

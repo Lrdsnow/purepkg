@@ -64,6 +64,7 @@ public class Jailbreak {
     
     var arch: String {
         get {
+            return "iphoneos-arm64"
 #if os(macOS)
             return "darwin-\(getMacOSArchitecture() ?? "unknown")"
 #elseif os(tvOS)
@@ -174,7 +175,13 @@ extension Package {
         return .supported
         #elseif os(iOS)
         let jbtype = Jailbreak().type
-        if jbtype == .rootful {
+        if jbtype == .jailed {
+            if self.arch == "iphoneos-arm64" {
+                return .supported
+            } else {
+                return .unsupported
+            }
+        } else if jbtype == .rootful {
             if self.arch == "iphoneos-arm" {
                 return .supported
             } else {

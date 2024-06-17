@@ -18,7 +18,22 @@ public struct Repo: Encodable, Decodable, Hashable, Equatable {
     var tweaks: [Package] = []
     var component: String = "main"
     var payment_endpoint: URL? = nil
+    var paidRepoInfo: PaidRepoInfo? = nil
     var error: String? = nil
+    
+    var paymentAPI: payment {
+        return payment(repo: self)
+    }
+    
+    public struct payment: Encodable, Decodable, Hashable, Equatable {
+        let repo: Repo
+        
+        var authURL: URL? {
+            let udid = Device().uniqueIdentifier.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+            let model = Device().modelIdentifier.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+            return URL(string: String(format: "authenticate?udid=%@&model=%@", udid, model), relativeTo: repo.payment_endpoint)
+        }
+    }
     
     // hashable stuff
     public func hash(into hasher: inout Hasher) {
@@ -28,7 +43,6 @@ public struct Repo: Encodable, Decodable, Hashable, Equatable {
         hasher.combine(version)
         hasher.combine(archs)
         hasher.combine(url)
-        hasher.combine(payment_endpoint)
         hasher.combine(error)
     }
     
@@ -40,7 +54,6 @@ public struct Repo: Encodable, Decodable, Hashable, Equatable {
             lhs.version == rhs.version &&
             lhs.archs == rhs.archs &&
             lhs.url == rhs.url &&
-            lhs.payment_endpoint == rhs.payment_endpoint &&
             lhs.error == rhs.error
     }
 }
@@ -50,4 +63,16 @@ struct RepoSource {
     var suites: String? = nil
     var components: String = "main"
     var signedby: URL? = nil
+}
+
+struct PaidRepoInfo: Encodable, Decodable, Hashable, Equatable {
+    var name: String
+    var icon: URL
+    var description: String
+    var authentication_banner: PaidRepoInfoAuthBanner?
+}
+
+struct PaidRepoInfoAuthBanner: Encodable, Decodable, Hashable, Equatable {
+    var message: String
+    var button: String
 }

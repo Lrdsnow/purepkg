@@ -13,6 +13,9 @@ import SafariServices
 import WebKit
 #endif
 import NukeUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // MARK: - Main View
 
@@ -20,6 +23,7 @@ import NukeUI
 struct TweakDepictionView: View {
     let url: URL
     @Binding var banner: URL?
+    @Binding var reqVer: String?
     @State private var view = AnyView(ProgressView())
     @State private var fetched = false
     
@@ -41,18 +45,16 @@ struct TweakDepictionView: View {
                         return
                     }
                     
-                    if let jsonString = String(data: data, encoding: .utf8) {
-                        DispatchQueue.main.async {
-                            let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                            if let dict = dict {
-                                if let bannerImage = dict["headerImage"] as? String {
-                                    self.banner = URL(string: bannerImage)
-                                }
-                                view = parse(dict)
-                            } else {
-                                view = AnyView(EmptyView())
-                                return
+                    DispatchQueue.main.async {
+                        let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                        if let dict = dict {
+                            if let bannerImage = dict["headerImage"] as? String {
+                                self.banner = URL(string: bannerImage)
                             }
+                            view = parse(dict)
+                        } else {
+                            view = AnyView(EmptyView())
+                            return
                         }
                     }
                 }
@@ -109,7 +111,6 @@ struct TweakDepictionView: View {
                 // views - Array of View objects - The views (layout) of the tab. - Required
                 var views: [AnyView] = []
                 if let views_json = json["views"] as? [[String:Any]] {
-                    log(views_json)
                     for view_json in views_json {
                         views.append(parse(view_json))
                     }
@@ -126,7 +127,6 @@ struct TweakDepictionView: View {
                 // views - Array of View objects - The views (layout) to change the width of. - Required
                     var views: [AnyView] = []
                     if let views_json = json["views"] as? [[String:Any]] {
-                        log(views_json)
                         for view_json in views_json {
                             views.append(parse(view_json))
                         }
@@ -140,7 +140,6 @@ struct TweakDepictionView: View {
                 // views - Array of View objects - The views to layer on top f - Required
                 var views: [AnyView] = []
                 if let views_json = json["views"] as? [[String:Any]] {
-                    log(views_json)
                     for view_json in views_json {
                         views.append(parse(view_json))
                     }
@@ -233,6 +232,18 @@ struct TweakDepictionView: View {
                     ret = parse(ipad)
                     break
                 }
+                #elseif os(tvOS)
+                // appleTV - DepictionScreenshotsView - Override class with this property if on an Apple TV. - Optional
+                if let appleTV = json["appleTV"] as? [String:Any] {
+                    ret = parse(appleTV)
+                    break
+                }
+                #elseif os(macOS)
+                // macOS - DepictionScreenshotsView - Override class with this property if on a MacOS Device. - Optional
+                if let macOS = json["macOS"] as? [String:Any] {
+                    ret = parse(macOS)
+                    break
+                }
                 #endif
                 // itemCornerRadius - Double - The roundness of the view’s corners. - Required
                 if let itemCornerRadius = json["itemCornerRadius"] as? CGFloat,
@@ -263,12 +274,12 @@ struct TweakDepictionView: View {
             case "DepictionMarkdownView":
                 // markdown - String (Markdown) - The text to be rendered as Markdown (or HTML) - Required
                 if let markdown = json["markdown"] as? String {
-                    ret = AnyView(DepictionMarkdownView(markdown: markdown))
+                // useRawFormat - Boolean - If true, markdown will accept basic HTML instead of Markdown. - Optional
+                    ret = AnyView(DepictionMarkdownView(markdown: markdown, useHTML: json["useRawFormat"] as? Bool ?? false, reqVer: $reqVer))
                 }
                 // more stuff i probably wont add:
                 // useSpacing - Boolean - If false, remove vertical spacing. - Optional
                 // useMargins - Boolean - If false, remove all margins. - Optional
-                // useRawFormat - Boolean - If true, markdown will accept basic HTML instead of Markdown. - Optional
                 // tintColor - String (Color) - An accent color used for links. Accepts CSS-compatible color strings. - Optional
                 //
             // DepictionTableTextView
@@ -278,6 +289,11 @@ struct TweakDepictionView: View {
                 // text - String - The text to be displayed next to the title. - Required
                    let text = json["text"] as? String{
                     ret = AnyView(HStack{Text(title);Spacer();Text(text)})
+                    // silli ver req stuff
+                    if title.trimmingCharacters(in: .whitespacesAndNewlines) == "iOS Versions" {
+                        reqVer = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+                    //
                 }
             // DepictionTableButtonView/DepictionButtonView
             case "DepictionTableButtonView", "DepictionButtonView":
@@ -287,7 +303,7 @@ struct TweakDepictionView: View {
                    let action = json["action"] as? String {
                     if action.hasPrefix("depiction-") {
                         if let url = URL(string: action.replacingOccurrences(of: "depiction-", with: "")) {
-                            ret = AnyView(NavigationLink(destination: TweakDepictionView(url: url, banner: .constant(nil)), label: {
+                            ret = AnyView(NavigationLink(destination: TweakDepictionView(url: url, banner: .constant(nil), reqVer: $reqVer), label: {
                                 Text(title)
                             }))
                         } else {
@@ -329,20 +345,33 @@ struct TweakDepictionView: View {
 
 struct DepictionMarkdownView: View {
     @ObservedObject var viewModel: DepictionMarkdownViewModel
+    @Binding var reqVer: String?
 
-    init(markdown: String) {
-        viewModel = DepictionMarkdownViewModel(markdown: markdown)
+    init(markdown: String, useHTML: Bool, reqVer: Binding<String?>) {
+        viewModel = DepictionMarkdownViewModel(markdown: markdown, useHTML: useHTML)
+        self._reqVer = reqVer
     }
 
     var body: some View {
         ScrollView {
             if let attributedString = viewModel.attributedString {
-                Text(attributedString.string)
-                    .padding(16)
+                Text(attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines)).onAppear {
+                    do {
+                        let inputString = attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "–", with: "-")
+                        if inputString.contains("iOS") && inputString.contains("Supports") {
+                            let versionRangePattern = try NSRegularExpression(pattern: "iOS \\d+\\.\\d+ - \\d+\\.\\d+", options: [])
+                            let matches = versionRangePattern.matches(in: inputString, options: [], range: NSRange(inputString.startIndex..., in: inputString))
+                            for match in matches {
+                                guard let range = Range(match.range(at: 0), in: inputString) else { continue }
+                                let versionRange = String(inputString[range])
+                                reqVer = versionRange.replacingOccurrences(of: "iOS ", with: "")
+                            }
+                        }
+                    } catch {}
+                }
             } else {
                 if #available(iOS 14.0, tvOS 14.0, *) {
                     ProgressView()
-                        .padding(16)
                 } else {
                     Text("...")
                 }
@@ -385,11 +414,14 @@ public struct DepictionColorCollection: ColorCollection {
 }
 
 class DepictionMarkdownViewModel: ObservableObject {
+    @Environment(\.colorScheme) var colorScheme
     @Published var attributedString: NSAttributedString?
     var htmlString: String = ""
+    var useHTML: Bool = false
     
-    init(markdown: String) {
+    init(markdown: String, useHTML: Bool) {
         self.htmlString = markdown
+        self.useHTML = useHTML
         reloadMarkdown()
     }
 
@@ -402,19 +434,31 @@ class DepictionMarkdownViewModel: ObservableObject {
         red *= 255
         green *= 255
         blue *= 255
-
-        let down = Down(markdownString: htmlString)
-        var config = DownStylerConfiguration()
-        var colors = DepictionColorCollection()
-        colors.link = .accent
-        config.colors = colors
-        config.fonts = DepictionFontCollection()
-        let styler = DownStyler(configuration: config)
-        if let attributedString = try? down.toAttributedString(.default, styler: styler) {
-            self.attributedString = attributedString
+        
+        if useHTML {
+            var textColorString = ""
+            if colorScheme == .dark {
+                textColorString = "color: white;"
+            }
+            let htmlString = String(format: "<style>body{font-family: '-apple-system', 'HelveticaNeue'; font-size:12pt;\(textColorString)} a{text-decoration:none; color:rgba(%.0f,%.0f,%.0f,%.2f)}</style>", red, green, blue, alpha).appending(self.htmlString)
+            if let attributedString = try? NSMutableAttributedString(data: htmlString.data(using: .unicode) ?? "".data(using: .utf8)!, options: [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
+                attributedString.removeAttribute(NSAttributedString.Key("NSOriginalFont"), range: NSRange(location: 0, length: attributedString.length))
+                self.attributedString = attributedString
+            }
+        } else {
+            let down = Down(markdownString: htmlString)
+            var config = DownStylerConfiguration()
+            var colors = DepictionColorCollection()
+            colors.link = .accent
+            config.colors = colors
+            config.fonts = DepictionFontCollection()
+            let styler = DownStyler(configuration: config)
+            if let attributedString = try? down.toAttributedString(.default, styler: styler) {
+                self.attributedString = attributedString
+            }
         }
     }
-
+    
     func depictionHeight(width: CGFloat) -> CGFloat {
         guard let attributedString = attributedString else {
             return 0

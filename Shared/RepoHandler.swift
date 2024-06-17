@@ -41,7 +41,7 @@ public class RepoHandler {
                     Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
                     Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
                     Repo.component = repoSource.components
-                    do { Repo.payment_endpoint = URL(string: try String(contentsOf: url.appendingPathComponent("payment_endpoint"))) } catch {}
+                    do { Repo.payment_endpoint = URL(string: try String(contentsOf: url.appendingPathComponent("payment_endpoint")))} catch {}
                     
                     let currentArch = Jailbreak().arch
                     if !Repo.archs.contains(currentArch) {
@@ -218,10 +218,39 @@ public class RepoHandler {
                                 }
                             }
                             Repo.tweaks = tweaks
+                            log("\(Repo.name) tweak count: \(Repo.tweaks.count)")
                             let endTime = CFAbsoluteTimeGetCurrent()
                             let elapsedTime = endTime - startTime
                             log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                            completion(Repo)
+                            #if os(iOS)
+                            let hidePaidTweaks = UserDefaults.standard.bool(forKey: "hidePaidTweaks")
+                            #else
+                            let hidePaidTweaks = true
+                            #endif
+                            do {
+                                if !hidePaidTweaks {
+                                    if let payment_endpoint = Repo.payment_endpoint {
+                                        Networking.get_dict(payment_endpoint.appendingPathComponent("info"), json: true) { (info, error) in
+                                            if let info = info,
+                                               let name = info["name"] as? String,
+                                               let icon = URL(string: info["icon"] as? String ?? ""),
+                                               let description = info["description"] as? String {
+                                                Repo.paidRepoInfo = PaidRepoInfo(name: name, icon: icon, description: description, authentication_banner: nil)
+                                            } else {
+                                                Repo.tweaks = Repo.tweaks.filter( { !$0.paid } )
+                                            }
+                                            completion(Repo)
+                                        }
+                                    } else {
+                                        throw "no payment_endpoint"
+                                    }
+                                } else {
+                                    throw "hidePaidTweaks enabled"
+                                }
+                            } catch {
+                                Repo.tweaks = Repo.tweaks.filter( { !$0.paid } )
+                                completion(Repo)
+                            }
                         } else if let error = error {
                             log("Error getting repo tweaks: \(error.localizedDescription)")
                             Repo.error = "Error getting repo tweaks: \(error.localizedDescription)"
@@ -562,6 +591,17 @@ func refreshRepos(_ appData: AppData) {
                         appData.repos[AppDataRepoIndex] = tempRepo
                         appData.repos = fixDuplicateRepos(appData.repos)
                         appData.pkgs  = appData.repos.flatMap { $0.tweaks }
+                        Task {
+                            if repo.payment_endpoint != nil {
+                                PaymentAPI.getUserInfo(repo) { userInfo in
+                                    if let userInfo = userInfo {
+                                        DispatchQueue.main.async {
+                                            appData.userInfo[repo.name] = userInfo
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         let jsonEncoder = JSONEncoder()
                         let endTime = CFAbsoluteTimeGetCurrent()
                         let elapsedTime = endTime - startTime

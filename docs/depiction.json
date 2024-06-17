@@ -8,10 +8,72 @@
             "tabname": "Details",
             "views": [
                 {
-                    "class": "DepictionMarkdownView",
-                    "markdown": "PurePKG is a customization focused jailbreak package manager for those who want a truely modern jailbreak experience.\n\n**WARNING:** There are probably a lot of bugs at the moment, if you encounter one please create an issue on github for it.\n",
-                    "useSpacing": true
-                }
+                    "class": "DepictionSubheaderView",
+                    "title": "The Purest Jailbreak Package Manager!",
+                    "useBoldText": true
+                },
+                {
+                    "appleTV": {
+                        "class": "DepictionScreenshotsView",
+                        "itemCornerRadius": 6,
+                        "itemSize": "{346, 160}",
+                        "screenshots": [
+                        {
+                            "accessibilityText": "Screenshot",
+                            "url": "https://media.havoc.app/61fc722a57c005d8f9998d94"
+                        },
+                        {
+                            "accessibilityText": "Screenshot",
+                            "url": "https://media.havoc.app/61fc722b57c005d8f999918c"
+                        },
+                        {
+                            "accessibilityText": "Screenshot",
+                            "url": "https://media.havoc.app/61fc722c57c005d8f999919d"
+                        },
+                        {
+                            "accessibilityText": "Screenshot",
+                            "url": "https://media.havoc.app/61fc722e57c005d8f999919f"
+                        },
+                        {
+                            "accessibilityText": "Screenshot",
+                            "url": "https://media.havoc.app/61fc722f57c005d8f99991a1"
+                        },
+                        {
+                            "accessibilityText": "Screenshot",
+                            "url": "https://media.havoc.app/61fc723057c005d8f99991a3"
+                        }
+                        ]
+                    },
+                    "class": "DepictionScreenshotsView",
+                    "itemCornerRadius": 6,
+                    "itemSize": "{160, 346}",
+                    "screenshots": [
+                      {
+                        "accessibilityText": "Screenshot",
+                        "url": "https://media.havoc.app/61fc722a57c005d8f9998d94"
+                      },
+                      {
+                        "accessibilityText": "Screenshot",
+                        "url": "https://media.havoc.app/61fc722b57c005d8f999918c"
+                      },
+                      {
+                        "accessibilityText": "Screenshot",
+                        "url": "https://media.havoc.app/61fc722c57c005d8f999919d"
+                      },
+                      {
+                        "accessibilityText": "Screenshot",
+                        "url": "https://media.havoc.app/61fc722e57c005d8f999919f"
+                      },
+                      {
+                        "accessibilityText": "Screenshot",
+                        "url": "https://media.havoc.app/61fc722f57c005d8f99991a1"
+                      },
+                      {
+                        "accessibilityText": "Screenshot",
+                        "url": "https://media.havoc.app/61fc723057c005d8f99991a3"
+                      }
+                    ]
+                  }
             ]
         }
     ]

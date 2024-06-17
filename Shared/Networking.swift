@@ -14,7 +14,7 @@ public class Networking {
         
         func attemptFetch(url: URL) {
             get_dict(url) { (dict, error) in
-                if let dict = dict {
+                if let dict = dict as? [String:String] {
                     completion(dict, nil)
                 } else if attempt < suffixes.count - 1 {
                     attempt += 1
@@ -58,7 +58,7 @@ public class Networking {
 
     }
     
-    public static func get_dict(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
+    public static func get_dict(_ url: URL, json: Bool = false, completion: @escaping ([String: Any]?, Error?) -> Void) {
         let startTime = CFAbsoluteTimeGetCurrent()
         
         let task = URLSession.shared.dataTask(with: url) { (_data, response, error) in
@@ -80,55 +80,63 @@ public class Networking {
                 }
             }
             
-            var data = _data
-            
-            if (String(data: data, encoding: .utf8) ?? "").contains("<html>") {
+            if (String(data: _data, encoding: .utf8) ?? "").contains("<html>") {
                 completion(nil, "Invalid data received")
                 return
             }
             
-            if let archiveType = url.archiveType() {
-                data = _data.decompress(archiveType) ?? _data
-            }
-            
-            if let fileContent = String(data: data, encoding: .utf8) {
-                if fileContent.isValidRepoFileFormat() || (url.pathComponents.last ?? "").contains(".gpg") {
-                    
-                    #if !os(macOS)
-                    if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = RepoHandler.getSavedRepoFileName(url);
-                        let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-                        do {
-                            try data.write(to: tempFilePath)
-                            spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
-                        } catch {
-                            
+            if !json {
+                var data = _data
+                
+                if let archiveType = url.archiveType() {
+                    data = _data.decompress(archiveType) ?? _data
+                }
+                
+                if let fileContent = String(data: data, encoding: .utf8) {
+                    if fileContent.isValidRepoFileFormat() || (url.pathComponents.last ?? "").contains(".gpg") {
+                        
+#if !os(macOS)
+                        if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
+                            let fileName = RepoHandler.getSavedRepoFileName(url);
+                            let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                            do {
+                                try data.write(to: tempFilePath)
+                                spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
+                            } catch {
+                                
+                            }
                         }
-                    }
-                    #endif
-                    
-                    let lines = fileContent.components(separatedBy: .newlines)
-                    
-                    var dictionary: [String: String] = [:]
-                    
-                    for line in lines {
-                        let components = line.components(separatedBy: ":")
-                        if components.count == 2 {
-                            let key = components[0].trimmingCharacters(in: .whitespaces)
-                            let value = components[1].trimmingCharacters(in: .whitespaces)
-                            dictionary[key] = value
+#endif
+                        
+                        let lines = fileContent.components(separatedBy: .newlines)
+                        
+                        var dictionary: [String: String] = [:]
+                        
+                        for line in lines {
+                            let components = line.components(separatedBy: ":")
+                            if components.count == 2 {
+                                let key = components[0].trimmingCharacters(in: .whitespaces)
+                                let value = components[1].trimmingCharacters(in: .whitespaces)
+                                dictionary[key] = value
+                            }
                         }
+                        
+                        let endTime = CFAbsoluteTimeGetCurrent()
+                        let elapsedTime = endTime - startTime
+                        log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
+                        completion(dictionary, nil)
+                    } else {
+                        completion(nil, "Downloaded file was invalid")
                     }
-                    
-                    let endTime = CFAbsoluteTimeGetCurrent()
-                    let elapsedTime = endTime - startTime
-                    log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
-                    completion(dictionary, nil)
                 } else {
-                    completion(nil, "Downloaded file was invalid")
+                    completion(nil, "Failed to decode data")
                 }
             } else {
-                completion(nil, "Failed to decode data")
+                do {
+                    completion(try JSONSerialization.jsonObject(with: _data, options: []) as? [String: Any], nil)
+                } catch {
+                    completion(nil, "Failed to decode data")
+                }
             }
         }
         

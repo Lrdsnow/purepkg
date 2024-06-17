@@ -28,6 +28,9 @@ struct QueueView: View {
             VStack(alignment: .leading) {
                 if !showLog {
                     List {
+                        if appData.queued.all.isEmpty {
+                            Text("No Queued Tweaks")
+                        } else {
                         if !appData.queued.install.isEmpty {
                             Section(content: {
                                 ForEach(toInstall, id: \.id) { package in
@@ -61,9 +64,9 @@ struct QueueView: View {
                                 }
                             }, header: {
                                 Text("Install/Upgrade").foregroundColor(.accentColor)
-                                #if !os(iOS)
+#if !os(iOS)
                                     .padding(.leading).padding(.top)
-                                #endif
+#endif
                             })
                         }
                         if !appData.queued.uninstall.isEmpty {
@@ -97,11 +100,12 @@ struct QueueView: View {
                                 }
                             }, header: {
                                 Text("Uninstall").foregroundColor(.accentColor)
-                                #if !os(iOS)
+#if !os(iOS)
                                     .padding(.leading).padding(.top)
-                                #endif
+#endif
                             })
                         }
+                    }
                     }
                 } else {
                     Text(installLog).padding()
@@ -119,11 +123,13 @@ struct QueueView: View {
             #endif
             #if !os(macOS) && !os(watchOS)
                 .navigationBarItems(trailing: HStack {
+                    if !appData.queued.all.isEmpty {
                         Button(action: {
                             editing.toggle()
                         }, label: {
                             Image(systemName: "pencil")
                         })
+                    }
                 })
             #endif
         }
@@ -147,7 +153,7 @@ struct InstallQueuedButton: View {
     var body: some View {
         HStack {
             Spacer()
-            if done && !showLog {
+            if done && !showLog && !appData.queued.all.isEmpty {
                 Button(action: {
                     showLog = true
                 }, label: {
@@ -212,7 +218,7 @@ struct InstallQueuedButton: View {
                     .padding()
 #endif
                 Spacer()
-            }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7))
+            }).borderedProminentButtonC().tintC(Color.accentColor.opacity(0.7)).disabled(appData.queued.all.isEmpty || installingQueue)
             Spacer()
         }
     }
