@@ -7,7 +7,7 @@
 <p align="left">
   <strong><a href="https://github.com/Lrdsnow/purepkg/releases/latest">Download</a></strong>
   •
-  <strong><a href="https://discord.gg/purepkg">Discord</a></strong>
+  <strong><a href="https://discord.gg/purekfd">Discord</a></strong>
   •
   <strong><a href="https://twitter.com/Lrdsnow101">Twitter</a></strong>
 </p>
