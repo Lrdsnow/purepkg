@@ -16,6 +16,20 @@ func showPopup(_ title: String, _ message: String) {
     }
 }
 
+func showConfirmPopup(_ title: String, _ message: String, completion: @escaping (Bool) -> Void) {
+    let cancelAction = WKAlertAction(title: "Cancel", style: .cancel) {
+        completion(false)
+    }
+    
+    let okAction = WKAlertAction(title: "OK", style: .default) {
+        completion(true)
+    }
+    
+    if let controller = WKExtension.shared().rootInterfaceController {
+        controller.presentAlert(withTitle: title, message: message, preferredStyle: .alert, actions: [cancelAction, okAction])
+    }
+}
+
 func showTextInputPopup(_ title: String, _ placeholderText: String, completion: @escaping (String?) -> Void) {
     if let controller = WKApplication.shared().rootInterfaceController {
         controller.presentTextInputController(withSuggestions: [], allowedInputMode: .plain) { (results) in
@@ -35,6 +49,24 @@ func showPopup(_ title: String, _ message: String) {
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
     
     let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+    alertController.addAction(okAction)
+    
+    if let topViewController = UIApplication.shared.windows.first?.rootViewController {
+        topViewController.present(alertController, animated: true, completion: nil)
+    }
+}
+
+func showConfirmPopup(_ title: String, _ message: String, completion: @escaping (Bool) -> Void) {
+    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
+        completion(false)
+    }
+    alertController.addAction(cancelAction)
+    
+    let okAction = UIAlertAction(title: "OK", style: .default) { (_) in
+        completion(true)
+    }
     alertController.addAction(okAction)
     
     if let topViewController = UIApplication.shared.windows.first?.rootViewController {
@@ -112,6 +144,24 @@ func showPopup(_ title: String, _ message: String) {
     alertController.alertStyle = .informational
     alertController.addButton(withTitle: "OK")
     alertController.runModal()
+}
+
+func showConfirmPopup(_ title: String, _ message: String, completion: @escaping (Bool) -> Void) {
+    let alert = NSAlert()
+    alert.messageText = title
+    alert.informativeText = message
+    alert.alertStyle = .informational
+    
+    alert.addButton(withTitle: "Cancel")
+    alert.addButton(withTitle: "OK")
+    
+    let response = alert.runModal()
+    
+    if response == .alertFirstButtonReturn {
+        completion(false)
+    } else if response == .alertSecondButtonReturn {
+        completion(true)
+    }
 }
 
 func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardType: NSAlert.Style, completion: @escaping (String?) -> Void) {

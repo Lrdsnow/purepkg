@@ -64,6 +64,19 @@ public class PaymentAPI {
         var user: UserInfoUser
     }
     
+    public static func logOut(_ repo: Repo, completion: @escaping () -> Void) {
+        if UserDefaults.standard.bool(forKey: "usePaymentAPI"),
+           let token = String(data: Keychain.read(service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)") ?? Data(), encoding: .utf8),
+           token != "" {
+            postAPI("sign_out", repo, ["token": token]) { _ in
+                Keychain.delete(service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)")
+                completion()
+            }
+        } else {
+            completion()
+        }
+    }
+    
     public static func getUserInfo(_ repo: Repo, completion: @escaping (UserInfo?) -> Void) {
         if UserDefaults.standard.bool(forKey: "usePaymentAPI"),
            let token = String(data: Keychain.read(service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)") ?? Data(), encoding: .utf8),

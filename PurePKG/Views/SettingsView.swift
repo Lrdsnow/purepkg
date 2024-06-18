@@ -188,8 +188,19 @@ struct PaymentSettingsView: View {
                             }
 #else
                             Button(action: {
-                                log(repo.name)
-                                viewModel.auth(repo, appData: appData)
+                                if (appData.userInfo[repo.name] != nil) {
+                                    showConfirmPopup("Sign Out", "Are you sure you'd like to sign out of \(repo.name)?") { confirmed in
+                                        if confirmed {
+                                            PaymentAPI.logOut(repo) {
+                                                DispatchQueue.main.async {
+                                                    appData.userInfo.removeValue(forKey: repo.name)
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    viewModel.auth(repo, appData: appData)
+                                }
                             }, label: {
                                 buttonLabel(repo: repo, paidRepoInfo: paidRepoInfo)
                             }).padding(.vertical, 5)
