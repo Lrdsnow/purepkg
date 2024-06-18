@@ -148,7 +148,10 @@ struct TweakView: View {
                 if #available(iOS 14.0, tvOS 14.0, *) {
                     if let url = pkg.depiction,
                        !preview {
-                        TweakDepictionView(url: url, banner: $banner, reqVer: $reqVer).padding(.horizontal).frame(maxWidth: UIScreen.main.bounds.width, maxHeight: .infinity)
+                        TweakDepictionView(url: url, banner: $banner, reqVer: $reqVer).padding(.horizontal)
+                        #if canImport(UIKit)
+                            .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: .infinity)
+                        #endif
                     }
                 }
 #endif

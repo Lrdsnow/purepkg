@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 import AuthenticationServices
 import SwiftUI
 
@@ -221,7 +223,11 @@ class PaymentAPI_WebAuthenticationCoordinator: NSObject, ASWebAuthenticationPres
     }
     
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+#if canImport(UIKit)
         return UIApplication.shared.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
+        #else
+        return ASPresentationAnchor()
+        #endif
     }
 }
 #endif

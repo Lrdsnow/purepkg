@@ -46,6 +46,8 @@ int custom_posix_spawnattr_setflags(posix_spawnattr_t *, short) asm("_posix_spaw
 int custom_posix_spawnattr_setpgroup(posix_spawnattr_t *, pid_t) asm("_posix_spawnattr_setpgroup");
 int custom_posix_spawnattr_setsigmask(posix_spawnattr_t * __restrict, const sigset_t * __restrict) asm("_posix_spawnattr_setsigmask");
 
-
+#if TARGET_OS_MAC
+void spawnRootHelper_macOS(NSArray<NSString *> *args, int *status, NSString **output, NSString **errorMessage);
+#endif
 
 #endif /* bridge_h */

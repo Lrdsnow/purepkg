@@ -21,6 +21,17 @@ extension NSColor {
         return NSColor.labelColor
     }
 }
+extension NSCoder {
+    static func cgSize(for key: String) -> CGSize {
+        let components = key.trimmingCharacters(in: CharacterSet(charactersIn: "{}")).components(separatedBy: ",")
+        guard components.count == 2,
+              let width = Double(components[0].trimmingCharacters(in: .whitespacesAndNewlines)),
+              let height = Double(components[1].trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            return CGSize(width: 0.0, height: 0.0)
+        }
+        return CGSize(width: width, height: height)
+    }
+}
 #elseif os(watchOS)
 extension UIColor {
     static var secondaryLabel: UIColor {
@@ -199,7 +210,18 @@ func openURL(_ url: URL) {
     #endif
 }
 
-#if os(iOS)
+#if !os(iOS)
+extension View {
+    @ViewBuilder
+    func sheetC<Content: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) -> some View {
+        self.sheet(isPresented: isPresented, content: content)
+    }
+    @ViewBuilder
+    func purePresentationDetents() -> some View {
+        self
+    }
+}
+#else
 extension View {
     @ViewBuilder
     func sheetC<Content: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) -> some View {

@@ -12,6 +12,7 @@
 		653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */; };
 		653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8942BCF433B00E3A215 /* InstalledView.swift */; };
 		653AB8972BCF434A00E3A215 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8962BCF434A00E3A215 /* SearchView.swift */; };
+		655D8EE02C2201D9006A1773 /* macOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 655D8EDF2C2201D8006A1773 /* macOS.m */; };
 		6575F92C2BD1BFD400D84BC1 /* QueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575F92B2BD1BFD400D84BC1 /* QueueView.swift */; };
 		65839EF62BCE480F00068B7A /* BrowseRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF52BCE480F00068B7A /* BrowseRows.swift */; };
 		65839EF82BCE485B00068B7A /* TweaksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF72BCE485B00068B7A /* TweaksListView.swift */; };
@@ -59,6 +60,7 @@
 		653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakDepitionView.swift; sourceTree = "<group>"; };
 		653AB8942BCF433B00E3A215 /* InstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledView.swift; sourceTree = "<group>"; };
 		653AB8962BCF434A00E3A215 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		655D8EDF2C2201D8006A1773 /* macOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = macOS.m; sourceTree = "<group>"; };
 		6562738E2BD58DFF00EA2828 /* curl.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = curl.xcframework; path = ../../../../Downloads/curl.xcframework; sourceTree = "<group>"; };
 		656273952BD58E5B00EA2828 /* curl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = curl.framework; path = ../../../../Downloads/Carthage/Build/iOS/curl.framework; sourceTree = "<group>"; };
 		6562739F2BD5965500EA2828 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 		65C1A52F2C16D9B500431468 /* CBackend */ = {
 			isa = PBXGroup;
 			children = (
+				655D8EDF2C2201D8006A1773 /* macOS.m */,
 				65D4B33A2C20A11400246E01 /* Compat.m */,
 				65D8E57A2C1F51FC006AFA97 /* Compat.h */,
 				65D8E5772C1E71CE006AFA97 /* PaymentAPI_tvOS.h */,
@@ -374,6 +377,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				655D8EE02C2201D9006A1773 /* macOS.m in Sources */,
 				65C1A5562C16D9B500431468 /* PaymentAPI.swift in Sources */,
 				65839EFA2BCE486B00068B7A /* RepoView.swift in Sources */,
 				65C1A5572C16D9B500431468 /* RepoHandler_RootHelper.swift in Sources */,

@@ -168,7 +168,7 @@ struct TweakDepictionView: View {
                 // useBottomMargin - Boolean - Add spacing below the header. - Optional
                 let useBottomMargin = json["useBottomMargin"] as? Bool ?? false
                 // title - String - The title of the header. - Required
-                if let title = json["title"] as? String {
+                if let title = json["title"] as? String ?? json["text"] as? String {
                     ret = AnyView(
                         HStack {
                             if alignment == 2 || alignment == 1 {

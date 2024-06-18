@@ -9,6 +9,13 @@ import Foundation
 
 @discardableResult
 func spawnRootHelper(args: [String]) -> (Int, String, String) {
+    #if os(macOS)
+    var status: Int32 = 0
+    var stdoutStr: NSString?
+    var stderrStr: NSString?
+    spawnRootHelper_macOS(args, &status, &stdoutStr, &stderrStr)
+    return (Int(status), String(stdoutStr ?? ""), String(stderrStr ?? ""))
+    #else
     #if targetEnvironment(simulator)
     return (0, "", "")
     #else
@@ -150,6 +157,7 @@ func spawnRootHelper(args: [String]) -> (Int, String, String) {
     NSLog("%@", "rootHelper stderr = \n\(stderrStr)");
     
     return (Int(status), stdoutStr, stderrStr);
+    #endif
     #endif
 }
 

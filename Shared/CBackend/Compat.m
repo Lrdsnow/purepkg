@@ -7,6 +7,7 @@
 
 #import "Compat.h"
 
+#if !TARGET_OS_MAC
 @implementation CustomDetent
 
 + (instancetype)customDetentWithConstant:(CGFloat)constant {
@@ -15,3 +16,4 @@
 }
 
 @end
+#endif
