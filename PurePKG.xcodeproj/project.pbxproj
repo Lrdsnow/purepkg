@@ -52,6 +52,7 @@
 		65DC66E32BCCF24F00EBFE82 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 65DC66E22BCCF24F00EBFE82 /* NukeUI */; };
 		65DC66EF2BCCF31600EBFE82 /* RootHelperMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66EA2BCCF31600EBFE82 /* RootHelperMain.swift */; };
 		65DC66F02BCCF31600EBFE82 /* spawnStuff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66EB2BCCF31600EBFE82 /* spawnStuff.swift */; };
+		65FC26B82C25F995006035FA /* parsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 65FC26B72C25F993006035FA /* parsing.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -104,6 +105,8 @@
 		65DC66BD2BCCEC5300EBFE82 /* Main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		65DC66EA2BCCF31600EBFE82 /* RootHelperMain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootHelperMain.swift; sourceTree = "<group>"; };
 		65DC66EB2BCCF31600EBFE82 /* spawnStuff.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = spawnStuff.swift; sourceTree = "<group>"; };
+		65FC26B62C25F98D006035FA /* parsing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = parsing.h; sourceTree = "<group>"; };
+		65FC26B72C25F993006035FA /* parsing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = parsing.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +137,8 @@
 		65C1A52F2C16D9B500431468 /* CBackend */ = {
 			isa = PBXGroup;
 			children = (
+				65FC26B72C25F993006035FA /* parsing.m */,
+				65FC26B62C25F98D006035FA /* parsing.h */,
 				65D4B33A2C20A11400246E01 /* Compat.m */,
 				65D8E57A2C1F51FC006AFA97 /* Compat.h */,
 				65C1A52C2C16D9B500431468 /* bridge.h */,
@@ -385,6 +390,7 @@
 				653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */,
 				653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */,
 				65C1A54C2C16D9B500431468 /* Package.swift in Sources */,
+				65FC26B82C25F995006035FA /* parsing.m in Sources */,
 				65839EFE2BCE492F00068B7A /* SettingsView.swift in Sources */,
 				65C1A5502C16D9B500431468 /* Debug.swift in Sources */,
 				65C1A5582C16D9B600431468 /* RepoHandler.swift in Sources */,

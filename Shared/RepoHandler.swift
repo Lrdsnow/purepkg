@@ -18,54 +18,52 @@ public class RepoHandler {
         return absoluteString
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
-            .replacingOccurrences(of: "/", with: "_");    }
+        .replacingOccurrences(of: "/", with: "_");    }
     
     static func getSavedRepoFilePath(_ url: URL) -> String {
         return "\(Jailbreak().path)/var/lib/apt/purepkglists/\(getSavedRepoFileName(url))";
     }
     
     static func getRepos(_ repoSources: [RepoSource], completion: @escaping (Repo) -> Void) {
-        spawnRootHelper(args: [ "removeAllRepoFiles" ])
+        spawnRootHelper(args: ["removeAllRepoFiles"])
         for repoSource in repoSources {
             let url = repoSource.url
             log("getting repo: \(url.absoluteString)")
+            
             let startTime = CFAbsoluteTimeGetCurrent()
-            Networking.get_dict_compressed(url.appendingPathComponent("Release")) { (result, error) in
+            let releaseURL = url.appendingPathComponent("Release")
+            Networking.get_dict_compressed(releaseURL) { (result, error) in
+                var repo = Repo()
+                repo.url = url
+                
                 if let result = result {
-                    log("got repo! \(url.appendingPathComponent("Release").absoluteString)")
-                    var Repo = Repo()
-                    Repo.url = url
-                    Repo.name = result["Origin"] ?? "Unknown Repo"
-                    Repo.label = result["Label"] ?? ""
-                    Repo.description = result["Description"] ?? "Description"
-                    Repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
-                    Repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
-                    Repo.component = repoSource.components
-                    do { Repo.payment_endpoint = URL(string: try String(contentsOf: url.appendingPathComponent("payment_endpoint")))} catch {}
+                    log("got repo! \(releaseURL.absoluteString)")
+                    repo.name = result["Origin"] ?? "Unknown Repo"
+                    repo.label = result["Label"] ?? ""
+                    repo.description = result["Description"] ?? "Description"
+                    repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
+                    repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
+                    repo.component = repoSource.components
                     
                     let currentArch = Jailbreak().arch
-                    if !Repo.archs.contains(currentArch) {
-                        Repo.error = "Unsupported architecture '\(currentArch)'"
+                    if !repo.archs.contains(currentArch) {
+                        repo.error = "Unsupported architecture '\(currentArch)'"
                         spawnRootHelper(args: ["clearRepoFiles", url.absoluteString])
-                        completion(Repo)
-                        return
+                        completion(repo)
                     }
                     
 #if !os(watchOS) && !targetEnvironment(simulator)
                     if UserDefaults.standard.bool(forKey: "checkSignature") {
                         log("getting repo signature: \(url.appendingPathComponent("Release.gpg"))")
-                        var signature_ok: Bool = false;
                         Networking.get(url.appendingPathComponent("Release.gpg")) { (result, error) in
                             if error != nil {
                                 switch Jailbreak().type {
                                 case .macos:
                                     log("Error: No signature found for \(url.absoluteString)")
-                                    Repo.error = "Error: No signature found for \(url.absoluteString)"
-                                    completion(Repo);
-                                    return
+                                    repo.error = "Error: No signature found for \(url.absoluteString)"
                                 case .tvOS_rootful, .rootful, .rootless, .roothide:
                                     log("Warning: No signature found for \(url.absoluteString)")
-                                    Repo.error = "Warning: No signature found for \(url.absoluteString)"
+                                    repo.error = "Warning: No signature found for \(url.absoluteString)"
                                 default:
                                     log("Warning: No signature found for \(url.absoluteString)")
                                 }
@@ -141,206 +139,124 @@ public class RepoHandler {
                         }
                     }
 #endif
+                    
                     var pkgsURL = url
-                    if repoSource.suites != nil {
-                        let repoComponents = repoSource.components
+                    if let repoComponents = repoSource.suites {
                         pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak().arch)")
                     }
-                    log("gettings repo tweaks from: \(pkgsURL.appendingPathComponent("Packages").absoluteString)")
-                    Networking.get_compressed(pkgsURL.appendingPathComponent("Packages")) { (result, error, actualURL) in
+                    let packagesURL = pkgsURL.appendingPathComponent("Packages")
+
+                    log("getting repo tweaks from: \(packagesURL.absoluteString)")
+                    
+                    Networking.get_compressed(packagesURL) { (result, error, actualURL) in
                         if let result = result {
                             log("got repo tweaks! \(actualURL!.absoluteString)")
-                            var tweaks: [Package] = []
-                            for tweak in result {
-                                let lowercasedTweak = tweak.reduce(into: [String: String]()) { result, element in
+                            repo.tweaks = result.map { tweakDict -> Package in
+                                let lowercasedTweak = tweakDict.reduce(into: [String: String]()) { result, element in
                                     let (key, value) = element
                                     result[key.lowercased()] = value
                                 }
-                                var Tweak = Package()
-                                Tweak.arch = lowercasedTweak["architecture"] ?? ""
-                                if Tweak.tweakCompatibility() == .supported {
-                                    Tweak.id = lowercasedTweak["package"] ?? "uwu.lrdsnow.unknown"
-                                    Tweak.desc = lowercasedTweak["description"] ?? "Description"
-                                    Tweak.author = lowercasedTweak["author"] ?? lowercasedTweak["maintainer"] ?? "Unknown Author"
-                                    Tweak.name = lowercasedTweak["name"] ?? lowercasedTweak["package"] ?? "Unknown Tweak"
-                                    Tweak.section = lowercasedTweak["section"] ?? "Tweaks"
-                                    Tweak.path = lowercasedTweak["filename"] ?? ""
-                                    Tweak.version = lowercasedTweak["version"] ?? "0.0"
-                                    Tweak.versions.append(lowercasedTweak["version"] ?? "0.0")
-                                    Tweak.installed_size = Int(lowercasedTweak["installed-size"] ?? "0") ?? 0
-                                    Tweak.paid = (lowercasedTweak["tag"] ?? "").contains("::commercial")
-                                    for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map({ String($0) }) {
-                                        var tweakDep = DepPackage()
-                                        let components = dep.components(separatedBy: " ")
-                                        if components.count >= 1 {
-                                            tweakDep.id = components[0]
-                                        }
-                                        if components.count >= 2 {
-                                            var ver = components[1...].joined(separator: " ")
-                                            ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                                            let verComponents = ver.components(separatedBy: " ")
-                                            if verComponents.count >= 2 {
-                                                tweakDep.reqVer.req = true
-                                                let compare = verComponents[0]
-                                                let truVer = verComponents[1]
-                                                tweakDep.reqVer.version = truVer
-                                                if compare == ">=" {
-                                                    tweakDep.reqVer.minVer = true
-                                                }
-                                            }
-                                        }
-                                        if tweakDep.id != "" {
-                                            Tweak.depends.append(tweakDep)
-                                        }
-                                    }
-                                    if let depiction = lowercasedTweak["depiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let depiction = lowercasedTweak["sileodepiction"] {
-                                        Tweak.depiction = URL(string: depiction)
-                                    }
-                                    if let icon = lowercasedTweak["icon"] {
-                                        Tweak.icon = URL(string: icon)
-                                    }
-                                    Tweak.repo = Repo
-                                    Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-                                    if let index = tweaks.firstIndex(where: { $0.id == Tweak.id }) {
-                                        var existingTweak = tweaks[index]
-                                        existingTweak.versions += [Tweak.version]
-                                        tweaks[index] = existingTweak
-                                        if Tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
-                                            Tweak.versions = existingTweak.versions
-                                            tweaks[index] = Tweak
-                                        }
-                                    } else {
-                                        tweaks.append(Tweak)
-                                    }
-                                }
+                                return createPackageStruct(lowercasedTweak, repo)
                             }
-                            Repo.tweaks = tweaks
-                            log("\(Repo.name) tweak count: \(Repo.tweaks.count)")
                             let endTime = CFAbsoluteTimeGetCurrent()
                             let elapsedTime = endTime - startTime
                             log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                            let hidePaidTweaks = UserDefaults.standard.bool(forKey: "hidePaidTweaks")
-                            do {
-                                if !hidePaidTweaks {
-                                    if let payment_endpoint = Repo.payment_endpoint {
-                                        Networking.get_dict(payment_endpoint.appendingPathComponent("info"), json: true) { (info, error) in
-                                            if let info = info,
-                                               let name = info["name"] as? String,
-                                               let icon = URL(string: info["icon"] as? String ?? ""),
-                                               let description = info["description"] as? String {
-                                                Repo.paidRepoInfo = PaidRepoInfo(name: name, icon: icon, description: description, authentication_banner: nil)
-                                            } else {
-                                                Repo.tweaks = Repo.tweaks.filter( { !$0.paid } )
-                                            }
-                                            completion(Repo)
-                                        }
-                                    } else {
-                                        throw "no payment_endpoint"
-                                    }
-                                } else {
-                                    throw "hidePaidTweaks enabled"
-                                }
-                            } catch {
-                                Repo.tweaks = Repo.tweaks.filter( { !$0.paid } )
-                                completion(Repo)
-                            }
+                            completion(repo)
                         } else if let error = error {
                             log("Error getting repo tweaks: \(error.localizedDescription)")
-                            Repo.error = "Error getting repo tweaks: \(error.localizedDescription)"
-                            let endTime = CFAbsoluteTimeGetCurrent()
-                            let elapsedTime = endTime - startTime
-                            log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                            completion(Repo)
+                            repo.error = "Error getting repo tweaks: \(error.localizedDescription)"
                         }
                     }
                 } else if let error = error {
                     log("Error getting repo: \(error.localizedDescription)")
-                    var repo = Repo()
-                    repo.url = url
                     repo.error = "Error getting repo: \(error.localizedDescription)"
-                    let endTime = CFAbsoluteTimeGetCurrent()
-                    let elapsedTime = endTime - startTime
-                    log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                    completion(repo)
                 }
             }
         }
     }
+
+    static func createPackageStruct(_ tweakDict: [String: String], _ repo: Repo? = nil) -> Package {
+        var tweak = Package()
+        tweak.arch = tweakDict["architecture"] ?? ""
+        tweak.id = tweakDict["package"] ?? "uwu.lrdsnow.unknown"
+        tweak.desc = tweakDict["description"] ?? "Description"
+        tweak.author = tweakDict["author"] ?? tweakDict["maintainer"] ?? "Unknown Author"
+        tweak.name = tweakDict["name"] ?? tweakDict["package"] ?? "Unknown Tweak"
+        tweak.section = tweakDict["section"] ?? "Tweaks"
+        tweak.path = tweakDict["filename"] ?? ""
+        tweak.version = tweakDict["version"] ?? "0.0"
+        tweak.versions.append(tweakDict["version"] ?? "0.0")
+        tweak.installed_size = Int(tweakDict["installed-size"] ?? "0") ?? 0
+        tweak.paid = (tweakDict["tag"] ?? "").contains("::commercial")
+        
+        let dependencies = (tweakDict["Depends"] ?? "").components(separatedBy: ", ").map { String($0) }
+        tweak.depends = dependencies.compactMap { depString -> DepPackage? in
+            let components = depString.components(separatedBy: " ")
+            guard components.count >= 1 else { return nil }
+            var dep = DepPackage()
+            dep.id = components[0]
+            if components.count >= 2 {
+                let compare = components[0]
+                let version = components[1...].joined(separator: " ").replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
+                dep.reqVer.req = true
+                dep.reqVer.version = version
+                dep.reqVer.minVer = (compare == ">=")
+            }
+            return dep
+        }
+        
+        if let depiction = tweakDict["depiction"] {
+            tweak.depiction = URL(string: depiction)
+        }
+        if let icon = tweakDict["icon"] {
+            tweak.icon = URL(string: icon)
+        }
+        if let repo = repo {
+            tweak.repo = repo
+        }
+        tweak.author = tweak.author.removingBetweenAngleBrackets()
+        
+        return tweak
+    }
     
-    static func getAptSources(_ directoryPath: String) -> [RepoSource] {
+    static func getAptSources(_ aptSourcesDirPath: String) -> [RepoSource] {
         do {
-            log("Repo Sources Directory: \(directoryPath)")
-            let fileURLs = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
-            
-            let sourceFiles = fileURLs.filter { $0.hasSuffix(".sources") }
-            
-            log("source Files: \(sourceFiles)")
-            
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: URL(fileURLWithPath: aptSourcesDirPath), includingPropertiesForKeys: nil)
             var repos: [RepoSource] = []
             
-            for sourceFile in sourceFiles {
-                let fileURL = URL(fileURLWithPath: directoryPath).appendingPathComponent(sourceFile)
-                
-                let arrayOfDictionaries = Networking.get_local(fileURL.path)
-                
-                for sourceDict in arrayOfDictionaries {
-                    var repo = RepoSource()
-                    var suites = "./"
-                    if let dict_suites = sourceDict["Suites"] {
-                        suites = dict_suites.trimmingCharacters(in: .whitespacesAndNewlines)
-                    }
-                    if let urlString = sourceDict["URIs"], let url = URL(string: urlString) {
-                        var finalURL = url
-                        if suites != "./" {
-                            finalURL = url.appendingPathComponent("dists")
-                        }
-                        finalURL = finalURL.appendingPathComponent(suites)
-                        repo.url = finalURL
-                        if let signedBy = sourceDict["Signed-by"] {
-                            repo.signedby = URL(fileURLWithPath: signedBy)
-                        }
-                        if suites != "./" {
-                            repo.suites = suites
-                            if let components = sourceDict["Components"] {
-                                print(components)
-                                let componentsArray = components.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").map { String($0) }
-                                print(componentsArray)
-                                if componentsArray.count >= 2 {
-                                    for component in componentsArray {
-                                        repo.components = component
+            for fileURL in fileURLs {
+                if let fileContents = try? String(contentsOf: fileURL, encoding: .utf8) {
+                    for dict in genArrayOfDicts(fileContents) as? [[String:String]] ?? [] {
+                        var repo = RepoSource()
+                        let suites = (dict["Suites"] ?? "./").trimmingCharacters(in: .whitespacesAndNewlines)
+                        if let urlString = dict["URIs"], let url = URL(string: urlString) {
+                            repo.url = (suites != "./" ? url.appendingPathComponent("dists") : url).appendingPathComponent(suites)
+                            if let signedBy = dict["Signed-by"] { repo.signedby = URL(fileURLWithPath: signedBy) }
+                            if suites != "./" {
+                                repo.suites = suites
+                                if let components = dict["Components"] {
+                                    let componentsArray = components.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").map { String($0) }
+                                    if componentsArray.count >= 2 {
+                                        for component in componentsArray {
+                                            repo.components = component
+                                            repos.append(repo)
+                                        }
+                                    } else {
+                                        repo.components = components
                                         repos.append(repo)
                                     }
-                                } else {
-                                    repo.components = components
-                                    repos.append(repo)
                                 }
+                            } else {
+                                repos.append(repo)
                             }
-                        } else {
-                            repos.append(repo)
                         }
                     }
                 }
             }
             
-            var tempParsedSources: [RepoSource] = []
-            var distSources: [RepoSource] = []
-
-            for source in repos {
-                if source.url.absoluteString.contains("/dists/") {
-                    distSources.append(source)
-                } else {
-                    tempParsedSources.append(source)
-                }
-            }
-
-            repos = tempParsedSources + distSources
-            print(distSources)
             return repos
         } catch {
-            log("Error reading directory: \(error.localizedDescription)")
+            log("Error reading directory \(aptSourcesDirPath): \(error.localizedDescription)")
             return []
         }
     }
@@ -393,29 +309,15 @@ public class RepoHandler {
         }
     }
     
-    static func removeRepo(_ repositoryURL: URL) {
-        let (status, out, error) = spawnRootHelper(args: [ "removeRepo", repositoryURL.absoluteString ])
-        if (status != 0) {
-            if (status == -1) {
+    static func manageRepo(_ repositoryURL: URL, operation: String) {
+        let (status, out, error) = spawnRootHelper(args: [operation, repositoryURL.absoluteString])
+        if status != 0 {
+            if status == -1 {
                 showPopup("Failed", "\(out) \(error)")
             } else {
-                let desc_cstring: UnsafeMutablePointer<CChar> = waitpid_decode(Int32(status));
-                let desc = String(cString: desc_cstring);
-                free(desc_cstring);
-                showPopup("Failed", "RootHelper \(desc)")
-            }
-        }
-    }
-    
-    static func addRepo(_ repositoryURL: String) {
-        let (status, out, error) = spawnRootHelper(args: [ "addRepo", repositoryURL ])
-        if (status != 0) {
-            if (status == -1) {
-                showPopup("Failed", "\(out) \(error)")
-            } else {
-                let desc_cstring: UnsafeMutablePointer<CChar> = waitpid_decode(Int32(status));
-                let desc = String(cString: desc_cstring);
-                free(desc_cstring);
+                let desc_cstring: UnsafeMutablePointer<CChar> = waitpid_decode(Int32(status))
+                let desc = String(cString: desc_cstring)
+                free(desc_cstring)
                 showPopup("Failed", "RootHelper \(desc)")
             }
         }
@@ -448,68 +350,17 @@ public class RepoHandler {
         
         return resultDeps
     }
-    
-    static func createPackageStruct(_ tweak: [String:String]) -> Package {
-        var Tweak = Package()
-        Tweak.id = tweak["Package"] ?? "uwu.lrdsnow.unknown"
-        Tweak.desc = tweak["Description"] ?? "Description"
-        Tweak.author = tweak["Author"] ?? tweak["Maintainer"] ?? "Unknown Author"
-        Tweak.arch = tweak["Architecture"] ?? ""
-        Tweak.name = tweak["Name"] ?? tweak["Package"] ?? "Unknown Tweak"
-        Tweak.section = tweak["Section"] ?? "Tweaks"
-        Tweak.version = tweak["Version"] ?? "0.0"
-        Tweak.installed_size = Int(tweak["Installed-Size"] ?? "0") ?? 0
-        if let depiction = tweak["Depiction"] {
-            Tweak.depiction = URL(string: depiction)
-        }
-        if let depiction = tweak["SileoDepiction"] {
-            Tweak.depiction = URL(string: depiction)
-        }
-        if let depiction = tweak["Sileodepiction"] {
-            Tweak.depiction = URL(string: depiction)
-        }
-        if let icon = tweak["Icon"] {
-            Tweak.icon = URL(string: icon)
-        }
-        for dep in (tweak["Depends"] ?? "").components(separatedBy: ", ").map({ String($0) }) {
-            var tweakDep = DepPackage()
-            let components = dep.components(separatedBy: " ")
-            if components.count >= 1 {
-                tweakDep.id = components[0]
-            }
-            if components.count >= 2 {
-                var ver = components[1...].joined(separator: " ")
-                ver = ver.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "")
-                let verComponents = ver.components(separatedBy: " ")
-                if verComponents.count >= 2 {
-                    tweakDep.reqVer.req = true
-                    let compare = verComponents[0]
-                    let truVer = verComponents[1]
-                    tweakDep.reqVer.version = truVer
-                    if compare == ">=" {
-                        tweakDep.reqVer.minVer = true
-                    }
-                }
-            }
-            if tweakDep.id != "" {
-                Tweak.depends.append(tweakDep)
-            }
-        }
-        Tweak.author = Tweak.author.removingBetweenAngleBrackets()
-        return Tweak
-    }
 }
 
 func fixDuplicateRepos(_ repos: [Repo]) -> [Repo] {
+    var seenRepos = Set<String>()
     var tempRepos: [Repo] = []
     
     for repo in repos {
-        if !tempRepos.map({ $0.url }).contains(repo.url) {
+        let key = "\(repo.url.absoluteString)-\(repo.component)"
+        if !seenRepos.contains(key) {
+            seenRepos.insert(key)
             tempRepos.append(repo)
-        } else {
-            if !tempRepos.filter({ $0.url == repo.url }).map({ $0.component }).contains(repo.component) {
-                tempRepos.append(repo)
-            }
         }
     }
     
@@ -603,7 +454,7 @@ func refreshRepos(_ appData: AppData) {
                         let elapsedTime = endTime - startTime
                         log("Got \(appData.repos.filter { $0.error != "Refreshing..." }.count) repos in \(elapsedTime) seconds")
                         appData.available_updates = checkForUpdates(installed: appData.installed_pkgs, all: appData.pkgs)
-                        if (appData.repos.filter { $0.error != "Refreshing..." }.count + 2) >= appData.repos.count {
+                        if appData.repos.filter { $0.error != "Refreshing..." }.count >= appData.repos.count {
                             refreshingRepos = false
                         }
                         do {

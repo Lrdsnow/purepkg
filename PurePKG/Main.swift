@@ -266,12 +266,16 @@ struct ContentView: View {
         print("App was opened via URL: \(url)")
         if url.absoluteString.contains("purepkg://addrepo/") {
             let repourl = url.absoluteString.replacingOccurrences(of: "purepkg://addrepo/", with: "")
-            print("Adding Repo: \(repourl)")
-            RepoHandler.addRepo(repourl)
+            if let url = URL(string: repourl) {
+                print("Adding Repo: \(repourl)")
+                RepoHandler.manageRepo(url, operation: "addRepo")
+            } else {
+                showPopup("Error", "Repo URL is Invalid")
+            }
         } else if url.pathExtension == "deb" {
             let info = APTWrapper.spawn(command: "\(Jailbreak().path)/\(Jailbreak().type == .macos ? "" : "usr/")bin/dpkg-deb", args: ["dpkg-deb", "--field", url.path])
             if info.0 == 0 {
-                let dict = Networking.genDict(info.1)
+                let dict = genDict(info.1) as? [String:String] ?? [:]
                 var tweak = RepoHandler.createPackageStruct(dict)
                 tweak.debPath = url.path
                 importedPackage = tweak

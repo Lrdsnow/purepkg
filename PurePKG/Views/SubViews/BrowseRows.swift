@@ -147,7 +147,7 @@ struct RepoRow: View {
 #endif
             if #available(iOS 15.0, tvOS 15.0, *) {
                 Button(role: .destructive, action: {
-                    RepoHandler.removeRepo(repo.url)
+                    RepoHandler.manageRepo(repo.url, operation: "removeRepo")
                     refreshRepos(appData)
                 }) {
                     Text("Delete Repo")
@@ -155,7 +155,7 @@ struct RepoRow: View {
                 }.foregroundColor(.red)
             } else {
                 Button(action: {
-                    RepoHandler.removeRepo(repo.url)
+                    RepoHandler.manageRepo(repo.url, operation: "removeRepo")
                     refreshRepos(appData)
                 }) {
                     Text("Delete Repo")

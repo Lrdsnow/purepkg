@@ -64,7 +64,10 @@ public class Jailbreak {
     
     var arch: String {
         get {
+#if targetEnvironment(simulator)
             return "iphoneos-arm64"
+#endif
+            
 #if os(macOS)
             return "darwin-\(getMacOSArchitecture() ?? "unknown")"
 #elseif os(tvOS)
@@ -73,7 +76,7 @@ public class Jailbreak {
             return "watchos-arm"
 #elseif os(visionOS)
             return "xros-arm64"
-#else
+#elseif os(iOS)
             let jbtype = self.type
             if jbtype == .rootful {
                 return "iphoneos-arm"

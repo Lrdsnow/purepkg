@@ -107,19 +107,8 @@ public class Networking {
                             }
                         }
 #endif
-                        
-                        let lines = fileContent.components(separatedBy: .newlines)
-                        
-                        var dictionary: [String: String] = [:]
-                        
-                        for line in lines {
-                            let components = line.components(separatedBy: ":")
-                            if components.count == 2 {
-                                let key = components[0].trimmingCharacters(in: .whitespaces)
-                                let value = components[1].trimmingCharacters(in: .whitespaces)
-                                dictionary[key] = value
-                            }
-                        }
+                                                
+                        var dictionary: [String: String] = genDict(fileContent) as? [String : String] ?? [:]
                         
                         let endTime = CFAbsoluteTimeGetCurrent()
                         let elapsedTime = endTime - startTime
@@ -177,40 +166,23 @@ public class Networking {
             }
             
             if let fileContent = String(data: data, encoding: .utf8) {
-                do {
-                    
-                    #if !os(macOS)
-                    if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
-                        let fileName = RepoHandler.getSavedRepoFileName(url);
-                        let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-                        do {
-                            try data.write(to: tempFilePath)
-                            spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
-                        } catch {
-                            
-                        }
-                    }
-                    #endif
-                    
-                    let paragraphs = fileContent.components(separatedBy: "\n\n")
-                    
-                    var arrayOfDictionaries: [[String: String]] = []
-                    
-                    for paragraph in paragraphs {
-                        let dictionary = genDict(paragraph)
+                if ((url.pathComponents.last ?? "").contains("Packages") || (url.pathComponents.last ?? "").contains("Release")) {
+                    let fileName = RepoHandler.getSavedRepoFileName(url);
+                    let tempFilePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                    do {
+                        try data.write(to: tempFilePath)
+                        spawnRootHelper(args: ["saveRepoFiles", tempFilePath.path])
+                    } catch {
                         
-                        if !dictionary.isEmpty {
-                            arrayOfDictionaries.append(dictionary)
-                        }
                     }
-                    
-                    let endTime = CFAbsoluteTimeGetCurrent()
-                    let elapsedTime = endTime - startTime
-                    log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
-                    completion(arrayOfDictionaries, nil)
-                } catch {
-                    completion(nil, "Failed to save/parse data: \(error.localizedDescription)")
                 }
+                
+                var arrayOfDictionaries: [[String: String]] = genArrayOfDicts(fileContent) as? [[String : String]] ?? []
+                
+                let endTime = CFAbsoluteTimeGetCurrent()
+                let elapsedTime = endTime - startTime
+                log("Time taken to get \(url.absoluteString): \(elapsedTime) seconds")
+                completion(arrayOfDictionaries, nil)
             } else {
                 completion(nil, "Failed to decode data")
             }
@@ -251,24 +223,5 @@ public class Networking {
             return arrayOfDictionaries
         }
         return []
-    }
-    
-    static func genDict(_ paragraph: String) -> [String:String] {
-        let lines = paragraph.components(separatedBy: .newlines)
-        
-        var dictionary: [String: String] = [:]
-        
-        for line in lines {
-            let components = line.components(separatedBy: ":")
-            if components.count >= 2 {
-                let key = components[0].trimmingCharacters(in: .whitespaces)
-                var temp_components = components
-                temp_components.removeFirst()
-                let value = temp_components.joined(separator: ":").trimmingCharacters(in: .whitespaces)
-                dictionary[key] = value
-            }
-        }
-        
-        return dictionary
     }
 }

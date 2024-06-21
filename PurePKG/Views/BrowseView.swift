@@ -94,8 +94,8 @@ struct BrowseView: View {
                     showTextInputPopup("Add Repo", "Enter Repo URL", .URL, completion: { url in
                         if url != "" {
                             if let url = url {
-                                if URL(string: url) != nil {
-                                    RepoHandler.addRepo(url)
+                                if let url = URL(string: url) {
+                                    RepoHandler.manageRepo(url, operation: "addRepo")
                                 } else {
                                     showPopup("Error", "Invalid Repo URL")
                                 }
@@ -110,7 +110,7 @@ struct BrowseView: View {
         
         func addBulkRepos(_ urls: [URL]) {
             for url in urls {
-                RepoHandler.addRepo(url.absoluteString)
+                RepoHandler.manageRepo(url, operation: "addRepo")
             }
             refreshRepos(appData)
         }
@@ -125,7 +125,7 @@ struct BrowseView: View {
                 let statuscode = (response as? HTTPURLResponse)?.statusCode ?? 0
                 
                 if statuscode == 200 {
-                    RepoHandler.addRepo(url.absoluteString)
+                    RepoHandler.manageRepo(url, operation: "addRepo")
                     refreshRepos(appData)
                 } else {
                     showPopup("Error", "Invalid Repo?")
