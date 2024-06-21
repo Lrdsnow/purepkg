@@ -15,6 +15,8 @@ extension View {
         self
         #elseif os(watchOS)
         self.listRowBackground(Color.accentColor.opacity(0.05).cornerRadius(8))
+        #elseif os(tvOS)
+        self.listRowBackground(Color.accentColor.opacity(0.05).cornerRadius(10))
         #else
         self.listRowBackground(Color.accentColor.opacity(0.05))
         #endif

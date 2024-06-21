@@ -42,6 +42,7 @@ public class PaymentAPI {
                             completion(jsonResponse as? [String : Any])
                         } catch {
                             log("error parsing response: \(error)")
+                            completion(nil)
                         }
                     }
                 }
@@ -127,35 +128,75 @@ public class PaymentAPI {
             }
         }
     }
+    
+    public enum purchaseStatus {
+        case success
+        case actionRequired
+        case failure
+        case pending
+        case awaitingConfirmation
+    }
+    
+    public static func purchaseTweak(_ bundleid: String, _ repo: Repo, completion: @escaping (purchaseStatus, URL?) -> Void) {
+        if UserDefaults.standard.bool(forKey: "usePaymentAPI"),
+           let token = String(data: Keychain.read(service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)") ?? Data(), encoding: .utf8),
+           let secret = String(data: Keychain.read(service: "uwu.lrdsnow.purepkg", account: "secret_\(repo.name)") ?? Data(), encoding: .utf8),
+           token != "",
+           secret != "" {
+            let request: [String:String] = ["token":token, "payment_secret":secret]
+            postAPI("package/\(bundleid)/purchase", repo, request) { json in
+                do {
+                    if let json = json,
+                       let status = json["status"] as? Int {
+                        if status == 0 {
+                            completion(.success, nil)
+                            return
+                        }
+                        if status == 1,
+                           let url = json["url"] as? String {
+                            completion(.actionRequired, URL(string: url))
+                            return
+                        }
+                        completion(.failure, nil)
+                    } else {
+                        throw ""
+                    }
+                } catch {
+                    completion(.failure, nil)
+                }
+            }
+        } else {
+            completion(.failure, nil)
+        }
+    }
+    
+    public static func getDownloadURL(_ bundleid: String, _ version: String, _ repo: Repo, completion: @escaping (URL?) -> Void) {
+        if UserDefaults.standard.bool(forKey: "usePaymentAPI"),
+           let token = String(data: Keychain.read(service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)") ?? Data(), encoding: .utf8),
+           let secret = String(data: Keychain.read(service: "uwu.lrdsnow.purepkg", account: "secret_\(repo.name)") ?? Data(), encoding: .utf8),
+           token != "",
+           secret != "" {
+            let request: [String:String] = ["token":token, "udid":Device().uniqueIdentifier, "device":Device().modelIdentifier, "version":version, "repo":repo.name]
+            postAPI("package/\(bundleid)/authorize_download", repo, request) { json in
+                if let json = json,
+                   let url = json["url"] as? String {
+                    completion(URL(string: url))
+                } else {
+                    completion(nil)
+                }
+            }
+        } else {
+            completion(nil)
+        }
+    }
 }
 
-#if os(tvOS)
+#if os(tvOS) || os(watchOS)
 class PaymentAPI_AuthenticationViewModel: ObservableObject {
     func auth(_ repo: Repo) {
-        // not available in tvOS
+        // not available in tvOS or watchOS
     }
 }
-
-struct WebAuthView: UIViewControllerRepresentable {
-    typealias UIViewControllerType = UIViewController
-    
-    let url: URL
-    let completionHandler: (URL?) -> Void
-    
-    func makeUIViewController(context: Context) -> UIViewController {
-        let coordinator = PaymentAPI_WebAuthenticationCoordinator_objc()
-        coordinator.auth(with: url) { authenticatedURL in
-            self.completionHandler(authenticatedURL)
-        }
-        
-        let viewController = UIViewController()
-        viewController.view = coordinator.webView as? UIView
-        return viewController
-    }
-    
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
-}
-
 #else
 class PaymentAPI_AuthenticationViewModel: ObservableObject {
     @Published var isAuthenticated = false
@@ -175,12 +216,64 @@ class PaymentAPI_AuthenticationViewModel: ObservableObject {
 class PaymentAPI_WebAuthenticationCoordinator: NSObject, ASWebAuthenticationPresentationContextProviding {
     var session: ASWebAuthenticationSession?
     
+    func paymentAction(url: URL?, completion: @escaping (Bool) -> Void) {
+        let callback: (URL?, Error?) -> Void = { url, error in
+            if url == URL(string: "sileo://payment_completed") {
+                completion(true)
+            } else {
+                completion(false)
+            }
+        }
+        
+        if let url = url {
+            session = ASWebAuthenticationSession(url: url, callbackURLScheme: "sileo", completionHandler: callback)
+            session?.presentationContextProvider = self
+            session?.start()
+        }
+    }
+    
+    func authCLI(repo: Repo, udid: String, model: String, completion: @escaping (String, String) -> Void) {
+        let callback: (URL?, Error?) -> Void = { url, error in
+            if error != nil {
+                completion("nil","nil")
+                return
+            }
+            
+            guard let url = url, url.host == "authentication_success" else {
+                completion("nil","nil")
+                return
+            }
+            
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            var token: String?
+            var secret: String?
+            
+            for item in components?.queryItems ?? [] {
+                if item.name == "token" && item.value != nil {
+                    token = item.value
+                } else if item.name == "payment_secret" && item.value != nil {
+                    secret = item.value
+                }
+                if token != nil && secret != nil {
+                    break
+                }
+            }
+            
+            if let token = token, let secret = secret {
+                completion(token, secret)
+            }
+        }
+        
+        if let authURL = URL(string: String(format: "authenticate?udid=%@&model=%@", udid, model), relativeTo: repo.payment_endpoint) {
+            session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "sileo", completionHandler: callback)
+            session?.presentationContextProvider = self
+            session?.start()
+        }
+    }
+    
     func auth(repo: Repo, appData: AppData) {
         let callback: (URL?, Error?) -> Void = { url, error in
-            if let error = error {
-                if let error = error as? ASWebAuthenticationSessionError, error.code == ASWebAuthenticationSessionError.canceledLogin {
-                    return
-                }
+            if error != nil {
                 return
             }
             
@@ -224,10 +317,17 @@ class PaymentAPI_WebAuthenticationCoordinator: NSObject, ASWebAuthenticationPres
     
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
 #if canImport(UIKit)
-        return UIApplication.shared.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
-        #else
+        if let windowScene = UIApplication.shared.connectedScenes
+            .filter({ $0.activationState == .foregroundActive })
+            .first as? UIWindowScene {
+            if let window = windowScene.windows.first {
+                return window
+            }
+        }
         return ASPresentationAnchor()
-        #endif
+#else
+        return ASPresentationAnchor()
+#endif
     }
 }
 #endif

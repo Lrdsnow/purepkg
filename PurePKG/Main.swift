@@ -12,6 +12,15 @@ import SwiftUI
 @main
 struct PurePKGBinary {
     static func main() {
+        // payment api stuff
+        if CommandLine.arguments.count >= 2,
+           (CommandLine.arguments[1] == "getToken" || CommandLine.arguments[1] == "roothelper") {
+            exit(RootHelperMain());
+        }
+        //
+        
+        log(getuid())
+        
         if (getuid() != 0) {
             if #available(iOS 14.0, tvOS 14.0, *) {
                 PurePKGApp.main();
@@ -23,7 +32,6 @@ struct PurePKGBinary {
         } else {
              exit(RootHelperMain());
         }
-        
     }
 }
 
@@ -103,6 +111,10 @@ struct PurePKGApp: App {
                 .setAccentColor()
             #endif
         }
+        #if os(macOS)
+        .windowStyle(.titleBar)
+        .windowToolbarStyle(.unified)
+        #endif
     }
 }
 
@@ -237,7 +249,7 @@ struct ContentView: View {
     private func startup() {
         if #available(iOS 14.0, tvOS 14.0, *) {
             if !preview {
-                log("PurePKG Running on \(Device().modelIdentifier) running iOS \(Device().pretty_version) (\(Device().build_number))")
+                log("PurePKG Running on \(Device().modelIdentifier) running \(Device().osString) \(Device().osString == "macOS" ? Device().build_number : "\(Device().pretty_version) (\(Device().build_number))")")
                 appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
                 appData.repos = RepoHandler.getCachedRepos()
                 appData.pkgs = appData.repos.flatMap { $0.tweaks }

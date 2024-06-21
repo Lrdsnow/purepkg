@@ -36,87 +36,115 @@ struct BrowseView: View {
                     NavigationLink(destination: TweakView(pkg: importedPackage, preview: preview), isActive: $showPackage, label: {})
                 }
             }.appBG().navigationBarTitleC("Browse").listStyle(.plain).refreshableC { refreshRepos(appData) }
-            #if !os(macOS) && !os(watchOS)
+            #if os(macOS)
+            .toolbar {
+                refreshButton()
+                addRepoButton()
+                settingsButton()
+            }
+            #elseif !os(watchOS)
             .navigationBarItems(trailing: HStack {
-                Button(action: {
-                    refreshRepos(appData)
-                }) {
-                    Image(systemName: "arrow.clockwise")
-                }
-                Button(action: {
-                    #if !os(tvOS)
-                    #if os(macOS)
-                    let pasteboard = NSPasteboard.general
-                    let clipboardString = pasteboard.string(forType: .string) ?? ""
-                    #else
-                    let clipboardString = UIPasteboard.general.string ?? ""
-                    #endif
-                    let urlCount = clipboardString.urlCount()
-                    #else
-                    let clipboardString = ""
-                    let urlCount = 0
-                    #endif
-                    if urlCount > 1 {
-                        let urls = clipboardString.extractURLs()
-                        Task {
-                            addBulkRepos(urls)
-                        }
-                    } else if urlCount == 1, let repourl = URL(string: clipboardString) {
-                        Task {
-                            await addRepoByURL(repourl)
-                        }
-                    } else {
-                        showTextInputPopup("Add Repo", "Enter Repo URL", .URL, completion: { url in
-                            if url != "" {
-                                if let url = url {
-                                    if URL(string: url) != nil {
-                                        RepoHandler.addRepo(url)
-                                    } else {
-                                        showPopup("Error", "Invalid Repo URL")
-                                    }
-                                }
-                            }
-                        })
-                    }
-                }) {
-                    Image(systemName: "plus")
-                }
-                NavigationLink(destination: SettingsView()) {
-                    if #available(iOS 14.0, tvOS 14.0, *) {
-                        Image(systemName: "gearshape.fill")
-                    } else {
-                        Image(systemName: "gear")
-                    }
-                }
+                refreshButton()
+                addRepoButton()
+                settingsButton()
             })
             #endif
         }
     }
     
-    func addRepoByURL(_ url: URL) async {
-        let session = URLSession.shared
-        var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
+    struct refreshButton: View {
+        @EnvironmentObject var appData: AppData
         
-        do {
-            let (_, response) = try await session.data(from: request.url!)
-            let statuscode = (response as? HTTPURLResponse)?.statusCode ?? 0
-            
-            if statuscode == 200 {
-                RepoHandler.addRepo(url.absoluteString)
+        var body: some View {
+            Button(action: {
                 refreshRepos(appData)
-            } else {
-                showPopup("Error", "Invalid Repo?")
+            }) {
+                Image(systemName: "arrow.clockwise")
             }
-        } catch {
-            showPopup("Error", "Invalid Repo?")
         }
     }
     
-    func addBulkRepos(_ urls: [URL]) {
-        for url in urls {
-            RepoHandler.addRepo(url.absoluteString)
+    struct addRepoButton: View {
+        @EnvironmentObject var appData: AppData
+        
+        var body: some View {
+            Button(action: {
+                #if !os(tvOS) && !os(watchOS)
+                #if os(macOS)
+                let pasteboard = NSPasteboard.general
+                let clipboardString = pasteboard.string(forType: .string) ?? ""
+                #else
+                let clipboardString = UIPasteboard.general.string ?? ""
+                #endif
+                let urlCount = clipboardString.urlCount()
+                #else
+                let clipboardString = ""
+                let urlCount = 0
+                #endif
+                if urlCount > 1 {
+                    let urls = clipboardString.extractURLs()
+                    Task {
+                        addBulkRepos(urls)
+                    }
+                } else if urlCount == 1, let repourl = URL(string: clipboardString) {
+                    Task {
+                        await addRepoByURL(repourl)
+                    }
+                } else {
+                    showTextInputPopup("Add Repo", "Enter Repo URL", .URL, completion: { url in
+                        if url != "" {
+                            if let url = url {
+                                if URL(string: url) != nil {
+                                    RepoHandler.addRepo(url)
+                                } else {
+                                    showPopup("Error", "Invalid Repo URL")
+                                }
+                            }
+                        }
+                    })
+                }
+                }) {
+                Image(systemName: "plus")
+            }
         }
-        refreshRepos(appData)
+        
+        func addBulkRepos(_ urls: [URL]) {
+            for url in urls {
+                RepoHandler.addRepo(url.absoluteString)
+            }
+            refreshRepos(appData)
+        }
+        
+        func addRepoByURL(_ url: URL) async {
+            let session = URLSession.shared
+            var request = URLRequest(url: url)
+            request.httpMethod = "HEAD"
+            
+            do {
+                let (_, response) = try await session.data(from: request.url!)
+                let statuscode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                
+                if statuscode == 200 {
+                    RepoHandler.addRepo(url.absoluteString)
+                    refreshRepos(appData)
+                } else {
+                    showPopup("Error", "Invalid Repo?")
+                }
+            } catch {
+                showPopup("Error", "Invalid Repo?")
+            }
+        }
+    }
+    
+    struct settingsButton: View {
+        var body: some View {
+            NavigationLink(destination: SettingsView()) {
+                if #available(iOS 14.0, tvOS 14.0, *) {
+                    Image(systemName: "gearshape.fill")
+                } else {
+                    Image(systemName: "gear")
+                }
+            }
+        }
     }
 }

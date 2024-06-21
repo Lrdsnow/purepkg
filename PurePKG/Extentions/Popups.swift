@@ -9,6 +9,11 @@ import Foundation
 #if os(watchOS)
 import WatchKit
 
+enum dummy_kbT {
+    case URL
+    case asciiCapable
+}
+
 func showPopup(_ title: String, _ message: String) {
     let action = WKAlertAction(title: "OK", style: .default) {}
     if let controller = WKApplication.shared().rootInterfaceController {
@@ -30,7 +35,7 @@ func showConfirmPopup(_ title: String, _ message: String, completion: @escaping 
     }
 }
 
-func showTextInputPopup(_ title: String, _ placeholderText: String, completion: @escaping (String?) -> Void) {
+func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardType: dummy_kbT, completion: @escaping (String?) -> Void) {
     if let controller = WKApplication.shared().rootInterfaceController {
         controller.presentTextInputController(withSuggestions: [], allowedInputMode: .plain) { (results) in
             if let result = results?.first as? String {
@@ -39,6 +44,36 @@ func showTextInputPopup(_ title: String, _ placeholderText: String, completion: 
                 completion(nil)
             }
         }
+    }
+}
+
+func showDoubleTextInputPopup(_ title: String, _ placeholderText1: String, _ placeholderText2: String, _ keyboardType: dummy_kbT, completion: @escaping ((String?, String?)) -> Void) {
+    if let controller = WKApplication.shared().rootInterfaceController {
+        let okAction1 = WKAlertAction(title: "OK", style: .default) {
+            controller.presentTextInputController(withSuggestions: nil, allowedInputMode: .plain) { result1 in
+                if let text1 = result1?.first as? String {
+                    let okAction2 = WKAlertAction(title: "OK", style: .default) {
+                        controller.presentTextInputController(withSuggestions: nil, allowedInputMode: .plain) { result2 in
+                            if let text2 = result2?.first as? String {
+                                completion((text1, text2))
+                            } else {
+                                completion((text1, nil))
+                            }
+                        }
+                    }
+                    let cancelAction2 = WKAlertAction(title: "Cancel", style: .cancel) {
+                        completion((text1, nil))
+                    }
+                    controller.presentAlert(withTitle: placeholderText2, message: nil, preferredStyle: .alert, actions: [okAction2, cancelAction2])
+                } else {
+                    completion((nil, nil))
+                }
+            }
+        }
+        let cancelAction1 = WKAlertAction(title: "Cancel", style: .cancel) {
+            completion((nil, nil))
+        }
+        controller.presentAlert(withTitle: placeholderText1, message: nil, preferredStyle: .alert, actions: [okAction1, cancelAction1])
     }
 }
 #elseif !os(macOS)
@@ -92,6 +127,39 @@ func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardTy
             completion(text)
         } else {
             completion(nil)
+        }
+    }
+    alertController.addAction(okAction)
+    
+    if let topViewController = UIApplication.shared.windows.first?.rootViewController {
+        topViewController.present(alertController, animated: true, completion: nil)
+    }
+}
+
+func showDoubleTextInputPopup(_ title: String, _ placeholderText1: String, _ placeholderText2: String, _ keyboardType: UIKeyboardType, completion: @escaping ((String?, String?)) -> Void) {
+    let alertController = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+    
+    alertController.addTextField { (textField) in
+        textField.placeholder = placeholderText1
+        textField.keyboardType = keyboardType
+    }
+    
+    alertController.addTextField { (textField) in
+        textField.placeholder = placeholderText2
+        textField.keyboardType = keyboardType
+    }
+    
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
+        completion((nil, nil))
+    }
+    alertController.addAction(cancelAction)
+    
+    let okAction = UIAlertAction(title: "OK", style: .default) { (_) in
+        if let text = alertController.textFields?[0].text,
+           let text2 = alertController.textFields?[1].text {
+            completion((text, text2))
+        } else {
+            completion((nil, nil))
         }
     }
     alertController.addAction(okAction)
@@ -164,7 +232,12 @@ func showConfirmPopup(_ title: String, _ message: String, completion: @escaping 
     }
 }
 
-func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardType: NSAlert.Style, completion: @escaping (String?) -> Void) {
+enum dummy_kbT {
+    case URL
+    case asciiCapable
+}
+
+func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardType: dummy_kbT, completion: @escaping (String?) -> Void) {
     let alertController = NSAlert()
     alertController.messageText = title
     
@@ -183,6 +256,39 @@ func showTextInputPopup(_ title: String, _ placeholderText: String, _ keyboardTy
         completion(nil)
     } else if response == .alertSecondButtonReturn {
         completion(textField.stringValue)
+    }
+}
+
+func showDoubleTextInputPopup(_ title: String, _ placeholderText1: String, _ placeholderText2: String, _ keyboardType: dummy_kbT, completion: @escaping ((String?, String?)) -> Void) {
+    let alertController = NSAlert()
+    alertController.messageText = title
+    
+    let textField1 = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+    textField1.placeholderString = placeholderText1
+    textField1.isEditable = true
+    textField1.stringValue = ""
+    
+    let textField2 = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+    textField2.placeholderString = placeholderText2
+    textField2.isEditable = true
+    textField2.stringValue = ""
+    
+    let stackView = NSStackView(frame: NSRect(x: 0, y: 0, width: 200, height: 90))
+    stackView.orientation = .vertical
+    stackView.addView(textField1, in: .center)
+    stackView.addView(textField2, in: .center)
+    
+    alertController.accessoryView = stackView
+    
+    alertController.addButton(withTitle: "Cancel")
+    alertController.addButton(withTitle: "OK")
+    
+    let response = alertController.runModal()
+    
+    if response == .alertFirstButtonReturn {
+        completion((nil, nil))
+    } else if response == .alertSecondButtonReturn {
+        completion((textField1.stringValue, textField2.stringValue))
     }
 }
 #endif

@@ -430,7 +430,11 @@ class DepictionMarkdownViewModel: ObservableObject {
         var green = CGFloat(0)
         var blue = CGFloat(0)
         var alpha = CGFloat(0)
+        #if os(macOS)
+        NSColor.accent.usingColorSpace(.deviceRGB)?.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        #else
         UIColor.accent.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        #endif
         red *= 255
         green *= 255
         blue *= 255

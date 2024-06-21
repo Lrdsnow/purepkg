@@ -12,7 +12,6 @@
 		653AB88D2BCF416500E3A215 /* TweakDepitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */; };
 		653AB8952BCF433B00E3A215 /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8942BCF433B00E3A215 /* InstalledView.swift */; };
 		653AB8972BCF434A00E3A215 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AB8962BCF434A00E3A215 /* SearchView.swift */; };
-		655D8EE02C2201D9006A1773 /* macOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 655D8EDF2C2201D8006A1773 /* macOS.m */; };
 		6575F92C2BD1BFD400D84BC1 /* QueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575F92B2BD1BFD400D84BC1 /* QueueView.swift */; };
 		65839EF62BCE480F00068B7A /* BrowseRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF52BCE480F00068B7A /* BrowseRows.swift */; };
 		65839EF82BCE485B00068B7A /* TweaksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65839EF72BCE485B00068B7A /* TweaksListView.swift */; };
@@ -45,7 +44,6 @@
 		65C1A5592C16D9B600431468 /* Spawn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C1A5442C16D9B500431468 /* Spawn.swift */; };
 		65D427CF2BD503C5008D8A2C /* ThemingViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D427CE2BD503C5008D8A2C /* ThemingViewModifiers.swift */; };
 		65D4B33B2C20A11700246E01 /* Compat.m in Sources */ = {isa = PBXBuildFile; fileRef = 65D4B33A2C20A11400246E01 /* Compat.m */; };
-		65D8E5782C1E81C2006AFA97 /* PaymentAPI_tvOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 65D8E5762C1E719D006AFA97 /* PaymentAPI_tvOS.m */; };
 		65DC66C32BCCEC5300EBFE82 /* Compat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B12BCCEC5300EBFE82 /* Compat.swift */; };
 		65DC66C52BCCEC5300EBFE82 /* Popups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B32BCCEC5300EBFE82 /* Popups.swift */; };
 		65DC66C82BCCEC5300EBFE82 /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC66B92BCCEC5300EBFE82 /* BrowseView.swift */; };
@@ -60,7 +58,6 @@
 		653AB88C2BCF416500E3A215 /* TweakDepitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweakDepitionView.swift; sourceTree = "<group>"; };
 		653AB8942BCF433B00E3A215 /* InstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledView.swift; sourceTree = "<group>"; };
 		653AB8962BCF434A00E3A215 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
-		655D8EDF2C2201D8006A1773 /* macOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = macOS.m; sourceTree = "<group>"; };
 		6562738E2BD58DFF00EA2828 /* curl.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = curl.xcframework; path = ../../../../Downloads/curl.xcframework; sourceTree = "<group>"; };
 		656273952BD58E5B00EA2828 /* curl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = curl.framework; path = ../../../../Downloads/Carthage/Build/iOS/curl.framework; sourceTree = "<group>"; };
 		6562739F2BD5965500EA2828 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -99,8 +96,6 @@
 		65D0169E2BA949C9003F11E4 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65D427CE2BD503C5008D8A2C /* ThemingViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemingViewModifiers.swift; sourceTree = "<group>"; };
 		65D4B33A2C20A11400246E01 /* Compat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Compat.m; sourceTree = "<group>"; };
-		65D8E5762C1E719D006AFA97 /* PaymentAPI_tvOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PaymentAPI_tvOS.m; sourceTree = "<group>"; };
-		65D8E5772C1E71CE006AFA97 /* PaymentAPI_tvOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentAPI_tvOS.h; sourceTree = "<group>"; };
 		65D8E5792C1EA114006AFA97 /* PurePKG.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PurePKG.entitlements; sourceTree = "<group>"; };
 		65D8E57A2C1F51FC006AFA97 /* Compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Compat.h; sourceTree = "<group>"; };
 		65DC66B12BCCEC5300EBFE82 /* Compat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compat.swift; sourceTree = "<group>"; };
@@ -139,11 +134,8 @@
 		65C1A52F2C16D9B500431468 /* CBackend */ = {
 			isa = PBXGroup;
 			children = (
-				655D8EDF2C2201D8006A1773 /* macOS.m */,
 				65D4B33A2C20A11400246E01 /* Compat.m */,
 				65D8E57A2C1F51FC006AFA97 /* Compat.h */,
-				65D8E5772C1E71CE006AFA97 /* PaymentAPI_tvOS.h */,
-				65D8E5762C1E719D006AFA97 /* PaymentAPI_tvOS.m */,
 				65C1A52C2C16D9B500431468 /* bridge.h */,
 				65C1A52D2C16D9B500431468 /* waitpid_decode.c */,
 				65C1A52E2C16D9B500431468 /* waitpid_decode.h */,
@@ -308,7 +300,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1530;
+				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					65D0169D2BA949C9003F11E4 = {
@@ -368,7 +360,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "BundleName=\"PurePKG.app\"\n#if [[ ${BUILT_PRODUCTS_DIR} != *\"simulator\"* ]]; then\nif [[ 0 == 1 ]]; then\n\nexport PATH=\"/opt/procursus/bin:/opt/procursus/sbin:$PATH\"\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    BundleName=\"PurePKG.app/Contents\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\n\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    plutil -insert CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    plutil -replace CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    cp Icon.icns ${BUILT_PRODUCTS_DIR}/$BundleName/Resources\nfi\n\nstrip ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\n\ncd ${BUILT_PRODUCTS_DIR}/Build\n\nUNSAFE_VERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../$BundleName/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\nVERSION=$(echo \"${UNSAFE_VERSION}\" | sed 's/ (/-/g; s/)//g; s/ //g')\n\ngen_control_testing() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg.testing\nName: PurePKG (testing)\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nConflicts: uwu.lrdsnow.purepkg\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_control() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg\nName: PurePKG\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nConflicts: uwu.lrdsnow.purepkg.testing\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_postinst() {\nlocal path=$1\necho \"#!/bin/sh\n\nif [ \\\"\\$1\\\" = \\\"configure\\\" ]; then\n    ldid -s ${path}/Applications/PurePKG.app\n    uicache -p ${path}/Applications/PurePKG.app\nfi\"\n}\ngen_macos_postinst() {\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app'\n}\ngen_deb() {\n    local arch=$1\n    local path=$2\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir -p \"${path}\"\n    cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n    gen_postinst $path > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\ngen_macos_deb() {\n    local arch=$1\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir Applications\n    cp -r ../../PurePKG.app Applications/PurePKG.app\n    gen_macos_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf PurePKG.app\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\ncp PurePKGDemo.ipa ../../../Build/PurePKGDemo.ipa\ncp PurePKG.tipa ../../../Build/PurePKG.tipa\ngen_deb iphoneos-arm64 var/jb/Applications\ngen_deb iphoneos-arm Applications\ngen_deb iphoneos-arm64e Applications\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\ngen_deb appletvos-arm64 Applications\nfi\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\ngen_macos_deb darwin-amd64\ngen_macos_deb darwin-arm64\nfi\n\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\nfor deb_file in ./*.deb; do\n    filename=$(basename \"$deb_file\")\n    version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n    new_filename=\"${filename//_$version/}\"\n    cp \"$deb_file\" \"../../../Build/$new_filename\"\ndone\nfi\n\ncp $PROJECT_DIR/Icon.png ${BUILT_PRODUCTS_DIR}/$BundleName/Icon.png\n";
+			shellScript = "BundleName=\"PurePKG.app\"\n\nif [ -f \"${BUILT_PRODUCTS_DIR}/PurePKG.app/Contents/Resources/PurePKG.sh\" ]; then\n    chmod 755 \"${BUILT_PRODUCTS_DIR}/PurePKG.app/Contents/Resources/PurePKG.sh\"\nfi\n\nif [[ ${BUILT_PRODUCTS_DIR} != *\"simulator\"* ]]; then\n\nexport PATH=\"/opt/procursus/bin:/opt/procursus/sbin:$PATH\"\n\nif [ -d \"${BUILT_PRODUCTS_DIR}/Build\" ]; then\n    rm -r \"${BUILT_PRODUCTS_DIR}/Build\"\nfi\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    BundleName=\"PurePKG.app/Contents\"\nfi\n\nmkdir ${BUILT_PRODUCTS_DIR}/Build\n\nplutil -replace CFBundleIdentifier -string \"uwu.lrdsnow.purepkg\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\n    plutil -insert CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    plutil -replace CFBundleIconFile -string \"AppIcon\" ${BUILT_PRODUCTS_DIR}/$BundleName/Info.plist\n    cp Icon.icns ${BUILT_PRODUCTS_DIR}/$BundleName/Resources\nfi\n\nstrip ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\nldid -S./entitlements.plist ${BUILT_PRODUCTS_DIR}/$BundleName/PurePKG\n\ncd ${BUILT_PRODUCTS_DIR}/Build\n\nUNSAFE_VERSION=$(plutil -extract CFBundleShortVersionString xml1 -o - ../$BundleName/Info.plist | sed -n 's/.*<string>\\(.*\\)<\\/string>.*/\\1/p')\nVERSION=$(echo \"${UNSAFE_VERSION}\" | sed 's/ (/-/g; s/)//g; s/ //g')\n\ngen_control_testing() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg.testing\nName: PurePKG (testing)\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nConflicts: uwu.lrdsnow.purepkg\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_control() {\nlocal arch=$1\nlocal firmver=$2\necho \"Package: uwu.lrdsnow.purepkg\nName: PurePKG\nVersion: ${VERSION}\nArchitecture: ${arch}\nSection: Package Manager\nMaintainer: Lrdsnow\nAuthor: Lrdsnow\nDepends: firmware (>= ${firmver}.0)\nConflicts: uwu.lrdsnow.purepkg.testing\nDescription: The purest package manager ever!\nSupport: https://discord.gg/purepkg\nSileoDepiction: https://lrdsnow.github.io/purepkg/depiction.json\nIcon: https://github.com/Lrdsnow/PurePKG/blob/main/Icon.png?raw=true\"\n}\ngen_postinst() {\nlocal path=$1\necho \"#!/bin/sh\n\nif [ \\\"\\$1\\\" = \\\"configure\\\" ]; then\n    ldid -s ${path}/Applications/PurePKG.app\n    uicache -p ${path}/Applications/PurePKG.app\nfi\"\n}\ngen_macos_postinst() {\necho '#!/bin/sh\nln -s /opt/procursus/Applications/PurePKG.app /Applications/PurePKG.app'\n}\ngen_deb() {\n    local arch=$1\n    local path=$2\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir -p \"${path}\"\n    cp -r ../../PurePKG.app \"${path}/PurePKG.app\"\n    gen_postinst $path > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\ngen_macos_deb() {\n    local arch=$1\n    mkdir uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    cd uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    mkdir DEBIAN\n    mkdir Applications\n    cp -r ../../PurePKG.app Applications/PurePKG.app\n    gen_macos_postinst > DEBIAN/postinst\n    chmod 755 DEBIAN/postinst\n    gen_control $arch \"13\" > DEBIAN/control\n    cd ..\n    dpkg-deb --build uwu.lrdsnow.purepkg_${VERSION}_${arch}\n    rm -rf PurePKG.app\n    rm -rf uwu.lrdsnow.purepkg_${VERSION}_${arch}\n}\n\nif [[ ${BUILT_PRODUCTS_DIR} == *\"iphoneos\"* ]]; then\ncp -r ${BUILT_PRODUCTS_DIR}/PurePKG.app ${BUILT_PRODUCTS_DIR}/Build/PurePKG.app\nif [ -d \"Payload\" ]; then\n    rm -r \"Payload\"\nfi\nmkdir -p \"Payload\"\nmv PurePKG.app Payload/PurePKG.app\nzip -r PurePKG.tipa Payload\nrm -r Payload\nmkdir -p \"Payload\"\ncp -r ../PurePKG.app Payload\nzip -r PurePKGDemo.ipa Payload\nrm -r Payload\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\ncp PurePKGDemo.ipa ../../../Build/PurePKGDemo.ipa\ncp PurePKG.tipa ../../../Build/PurePKG.tipa\ngen_deb iphoneos-arm64 var/jb/Applications\ngen_deb iphoneos-arm Applications\ngen_deb iphoneos-arm64e Applications\nfi\nif [[ ${BUILT_PRODUCTS_DIR} == *\"appletvos\"* ]]; then\ngen_deb appletvos-arm64 Applications\nfi\nif [[ \"$SWIFT_PLATFORM_TARGET_PREFIX\" == \"macos\" ]]; then\ngen_macos_deb darwin-amd64\ngen_macos_deb darwin-arm64\nfi\n\nif [ ! -d \"../../../Build\" ]; then\n    mkdir -p ../../../Build\nfi\nfor deb_file in ./*.deb; do\n    filename=$(basename \"$deb_file\")\n    version=$(echo \"$filename\" | sed 's/.*_\\(.*\\)_.*/\\1/')\n    new_filename=\"${filename//_$version/}\"\n    cp \"$deb_file\" \"../../../Build/$new_filename\"\ndone\nfi\n\ncp $PROJECT_DIR/Icon.png ${BUILT_PRODUCTS_DIR}/$BundleName/Icon.png\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -377,7 +369,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				655D8EE02C2201D9006A1773 /* macOS.m in Sources */,
 				65C1A5562C16D9B500431468 /* PaymentAPI.swift in Sources */,
 				65839EFA2BCE486B00068B7A /* RepoView.swift in Sources */,
 				65C1A5572C16D9B500431468 /* RepoHandler_RootHelper.swift in Sources */,
@@ -413,7 +404,6 @@
 				65C1A54D2C16D9B500431468 /* Repo.swift in Sources */,
 				653AB8972BCF434A00E3A215 /* SearchView.swift in Sources */,
 				65DC66C52BCCEC5300EBFE82 /* Popups.swift in Sources */,
-				65D8E5782C1E81C2006AFA97 /* PaymentAPI_tvOS.m in Sources */,
 				65DC66C32BCCEC5300EBFE82 /* Compat.swift in Sources */,
 				65C1A5512C16D9B500431468 /* Decompression.swift in Sources */,
 				65D427CF2BD503C5008D8A2C /* ThemingViewModifiers.swift in Sources */,
@@ -564,7 +554,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
+				ENABLE_PREVIEWS = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PurePKG/Info.plist;
@@ -585,7 +575,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.7;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -620,7 +610,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
+				ENABLE_PREVIEWS = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PurePKG/Info.plist;
@@ -641,7 +631,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.7;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purepkg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

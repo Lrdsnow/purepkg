@@ -7,15 +7,41 @@
 
 import Foundation
 
+#if os(macOS)
+@discardableResult
+func spawnRootHelper(args: [String]) -> (Int32, String, String) {
+    let process = Process()
+    process.executableURL = Bundle.main.executableURL
+    process.arguments = [ "roothelper" ] + args
+
+    let outputPipe = Pipe()
+    let errorPipe = Pipe()
+
+    process.standardOutput = outputPipe
+    process.standardError = errorPipe
+
+    do {
+        try process.run()
+    } catch {
+        print("Error: \(error)")
+        return (-1, "", "")
+    }
+
+    process.waitUntilExit()
+
+    let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+    let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+
+    let outputString = String(data: outputData, encoding: .utf8) ?? ""
+    let errorString = String(data: errorData, encoding: .utf8) ?? ""
+
+    let status = process.terminationStatus
+
+    return (status, outputString, errorString)
+}
+#else
 @discardableResult
 func spawnRootHelper(args: [String]) -> (Int, String, String) {
-    #if os(macOS)
-    var status: Int32 = 0
-    var stdoutStr: NSString?
-    var stderrStr: NSString?
-    spawnRootHelper_macOS(args, &status, &stdoutStr, &stderrStr)
-    return (Int(status), String(stdoutStr ?? ""), String(stderrStr ?? ""))
-    #else
     #if targetEnvironment(simulator)
     return (0, "", "")
     #else
@@ -158,8 +184,8 @@ func spawnRootHelper(args: [String]) -> (Int, String, String) {
     
     return (Int(status), stdoutStr, stderrStr);
     #endif
-    #endif
 }
+#endif
 
 @discardableResult
 func spawnAsRoot(command: String, args: [String]) -> (Int, String, String) {

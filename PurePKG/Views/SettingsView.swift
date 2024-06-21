@@ -55,6 +55,8 @@ struct SettingsView: View {
                     Spacer()
                     #if os(watchOS)
                     Text("\(Device().pretty_version)").minimumScaleFactor(0.5)
+                    #elseif os(macOS)
+                    Text("\(Device().build_number)").minimumScaleFactor(0.5)
                     #else
                     Text("\(Device().pretty_version)\(Device().build_number == "" ? "" : " (\(Device().build_number))")").minimumScaleFactor(0.5)
                     #endif
@@ -109,13 +111,11 @@ struct SettingsView: View {
                 }.onChangeC(of: RefreshOnStart) { _ in
                     UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
                 }.listRowBG()
-#if os(iOS)
                 if #available(iOS 14.0, tvOS 16.0, *) {
                     NavigationLink(destination: PaymentSettingsView()) {
                         Text("Payment Settings").minimumScaleFactor(0.5)
                     }.listRowBG()
                 }
-#endif
 #if os(iOS)
                 NavigationLink(destination: UISettingsView()) {
                     Text("UI Settings").minimumScaleFactor(0.5)
@@ -128,13 +128,10 @@ struct SettingsView: View {
 #else
                 SectionC("Credits") {
                     Link(destination: URL(string: "https://github.com/Lrdsnow")!) {
-                        CreditView(name: "Lrdsnow", role: "Developer", icon: "lrdsnow")
-                    }
-                    Link(destination: URL(string: "https://icons8.com")!) {
-                        CreditView(name: "Icons8", role: "Default Plumpy Icons", icon: "icons8")
+                        CreditView(name: "Lrdsnow", role: "Developer", icon: "https://github.com/Lrdsnow.png")
                     }
                     Link(destination: URL(string: "https://github.com/Sileo")!) {
-                        CreditView(name: "Sileo", role: "APTWrapper", icon: "sileo")
+                        CreditView(name: "Sileo", role: "APTWrapper", icon: "https://github.com/Sileo.png")
                     }
                 }
 #endif
@@ -152,7 +149,6 @@ struct SettingsView: View {
     }
 }
 
-#if os(iOS)
 @available(iOS 14.0, tvOS 16.0, *)
 struct PaymentSettingsView: View {
     @StateObject private var viewModel = PaymentAPI_AuthenticationViewModel()
@@ -175,18 +171,18 @@ struct PaymentSettingsView: View {
                         UserDefaults.standard.set(usePaymentAPI, forKey: "usePaymentAPI")
                     }.listRowBG()
                 }
+#if os(tvOS)
+                Button(action: {
+                    showPopup("Device Info", "Model: \(Device().modelIdentifier)\nUDID: \(Device().uniqueIdentifier)")
+                }) {
+                    Text("Get Device Info")
+                }.listRowBG()
+#endif
             }
             if !hidePaidTweaks && usePaymentAPI {
                 Section {
                     ForEach(appData.repos.filter( { $0.paidRepoInfo != nil } ), id:\.id) { repo in
                         if let paidRepoInfo = repo.paidRepoInfo {
-#if os(tvOS)
-                            if let authURL = repo.paymentAPI.authURL {
-                                NavigationLink(destination: WebAuthView(url: authURL) { v in log(v) }) {
-                                    buttonLabel(repo: repo, paidRepoInfo: paidRepoInfo)
-                                }
-                            }
-#else
                             Button(action: {
                                 if (appData.userInfo[repo.name] != nil) {
                                     showConfirmPopup("Sign Out", "Are you sure you'd like to sign out of \(repo.name)?") { confirmed in
@@ -199,11 +195,88 @@ struct PaymentSettingsView: View {
                                         }
                                     }
                                 } else {
+#if os(tvOS) || os(watchOS)
+                                    if let info_token = Bundle.main.infoDictionary?["\(repo.name)_token"] as? String,
+                                       let info_secret = Bundle.main.infoDictionary?["\(repo.name)_secret"] as? String {
+                                        showConfirmPopup("Use Token in Info.plist", "A token & secret for this repo was found in the info.plist, use it?") { yes in
+                                            if yes {
+                                                Keychain.save(info_secret.data(using: .utf8) ?? Data(), service: "uwu.lrdsnow.purepkg", account: "secret_\(repo.name)")
+                                                Keychain.save(info_token.data(using: .utf8) ?? Data(), service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)")
+                                                PaymentAPI.getUserInfo(repo) { userInfo in
+                                                    if let userInfo = userInfo {
+                                                        appData.userInfo[repo.name] = userInfo
+                                                    } else {
+                                                        showPopup("Error", "Invalid Token")
+                                                    }
+                                                }
+                                            } else {
+                                                showDoubleTextInputPopup("Enter Token & Secret for \(repo.name)", "token", "secret", .asciiCapable) { token, secret in
+                                                    if let token = token,
+                                                       let secret = secret {
+                                                        Keychain.save(secret.data(using: .utf8) ?? Data(), service: "uwu.lrdsnow.purepkg", account: "secret_\(repo.name)")
+                                                        Keychain.save(token.data(using: .utf8) ?? Data(), service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)")
+                                                        PaymentAPI.getUserInfo(repo) { userInfo in
+                                                            if let userInfo = userInfo {
+                                                                appData.userInfo[repo.name] = userInfo
+                                                            } else {
+                                                                showPopup("Error", "Invalid Token")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        showDoubleTextInputPopup("Enter Token & Secret for \(repo.name)", "token", "secret", .asciiCapable) { token, secret in
+                                            if let token = token,
+                                               let secret = secret {
+                                                Keychain.save(secret.data(using: .utf8) ?? Data(), service: "uwu.lrdsnow.purepkg", account: "secret_\(repo.name)")
+                                                Keychain.save(token.data(using: .utf8) ?? Data(), service: "uwu.lrdsnow.purepkg", account: "token_\(repo.name)")
+                                                PaymentAPI.getUserInfo(repo) { userInfo in
+                                                    if let userInfo = userInfo {
+                                                        appData.userInfo[repo.name] = userInfo
+                                                    } else {
+                                                        showPopup("Error", "Invalid Token")
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+#else
                                     viewModel.auth(repo, appData: appData)
+#endif
                                 }
                             }, label: {
                                 buttonLabel(repo: repo, paidRepoInfo: paidRepoInfo)
                             }).padding(.vertical, 5)
+#if os(macOS) || os(iOS)
+                                .contextMenuC {
+                                    Button(action: {
+                                        showDoubleTextInputPopup("Enter Model & UDID", "Model", "UDID", .asciiCapable) { model, udid in
+                                            if let model = model,
+                                               let udid = udid {
+                                                PaymentAPI_WebAuthenticationCoordinator().authCLI(repo: repo, udid: udid, model: model) { token, secret in
+                                                    DispatchQueue.main.async {
+                                                        showConfirmPopup("Success", "Token: \(token)\nSecret: \(secret)\n\nCopy To Clipboard?") { copy in
+                                                            if copy {
+#if os(macOS)
+                                                                let pasteboard = NSPasteboard.general
+                                                                pasteboard.clearContents()
+                                                                pasteboard.setString("\(repo.name)_token: \(token)\n\(repo.name)_secret: \(secret)", forType: .string)
+#else
+                                                                let pasteboard = UIPasteboard.general
+                                                                pasteboard.string = "\(repo.name)_token: \(token)\n\(repo.name)_secret: \(secret)"
+#endif
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }, label: {
+                                        Text("Get Token")
+                                    })
+                                }
 #endif
                         }
                     }
@@ -216,7 +289,13 @@ struct PaymentSettingsView: View {
         @EnvironmentObject var appData: AppData
         let repo: Repo
         let paidRepoInfo: PaidRepoInfo
+#if os(iOS) || os(tvOS)
         let scale = UIScreen.main.bounds.height/10
+#elseif os(watchOS)
+        let scale: CGFloat = 40
+#else
+        let scale: CGFloat = 80
+#endif
         
         var body: some View {
             HStack {
@@ -239,11 +318,13 @@ struct PaymentSettingsView: View {
                     Text((appData.userInfo[repo.name] != nil) ? "Logged in as \(appData.userInfo[repo.name]?.user.name ?? "Unknown")" : paidRepoInfo.description).font(.system(size: 15)).foregroundColor(Color.secondary).minimumScaleFactor(0.5).lineLimit(1)
                 }
                 Spacer()
-            }.background(Rectangle().foregroundColor(.accentColor.opacity(0.05)).cornerRadius(15))
+            }
+#if !os(macOS)
+            .background(Rectangle().foregroundColor(.accentColor.opacity(0.05)).cornerRadius(15))
+#endif
         }
     }
 }
-#endif
 
 #if os(macOS)
 struct CreditView: View {
@@ -253,13 +334,21 @@ struct CreditView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
-            Image(icon)
-                .resizable()
-                .scaledToFit()
-                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
-                .frame(width: 50, height: 50)
-                .aspectRatio(contentMode: .fit)
-                .cornerRadius(10)
+            LazyImage(url: URL(string: icon)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
+                } else {
+                    ProgressView()
+                        .scaledToFit()
+                }
+            }
+            .shadow(color: Color.black.opacity(0.5), radius: 3, x: 1, y: 2)
+            .frame(width: 50, height: 50)
+            .aspectRatio(contentMode: .fit)
+            .cornerRadius(10)
             
             VStack(alignment: .leading) {
                 Text(name)

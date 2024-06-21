@@ -32,45 +32,46 @@ struct QueueView: View {
                             Text("No Queued Tweaks")
                         } else {
                         if !appData.queued.install.isEmpty {
-                            Section(content: {
-                                ForEach(toInstall, id: \.id) { package in
-                                    VStack {
-                                        HStack {
-                                            TweakRow(tweak: package)
-                                                .padding(.leading, (deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id })) ? 10 : 0)
-                                            Spacer()
-                                            if editing && !(deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id }))  {
-                                                Button(action: {
-                                                    appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
-                                                    appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
-                                                    refresh()
-                                                }) {
-                                                    Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
-                                                }
+                            Text("Install/Upgrade").foregroundColor(.accentColor)
+                            ForEach(toInstall, id: \.id) { package in
+                                VStack {
+                                    HStack {
+                                        TweakRow(tweak: package)
+                                            .padding(.leading, (deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id })) ? 10 : 0)
+                                        Spacer()
+                                        if editing && !(deps.contains(where: { $0.id == package.id }) && !appData.queued.install.contains(where: { $0.id == package.id }))  {
+                                            Button(action: {
+                                                appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -2)
+                                                appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                                refresh()
+                                            }) {
+                                                Image(systemName: "trash").shadow(color: .accentColor, radius: 5)
                                             }
-                                        }.padding(.trailing)
-                                        if installingQueue {
-                                            VStack(alignment: .leading) {
-                                                Text(appData.queued.status[package.id]?.message ?? "Queued...")
-                                                if #available(iOS 14.0, tvOS 14.0, *) {
-                                                    ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
-                                                        .progressViewStyle(LinearProgressViewStyle())
-                                                        .frame(height: 2)
-                                                }
-                                            }
-                                            .foregroundColor(.secondary).padding(.top, 5)
                                         }
-                                    }.padding(.horizontal)
+                                    }.padding(.trailing)
+                                    if installingQueue {
+                                        VStack(alignment: .leading) {
+                                            Text(appData.queued.status[package.id]?.message ?? "Queued...")
+                                            if #available(iOS 14.0, tvOS 14.0, *) {
+                                                ProgressView(value: appData.queued.status[package.id]?.percentage ?? 0)
+                                                    .progressViewStyle(LinearProgressViewStyle())
+                                                    .frame(height: 2)
+                                            }
+                                        }
+                                        .foregroundColor(.secondary).padding(.top, 5)
+                                    }
+                                }.padding(.horizontal)
+                            }.onDelete(perform: { indexSet in
+                                for index in indexSet {
+                                    let package = toInstall[index]
+                                    appData.queued.install.remove(at: appData.queued.install.firstIndex(where: { $0.id == package.id }) ?? -1)
+                                    appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -1)
+                                    refresh()
                                 }
-                            }, header: {
-                                Text("Install/Upgrade").foregroundColor(.accentColor)
-#if !os(iOS)
-                                    .padding(.leading).padding(.top)
-#endif
                             })
                         }
                         if !appData.queued.uninstall.isEmpty {
-                            Section(content: {
+                            Text("Uninstall").foregroundColor(.accentColor)
                                 ForEach(appData.queued.uninstall, id: \.id) { package in
                                     VStack {
                                         HStack {
@@ -97,13 +98,14 @@ struct QueueView: View {
                                             .foregroundColor(.secondary).padding(.top, 5)
                                         }
                                     }.padding(.horizontal)
-                                }
-                            }, header: {
-                                Text("Uninstall").foregroundColor(.accentColor)
-#if !os(iOS)
-                                    .padding(.leading).padding(.top)
-#endif
-                            })
+                                }.onDelete(perform: { indexSet in
+                                    for index in indexSet {
+                                        let package = appData.queued.uninstall[index]
+                                        appData.queued.uninstall.remove(at: appData.queued.uninstall.firstIndex(where: { $0.id == package.id }) ?? -2)
+                                        appData.queued.all.remove(at: appData.queued.all.firstIndex(where: { $0 == package.id }) ?? -2)
+                                        refresh()
+                                    }
+                                })
                         }
                     }
                     }
@@ -181,6 +183,32 @@ struct InstallQueuedButton: View {
                         showLog = true
 #endif
 #else
+                        let paid_pkgs = appData.queued.install.filter({ $0.paid == true })
+                        if !paid_pkgs.isEmpty  {
+                            appData.queued.install.removeAll(where: { $0.paid == true })
+                            for paid_pkg in paid_pkgs {
+                                if let url_str = paid_pkg.debPath,
+                                   let url = URL(string: url_str) {
+                                    let task = URLSession.shared.downloadTask(with: url) { (tempURL, response, error) in
+                                        if let tempURL = tempURL {
+                                            var temp_pkg = paid_pkg
+                                            temp_pkg.debPath = tempURL.path
+                                            appData.queued.install.append(temp_pkg)
+                                        } else if let error = error {
+                                            appData.queued.status[paid_pkg.id] = installStatus(message: "Failed to download package", percentage: 1.0)
+                                        }
+                                    }
+                                    
+                                    let progressObservation = task.progress.observe(\.fractionCompleted) { (progress, _) in
+                                        DispatchQueue.main.async {
+                                            appData.queued.status[paid_pkg.id] = installStatus(message: "Downloading...", percentage: progress.fractionCompleted)
+                                        }
+                                    }
+                                    
+                                    task.resume()
+                                }
+                            }
+                        }
                         APTWrapper.performOperations(installs: appData.queued.install, removals: appData.queued.uninstall, installDeps: deps,
                                                      progressCallback: { _, statusValid, statusReadable, package in
                             log("STATUSINFO:\nStatusValid: \(statusValid)\nStatusReadable: \(statusReadable)\nPackage: \(package)")

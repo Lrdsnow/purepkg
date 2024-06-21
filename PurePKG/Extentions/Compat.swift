@@ -260,7 +260,6 @@ private struct FallbackSheetPresenter<Content: View>: UIViewControllerRepresenta
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        log("update")
         if isPresented && uiViewController.presentedViewController == nil {
             let hostingController = UIHostingController(rootView: content())
             hostingController.modalPresentationStyle = .pageSheet

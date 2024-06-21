@@ -222,11 +222,7 @@ public class RepoHandler {
                             let endTime = CFAbsoluteTimeGetCurrent()
                             let elapsedTime = endTime - startTime
                             log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                            #if os(iOS)
                             let hidePaidTweaks = UserDefaults.standard.bool(forKey: "hidePaidTweaks")
-                            #else
-                            let hidePaidTweaks = true
-                            #endif
                             do {
                                 if !hidePaidTweaks {
                                     if let payment_endpoint = Repo.payment_endpoint {

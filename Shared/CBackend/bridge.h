@@ -10,7 +10,6 @@
 
 #include "waitpid_decode.h"
 #include <spawn.h>
-#include "PaymentAPI_tvOS.h"
 #include "Compat.h"
 
 #define POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE 1
@@ -45,9 +44,5 @@ int custom_posix_spawnattr_setsigdefault(posix_spawnattr_t * __restrict, const s
 int custom_posix_spawnattr_setflags(posix_spawnattr_t *, short) asm("_posix_spawnattr_setflags");
 int custom_posix_spawnattr_setpgroup(posix_spawnattr_t *, pid_t) asm("_posix_spawnattr_setpgroup");
 int custom_posix_spawnattr_setsigmask(posix_spawnattr_t * __restrict, const sigset_t * __restrict) asm("_posix_spawnattr_setsigmask");
-
-#if TARGET_OS_MAC
-void spawnRootHelper_macOS(NSArray<NSString *> *args, int *status, NSString **output, NSString **errorMessage);
-#endif
 
 #endif /* bridge_h */

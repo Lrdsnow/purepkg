@@ -84,11 +84,11 @@ struct Package: Encodable, Decodable {
                 }
             }
             
-            if let minVersion = minVersion, let maxVersion = maxVersion {
+            if let minVersion = minVersion, let maxVersion = maxVersion, minVersion.0 != 0, maxVersion.0 != 0 {
                 return "\(versionString(minVersion)) - \(versionString(maxVersion))"
-            } else if let minVersion = minVersion {
+            } else if let minVersion = minVersion, minVersion.0 != 0 {
                 return "\(versionString(minVersion))+"
-            } else if let maxVersion = maxVersion {
+            } else if let maxVersion = maxVersion, maxVersion.0 != 0 {
                 return "\(versionString(maxVersion)) and below"
             } else {
                 return nil
@@ -126,10 +126,12 @@ struct Package: Encodable, Decodable {
                     splitVer.count > 1 ? Int(splitVer[1]) ?? 0 : 0,
                     splitVer.count > 2 ? Int(splitVer[2]) ?? 0 : 0
                 )
-                if firmReq.reqVer.minVer && ver < reqVer {
-                    return false
-                } else if !firmReq.reqVer.minVer && ver > reqVer {
-                    return false
+                if reqVer.0 != 0 {
+                    if firmReq.reqVer.minVer && ver < reqVer {
+                        return false
+                    } else if !firmReq.reqVer.minVer && ver > reqVer {
+                        return false
+                    }
                 }
             }
             return true
