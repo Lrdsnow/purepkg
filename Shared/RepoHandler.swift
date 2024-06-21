@@ -70,6 +70,7 @@ public class RepoHandler {
                             }
                             
                             if let result = result {
+                                var signature_ok: Bool = false;
                                 let savedReleasePath = self.getSavedRepoFilePath(url.appendingPathComponent("Release"));
                                 var savedReleaseGPGPath = self.getSavedRepoFilePath(url.appendingPathComponent("Release.gpg"));
                                 if let signedBy = repoSource.signedby {
@@ -109,20 +110,20 @@ public class RepoHandler {
                                     signature_ok = false;
                                     if Jailbreak().type == .tvOS_rootful || Jailbreak().type == .visionOS_rootless {
                                         if errorStr != "" {
-                                            Repo.error = errorStr
+                                            repo.error = errorStr
                                         } else {
-                                            Repo.error = "Warning: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
+                                            repo.error = "Warning: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
                                         }
                                     } else {
                                         if errorStr != "" {
-                                            Repo.error = errorStr
+                                            repo.error = errorStr
                                         } else {
-                                            Repo.error = "Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
+                                            repo.error = "Error: Invalid signature at \(url.appendingPathComponent("Release.gpg"))"
                                         }
                                         let endTime = CFAbsoluteTimeGetCurrent()
                                         let elapsedTime = endTime - startTime
                                         log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                                        completion(Repo);
+                                        completion(repo);
                                         return
                                     }
                                 } else {

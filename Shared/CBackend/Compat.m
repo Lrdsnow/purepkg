@@ -7,7 +7,7 @@
 
 #import "Compat.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS
 @implementation CustomDetent
 
 + (instancetype)customDetentWithConstant:(CGFloat)constant {

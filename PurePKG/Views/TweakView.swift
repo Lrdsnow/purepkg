@@ -8,7 +8,9 @@
 import Foundation
 import SwiftUI
 import NukeUI
+#if canImport(LocalAuthentication)
 import LocalAuthentication
+#endif
 
 struct TweakView: View {
     @EnvironmentObject var appData: AppData
@@ -359,7 +361,7 @@ struct TweakView: View {
 #endif
                         Button(action: {
                             if purchaseStatus == .awaitingConfirmation {
-#if !os(tvOS)
+#if !os(tvOS) && !os(watchOS)
                                 let context = LAContext()
                                 var error: NSError?
                                 guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
