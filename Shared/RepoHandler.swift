@@ -44,6 +44,7 @@ public class RepoHandler {
                     repo.archs = (result["Architectures"] ?? "").split(separator: " ").map { String($0) }
                     repo.version = Double(result["Version"] ?? "0.0") ?? 0.0
                     repo.component = repoSource.components
+                    do { repo.payment_endpoint = URL(string: try String(contentsOf: url.appendingPathComponent("payment_endpoint")))} catch {}
                     
                     let currentArch = Jailbreak().arch
                     if !repo.archs.contains(currentArch) {
@@ -159,10 +160,36 @@ public class RepoHandler {
                                 }
                                 return createPackageStruct(lowercasedTweak, repo)
                             }
+                            
                             let endTime = CFAbsoluteTimeGetCurrent()
                             let elapsedTime = endTime - startTime
                             log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")
-                            completion(repo)
+                            let hidePaidTweaks = UserDefaults.standard.bool(forKey: "hidePaidTweaks")
+                            do {
+                                if !hidePaidTweaks,
+                                   Device().uniqueIdentifier != "" {
+                                    if let payment_endpoint = repo.payment_endpoint {
+                                        Networking.get_dict(payment_endpoint.appendingPathComponent("info"), json: true) { (info, error) in
+                                            if let info = info,
+                                               let name = info["name"] as? String,
+                                               let icon = URL(string: info["icon"] as? String ?? ""),
+                                               let description = info["description"] as? String {
+                                                repo.paidRepoInfo = PaidRepoInfo(name: name, icon: icon, description: description, authentication_banner: nil)
+                                            } else {
+                                                repo.tweaks = repo.tweaks.filter( { !$0.paid } )
+                                            }
+                                            completion(repo)
+                                        }
+                                    } else {
+                                        throw "no payment_endpoint"
+                                    }
+                                } else {
+                                    throw "hidePaidTweaks enabled"
+                                }
+                            } catch {
+                                repo.tweaks = repo.tweaks.filter( { !$0.paid } )
+                                completion(repo)
+                            }
                         } else if let error = error {
                             log("Error getting repo tweaks: \(error.localizedDescription)")
                             repo.error = "Error getting repo tweaks: \(error.localizedDescription)"
@@ -206,7 +233,9 @@ public class RepoHandler {
             return dep
         }
         
-        if let depiction = tweakDict["depiction"] {
+        if let depiction = tweakDict["sileodepiction"] {
+            tweak.depiction = URL(string: depiction)
+        } else if let depiction = tweakDict["depiction"] {
             tweak.depiction = URL(string: depiction)
         }
         if let icon = tweakDict["icon"] {
@@ -267,7 +296,11 @@ public class RepoHandler {
         var tweaks: [Package] = []
         for tweak in arrayofdicts {
             if (tweak["Status"] ?? "").contains("installed") && !(tweak["Status"] ?? "").contains("not-installed") {
-                var Tweak = createPackageStruct(tweak)
+                let _tweak = tweak.reduce(into: [String: String]()) { result, element in
+                    let (key, value) = element
+                    result[key.lowercased()] = value
+                }
+                var Tweak = createPackageStruct(_tweak)
                 let packageInstallPath = URL(string: dpkgPath)!.appendingPathComponent("info/\(Tweak.id).list")
                 let attr = try? FileManager.default.attributesOfItem(atPath: packageInstallPath.path)
                 Tweak.installDate = attr?[FileAttributeKey.modificationDate] as? Date

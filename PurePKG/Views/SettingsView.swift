@@ -111,7 +111,8 @@ struct SettingsView: View {
                 }.onChangeC(of: RefreshOnStart) { _ in
                     UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
                 }.listRowBG()
-                if #available(iOS 14.0, tvOS 16.0, *) {
+                if #available(iOS 14.0, tvOS 16.0, *),
+                   Device().uniqueIdentifier != "" {
                     NavigationLink(destination: PaymentSettingsView()) {
                         Text("Payment Settings").minimumScaleFactor(0.5)
                     }.listRowBG()

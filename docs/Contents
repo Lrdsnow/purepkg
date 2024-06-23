@@ -9,6 +9,8 @@ Applications/PurePKG.app/BitByteData_BitByteData.bundle/Info.plist uwu.lrdsnow.p
 Applications/PurePKG.app/BitByteData_BitByteData.bundle/PrivacyInfo.xcprivacy uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Contents/Info.plist		    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Contents/MacOS/PurePKG		    uwu.lrdsnow.purepkg
+Applications/PurePKG.app/Contents/MacOS/PurePKG.debug.dylib uwu.lrdsnow.purepkg
+Applications/PurePKG.app/Contents/MacOS/__preview.dylib	    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Contents/PkgInfo		    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Contents/Resources/AppIcon.icns    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Contents/Resources/Assets.car	    uwu.lrdsnow.purepkg
@@ -37,8 +39,10 @@ Applications/PurePKG.app/Down_Down.bundle/Info.plist	    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/Info.plist			    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/PkgInfo			    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/PurePKG			    uwu.lrdsnow.purepkg
+Applications/PurePKG.app/PurePKG.debug.dylib		    uwu.lrdsnow.purepkg
 Applications/PurePKG.app/SWCompression_SWCompression.bundle/Info.plist uwu.lrdsnow.purepkg
 Applications/PurePKG.app/SWCompression_SWCompression.bundle/PrivacyInfo.xcprivacy uwu.lrdsnow.purepkg
+Applications/PurePKG.app/__preview.dylib		    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/AppIcon160x60@2x.png	    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/AppIcon176x76@2x~ipad.png   uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/AppIcon260x60@2x.png	    uwu.lrdsnow.purepkg
@@ -60,5 +64,7 @@ var/jb/Applications/PurePKG.app/Down_Down.bundle/Info.plist uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/Info.plist		    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/PkgInfo			    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/PurePKG			    uwu.lrdsnow.purepkg
+var/jb/Applications/PurePKG.app/PurePKG.debug.dylib	    uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/SWCompression_SWCompression.bundle/Info.plist uwu.lrdsnow.purepkg
 var/jb/Applications/PurePKG.app/SWCompression_SWCompression.bundle/PrivacyInfo.xcprivacy uwu.lrdsnow.purepkg
+var/jb/Applications/PurePKG.app/__preview.dylib		    uwu.lrdsnow.purepkg

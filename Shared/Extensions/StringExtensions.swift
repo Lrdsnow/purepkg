@@ -158,4 +158,10 @@ extension String {
         }
         return false
     }
+    func lowercaseFirstLetter() -> String {
+        guard !self.isEmpty else { return self }
+        let first = self.prefix(1).lowercased()
+        let rest = self.dropFirst()
+        return first + rest
+    }
 }
