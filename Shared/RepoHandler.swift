@@ -143,8 +143,8 @@ public class RepoHandler {
 #endif
                     
                     var pkgsURL = url
-                    if let repoComponents = repoSource.suites {
-                        pkgsURL = url.appendingPathComponent(repoComponents).appendingPathComponent("binary-\(Jailbreak().arch)")
+                    if repoSource.suites != nil {
+                        pkgsURL = url.appendingPathComponent(repoSource.components).appendingPathComponent("binary-\(Jailbreak().arch)")
                     }
                     let packagesURL = pkgsURL.appendingPathComponent("Packages")
 
@@ -442,7 +442,7 @@ func refreshRepos(_ appData: AppData) {
             ])
             #elseif os(tvOS)
             appData.repoSources.append(contentsOf: [
-                RepoSource(url: URL(string: "https://strap.palera.in/dists/appletvos-arm64/1800")!, suites: "appletvos-arm64/1800", components: "main")
+                RepoSource(url: URL(string: "https://apt.procurs.us/dists/appletvos-arm64/1800")!, suites: "appletvos-arm64/1800", components: "main")
             ])
             #endif
         }
