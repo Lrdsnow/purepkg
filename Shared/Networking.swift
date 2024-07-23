@@ -9,7 +9,7 @@ import Foundation
 
 public class Networking {
     public static func get_dict_compressed(_ url: URL, completion: @escaping ([String: String]?, Error?) -> Void) {
-        let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
+        let suffixes = ["", "zst", "xz", "lzma", "gz", "bz2"]
         var attempt = 0
         
         func attemptFetch(url: URL) {
@@ -33,7 +33,7 @@ public class Networking {
     }
     
     public static func get_compressed(_ url: URL, completion: @escaping ([[String: String]]?, Error?, URL?) -> Void) {
-        let suffixes = ["zst", "xz", "lzma", "gz", "bz2", ""]
+        let suffixes = ["", "zst", "xz", "lzma", "gz", "bz2"]
         var attempt = 0
         
         func attemptFetch(url: URL) {

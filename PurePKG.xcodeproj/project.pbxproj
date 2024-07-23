@@ -92,7 +92,7 @@
 		65C1A5402C16D9B500431468 /* Networking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
 		65C1A5412C16D9B500431468 /* PaymentAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaymentAPI.swift; sourceTree = "<group>"; };
 		65C1A5422C16D9B500431468 /* RepoHandler_RootHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepoHandler_RootHelper.swift; sourceTree = "<group>"; };
-		65C1A5432C16D9B500431468 /* RepoHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepoHandler.swift; sourceTree = "<group>"; };
+		65C1A5432C16D9B500431468 /* RepoHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepoHandler.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		65C1A5442C16D9B500431468 /* Spawn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spawn.swift; sourceTree = "<group>"; };
 		65D0169E2BA949C9003F11E4 /* PurePKG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurePKG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65D427CE2BD503C5008D8A2C /* ThemingViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemingViewModifiers.swift; sourceTree = "<group>"; };

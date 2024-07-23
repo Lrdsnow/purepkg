@@ -153,14 +153,27 @@ public class RepoHandler {
                     Networking.get_compressed(packagesURL) { (result, error, actualURL) in
                         if let result = result {
                             log("got repo tweaks! \(actualURL!.absoluteString)")
-                            repo.tweaks = result.map { tweakDict -> Package in
-                                let lowercasedTweak = tweakDict.reduce(into: [String: String]()) { result, element in
+                            var tweaks: [Package] = []
+                            for tweakDictionary in result {
+                                let lowercasedTweakDictionary = tweakDictionary.reduce(into: [String: String]()) { result, element in
                                     let (key, value) = element
                                     result[key.lowercased()] = value
                                 }
-                                return createPackageStruct(lowercasedTweak, repo)
+                                var tweak = createPackageStruct(lowercasedTweakDictionary, repo)
+                                if let index = tweaks.firstIndex(where: { $0.id == tweak.id }) {
+                                    var existingTweak = tweaks[index]
+                                    existingTweak.versions.append(tweak.version)
+                                    if tweak.version.compare(existingTweak.version, options: .numeric) == .orderedDescending {
+                                        tweak.versions = existingTweak.versions
+                                        tweaks[index] = tweak
+                                    } else {
+                                        tweaks[index] = existingTweak
+                                    }
+                                } else {
+                                    tweaks.append(tweak)
+                                }
                             }
-                            
+                            repo.tweaks = tweaks
                             let endTime = CFAbsoluteTimeGetCurrent()
                             let elapsedTime = endTime - startTime
                             log("Time taken to process/get repo \(url.absoluteString): \(elapsedTime) seconds")

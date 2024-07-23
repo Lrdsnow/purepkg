@@ -8,7 +8,7 @@
 import Foundation
 import UniformTypeIdentifiers
 
-struct Package: Encodable, Decodable {
+struct Package: Encodable, Decodable, Hashable, Equatable {
     var id: String = "uwu.lrdsnow.unknown" // Package
     var name: String = "Unknown Tweak" // Name
     var author: String = "Unknown Author" // Maintainer/Author
@@ -27,6 +27,10 @@ struct Package: Encodable, Decodable {
     var icon: URL? = nil
     var debPath: String? = nil
     var repo: Repo = Repo()
+    
+    static func ==(lhs: Package, rhs: Package) -> Bool {
+        return lhs.id == rhs.id
+    }
     
     func supportedVers(_ inputString: String? = nil) -> String? {
         func versionString(_ version: (Int, Int, Int)) -> String {
@@ -139,13 +143,13 @@ struct Package: Encodable, Decodable {
     }
 }
 
-struct verReq: Encodable, Decodable, Equatable {
+struct verReq: Encodable, Decodable, Equatable, Hashable {
     var req: Bool = false
     var version: String = ""
     var minVer: Bool = false // if it should compare the ver as min ver or max ver
 }
 
-struct DepPackage: Encodable, Decodable {
+struct DepPackage: Encodable, Decodable, Hashable, Equatable {
     var id: String = "uwu.lrdsnow.unknown"
     var reqVer: verReq = verReq()
 }
