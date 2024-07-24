@@ -64,9 +64,9 @@ public class Jailbreak {
     
     var arch: String {
         get {
-#if targetEnvironment(simulator)
-            return "iphoneos-arm64"
-#endif
+//#if targetEnvironment(simulator)
+//            return "iphoneos-arm64"
+//#endif
             
 #if os(macOS)
             return "darwin-\(getMacOSArchitecture() ?? "unknown")"

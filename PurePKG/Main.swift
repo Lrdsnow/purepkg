@@ -17,6 +17,13 @@ struct PurePKGBinary {
            (CommandLine.arguments[1] == "getToken" || CommandLine.arguments[1] == "roothelper") {
             exit(RootHelperMain());
         }
+        // setup user defaults
+        UserDefaults.standard.register(defaults: [
+            "refreshOnStart" : true,
+            "checkSignature" : false,
+            "hidePaidTweaks" : false,
+            "usePaymentAPI" : false
+        ])
         //
         
         log(getuid())
@@ -67,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
         appData.repos = RepoHandler.getCachedRepos()
         appData.pkgs = appData.repos.flatMap { $0.tweaks }
-        if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+        if UserDefaults.standard.bool(forKey: "refreshOnStart") {
             Task(priority: .background) {
                 refreshRepos(appData)
             }
@@ -175,7 +182,7 @@ struct ContentViewWatchOS: View {
             appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
             appData.repos = RepoHandler.getCachedRepos()
             appData.pkgs = appData.repos.flatMap { $0.tweaks }
-            if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+            if UserDefaults.standard.bool(forKey: "refreshOnStart") {
                 Task(priority: .background) {
                     refreshRepos(appData)
                 }
@@ -253,7 +260,7 @@ struct ContentView: View {
                 appData.installed_pkgs = RepoHandler.getInstalledTweaks(Jailbreak().path+"/Library/dpkg")
                 appData.repos = RepoHandler.getCachedRepos()
                 appData.pkgs = appData.repos.flatMap { $0.tweaks }
-                if !UserDefaults.standard.bool(forKey: "ignoreInitRefresh") {
+                if UserDefaults.standard.bool(forKey: "refreshOnStart") {
                     Task(priority: .background) {
                         refreshRepos(appData)
                     }

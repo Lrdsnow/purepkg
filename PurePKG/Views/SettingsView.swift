@@ -14,8 +14,8 @@ import AuthenticationServices
 struct SettingsView: View {
     @EnvironmentObject var appData: AppData
     @State private var jb: String? = nil
-    @State private var VerifySignature: Bool = true
-    @State private var RefreshOnStart: Bool = true
+    @AppStorageC("checkSignature") var VerifySignature: Bool = false
+    @AppStorageC("refreshOnStart") var RefreshOnStart: Bool = true
     
     var body: some View {
         List {
@@ -100,16 +100,12 @@ struct SettingsView: View {
                     Toggle(isOn: $VerifySignature, label: {
                         Text("Verify GPG Signature").minimumScaleFactor(0.5)
                     }).tintC(.accentColor)
-                }.onChangeC(of: VerifySignature) { _ in
-                    UserDefaults.standard.set(VerifySignature, forKey: "checkSignature")
                 }.listRowBG()
                 
                 HStack {
                     Toggle(isOn: $RefreshOnStart, label: {
                         Text("Refresh Repos on Start").minimumScaleFactor(0.5)
                     }).tintC(.accentColor)
-                }.onChangeC(of: RefreshOnStart) { _ in
-                    UserDefaults.standard.set(!RefreshOnStart, forKey: "ignoreInitRefresh")
                 }.listRowBG()
                 if #available(iOS 14.0, tvOS 16.0, *),
                    Device().uniqueIdentifier != "" {
@@ -145,7 +141,6 @@ struct SettingsView: View {
         .appBG()
         .onAppear() {
             jb = Jailbreak.jailbreak()
-            VerifySignature = UserDefaults.standard.bool(forKey: "checkSignature")
         }
     }
 }
@@ -154,23 +149,19 @@ struct SettingsView: View {
 struct PaymentSettingsView: View {
     @StateObject private var viewModel = PaymentAPI_AuthenticationViewModel()
     @EnvironmentObject var appData: AppData
-    @State private var usePaymentAPI: Bool = UserDefaults.standard.bool(forKey: "usePaymentAPI")
-    @State private var hidePaidTweaks: Bool = UserDefaults.standard.bool(forKey: "hidePaidTweaks")
+    @AppStorageC("usePaymentAPI") var usePaymentAPI: Bool = false
+    @AppStorageC("hidePaidTweaks") var hidePaidTweaks: Bool = false
     
     var body: some View {
         List {
             Section {
                 Toggle(isOn: $hidePaidTweaks, label: {
                     Text("Hide Paid Tweaks")
-                }).tintC(.accentColor).onChangeC(of: hidePaidTweaks) { _ in
-                    UserDefaults.standard.set(hidePaidTweaks, forKey: "hidePaidTweaks")
-                }.listRowBG()
+                }).tintC(.accentColor).listRowBG()
                 if !hidePaidTweaks {
                     Toggle(isOn: $usePaymentAPI, label: {
                         Text("Use Payment API")
-                    }).tintC(.accentColor).onChangeC(of: usePaymentAPI) { _ in
-                        UserDefaults.standard.set(usePaymentAPI, forKey: "usePaymentAPI")
-                    }.listRowBG()
+                    }).tintC(.accentColor).listRowBG()
                 }
 #if os(tvOS)
                 Button(action: {

@@ -29,3 +29,25 @@ extension UserDefaults {
     }
 }
 #endif
+
+@propertyWrapper
+struct AppStorageC<Value>: DynamicProperty {
+    let key: String
+    let defaultValue: Value
+
+    init(wrappedValue defaultValue: Value, _ key: String) {
+        self.key = key
+        self.defaultValue = defaultValue
+        self._wrappedValue = State(wrappedValue: UserDefaults.standard.object(forKey: key) as? Value ?? defaultValue)
+    }
+
+    @State var wrappedValue: Value {
+        didSet { UserDefaults.standard.set(wrappedValue, forKey: key) }
+    }
+    var projectedValue: Binding<Value> {
+        return Binding(
+            get: { wrappedValue },
+            set: { wrappedValue = $0 }
+        )
+    }
+}
