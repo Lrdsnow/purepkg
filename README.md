@@ -22,8 +22,8 @@ PurePKG is a customization focused jailbreak package manager for those who want 
 
 ## Getting Started
 
-1. **Compatibility:** Ensure your device is either bootstrapped using roothide or jailbroken using the jailbreak of your choice and is running iOS 13.0+, tvOS 13.0+, MacOS 13.0+, watchOS 8.0+ or visionOS 1.0+
-2. **Installation:** Download PurePKG from the [github releases](https://github.com/Lrdsnow/purepkg/releases/latest) or add the jailbreak repo:
+1. **Compatibility:** Ensure your device is either bootstrapped using roothide or jailbroken using the jailbreak of your choice and is running iOS 14.0+, tvOS 14.0+, MacOS 13.0+, watchOS 8.0+ or visionOS 1.0+
+3. **Installation:** Download PurePKG from the [github releases](https://github.com/Lrdsnow/purepkg/releases/latest) or add the jailbreak repo:
 - [PurePKG](purepkg://addrepo/https://lrdsnow.github.io/purepkg)
 - [Cydia](cydia://url/https://cydia.saurik.com/api/share#?source=https://lrdsnow.github.io/purepkg)
 - [Installer](installer://add/https://lrdsnow.github.io/purepkg)
@@ -38,3 +38,5 @@ PurePKG is a customization focused jailbreak package manager for those who want 
 <a href="https://github.com/Sileo"><img src="https://img.shields.io/static/v1?style=social&message=APT Wrapper&logo=github&logoColor=000000&label=Sileo" /></a>
 
 <a href="https://icons8.com"><img src="https://img.shields.io/static/v1?style=social&message=Plumpy Icons&logo=icons8&logoColor=1FB141&label=icons8" /></a>
+
+- Please note, while purepkg is compatible with iOS 13 and tvOS 13, it is not supported and i will not provide support for these versions
