@@ -20,6 +20,7 @@ permalink: /ios/
 - [Installer](installer://add/https://lrdsnow.github.io/PurePKG)
 - [Sileo](sileo://source/https://lrdsnow.github.io/PurePKG)
 - [Zebra](zbra://sources/add/https://lrdsnow.github.io/PurePKG)
+- [Saily](apt-repo://https://lrdsnow.github.io/purepkg)
 3. Refresh your repos and install PurePKG
 
 ### Via .deb
@@ -37,6 +38,7 @@ permalink: /ios/
 - [Installer](installer://add/https://lrdsnow.github.io/PurePKG)
 - [Sileo](sileo://source/https://lrdsnow.github.io/PurePKG)
 - [Zebra](zbra://sources/add/https://lrdsnow.github.io/PurePKG)
+- [Saily](apt-repo://https://lrdsnow.github.io/purepkg)
 3. Refresh your repos and install PurePKG
 
 ### Via .deb
@@ -53,6 +55,7 @@ permalink: /ios/
 - [Installer](installer://add/https://lrdsnow.github.io/PurePKG)
 - [Sileo](sileo://source/https://lrdsnow.github.io/PurePKG)
 - [Zebra](zbra://sources/add/https://lrdsnow.github.io/PurePKG)
+- [Saily](apt-repo://https://lrdsnow.github.io/purepkg)
 3. Refresh your repos and install PurePKG
 
 ### Via .deb
