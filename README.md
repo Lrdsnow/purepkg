@@ -29,6 +29,7 @@ PurePKG is a customization focused jailbreak package manager for those who want 
 - [Installer](installer://add/https://lrdsnow.github.io/purepkg)
 - [Sileo](sileo://source/https://lrdsnow.github.io/purepkg)
 - [Zebra](zbra://sources/add/https://lrdsnow.github.io/purepkg)
+- [Saily](apt-repo://https://lrdsnow.github.io/purepkg)
 3. **Customize:** Explore the vast array of tweaks, personalize your iOS experience, and make your device truly yours.
 
 ## Credits
